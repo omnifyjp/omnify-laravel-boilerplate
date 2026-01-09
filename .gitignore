@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# SSL Certificates (generated locally)
+docker/nginx/certs/*.pem
+
+# Lock files
+.omnify.lock
+
+# Local config (auto-generated)
+.env
+backend/.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

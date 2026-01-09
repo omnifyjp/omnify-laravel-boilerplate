@@ -1,0 +1,4 @@
+#!/bin/bash
+# Wrapper script to run artisan commands in Docker container
+cd "$(dirname "$0")"
+docker compose exec backend php artisan "$@"

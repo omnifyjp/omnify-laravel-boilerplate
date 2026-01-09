@@ -1,0 +1,14 @@
+{
+    "name": "boilerplate",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "bash docker/scripts/dev.sh",
+        "dev:win": "powershell -ExecutionPolicy Bypass -File docker/scripts/dev.ps1",
+        "omnify": "omnify"
+    },
+    "devDependencies": {
+        "@famgia/omnify-cli": "^0.0.14"
+    }
+}

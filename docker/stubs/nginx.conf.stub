@@ -1,0 +1,168 @@
+worker_processes auto;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    sendfile on;
+    keepalive_timeout 65;
+    client_max_body_size 100M;
+
+    # WebSocket support
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
+
+    # Redirect HTTP to HTTPS
+    server {
+        listen 80;
+        server_name ${DOMAIN} ${API_DOMAIN};
+        return 301 https://$host$request_uri;
+    }
+
+    # Frontend - https://${DOMAIN}
+    server {
+        listen 443 ssl;
+        server_name ${DOMAIN};
+
+        ssl_certificate /etc/nginx/certs/${DOMAIN}.pem;
+        ssl_certificate_key /etc/nginx/certs/${DOMAIN}-key.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        location / {
+            proxy_pass http://host.docker.internal:${FRONTEND_PORT};
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+
+    # Backend API - https://${API_DOMAIN}
+    server {
+        listen 443 ssl;
+        server_name ${API_DOMAIN};
+
+        ssl_certificate /etc/nginx/certs/${DOMAIN}.pem;
+        ssl_certificate_key /etc/nginx/certs/${DOMAIN}-key.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        location / {
+            proxy_pass http://backend:8000;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+    # phpMyAdmin - https://${DOMAIN}:8080
+    server {
+        listen 8080 ssl;
+        server_name ${DOMAIN};
+
+        ssl_certificate /etc/nginx/certs/${DOMAIN}.pem;
+        ssl_certificate_key /etc/nginx/certs/${DOMAIN}-key.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        location / {
+            proxy_pass http://phpmyadmin:80;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+    # Mailpit - https://${DOMAIN}:8025
+    server {
+        listen 8025 ssl;
+        server_name ${DOMAIN};
+
+        ssl_certificate /etc/nginx/certs/${DOMAIN}.pem;
+        ssl_certificate_key /etc/nginx/certs/${DOMAIN}-key.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        location / {
+            proxy_pass http://mailpit:8025;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+    # MinIO S3 API - https://${DOMAIN}:9000
+    server {
+        listen 9000 ssl;
+        server_name ${DOMAIN};
+
+        ssl_certificate /etc/nginx/certs/${DOMAIN}.pem;
+        ssl_certificate_key /etc/nginx/certs/${DOMAIN}-key.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        client_max_body_size 1000M;
+        proxy_buffering off;
+
+        location / {
+            proxy_pass http://minio:9000;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+    # MinIO Console - https://${DOMAIN}:9001
+    server {
+        listen 9001 ssl;
+        server_name ${DOMAIN};
+
+        ssl_certificate /etc/nginx/certs/${DOMAIN}.pem;
+        ssl_certificate_key /etc/nginx/certs/${DOMAIN}-key.pem;
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        location / {
+            proxy_pass http://minio:9001;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-NginX-Proxy true;
+            
+            # WebSocket timeouts
+            proxy_read_timeout 3600s;
+            proxy_send_timeout 3600s;
+        }
+    }
+}

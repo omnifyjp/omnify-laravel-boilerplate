@@ -1,0 +1,9 @@
+properties:
+  name: String
+  email: String unique
+  email_verified_at: Timestamp nullable
+  password: Password
+  remember_token: String(100) nullable
+
+options:
+  softDelete: true

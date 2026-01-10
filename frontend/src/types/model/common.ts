@@ -17,7 +17,8 @@ export interface LocaleMap {
 export type Locale = 'ja' | 'en';
 
 /**
- * Ant Design compatible validation rule.
+ * Validation rule with multi-language messages.
+ * Use get{Model}Rules(locale) to get Ant Design compatible rules.
  */
 export interface ValidationRule {
   required?: boolean;
@@ -26,7 +27,7 @@ export interface ValidationRule {
   max?: number;
   len?: number;
   pattern?: RegExp;
-  message: string;
+  message: LocaleMap;
 }
 
 /**

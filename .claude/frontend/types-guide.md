@@ -4,15 +4,16 @@
 
 ## Type Categories
 
-| Category            | Location             | Generated | Example                  |
-| ------------------- | -------------------- | --------- | ------------------------ |
-| **Model**           | `@/types/model`      | ✅ Omnify  | `User`, `Post`           |
-| **Enum**            | `@/types/model/enum` | ✅ Omnify  | `PostStatus`, `UserRole` |
-| **API Input**       | Service file         | ❌ Manual  | `UserCreateInput`        |
-| **API Params**      | Service file         | ❌ Manual  | `UserListParams`         |
-| **API Response**    | `@/lib/api.ts`       | ❌ Manual  | `PaginatedResponse<T>`   |
-| **Component Props** | Component file       | ❌ Manual  | `UserTableProps`         |
-| **Hook Return**     | Hook file            | ❌ Manual  | Inline or inferred       |
+| Category            | Location             | Generated | Example                       |
+| ------------------- | -------------------- | --------- | ----------------------------- |
+| **Model**           | `@/types/model`      | ✅ Omnify  | `User`, `Post`                |
+| **Create/Update**   | `@/types/model`      | ✅ Omnify  | `UserCreate`, `UserUpdate`    |
+| **Common**          | `@/types/model`      | ✅ Omnify  | `DateTimeString`, `LocaleMap` |
+| **Validation**      | `@/types/model`      | ✅ Omnify  | `getUserRules(locale)`        |
+| **Enum**            | `@/types/model/enum` | ✅ Omnify  | `PostStatus`, `UserRole`      |
+| **API Params**      | Service file         | ❌ Manual  | `UserListParams`              |
+| **API Response**    | `@/lib/api.ts`       | ❌ Manual  | `PaginatedResponse<T>`        |
+| **Component Props** | Component file       | ❌ Manual  | `UserTableProps`              |
 
 ---
 
@@ -24,30 +25,44 @@
 
 ```typescript
 // ✅ Import from @/types/model
-import type { User, Post } from "@/types/model";
+import type { User, UserCreate, UserUpdate } from "@/types/model";
+import type { DateTimeString } from "@/types/model";
+import { getUserRules } from "@/types/model";
 
 // ❌ DON'T define model types manually
-interface User {  // WRONG - already generated
-  id: number;
-  name: string;
-}
+interface User { ... }  // WRONG - already generated
 ```
 
 ### Structure
 
 ```
 src/types/model/
+├── common.ts                ❌ DO NOT EDIT
+│                            # LocaleMap, ValidationRule, DateTimeString
 ├── base/                    ❌ DO NOT EDIT
-│   ├── User.ts              # interface User { id, name, email, ... }
-│   └── Post.ts
+│   └── User.ts              # User + UserCreate + UserUpdate
 ├── rules/                   ❌ DO NOT EDIT
-│   ├── User.rules.ts        # getUserRules(), getUserPropertyDisplayName()
-│   └── Post.rules.ts
-├── enum/                    ❌ DO NOT EDIT
-│   └── PostStatus.ts        # enum PostStatus, getPostStatusLabel()
+│   └── User.rules.ts        # getUserRules(), getUserDisplayName()
+├── enum/                    ❌ DO NOT EDIT (if exists)
+│   └── PostStatus.ts
 ├── index.ts                 ❌ DO NOT EDIT (re-exports)
-├── User.ts                  ✅ CAN EDIT (extension)
-└── Post.ts                  ✅ CAN EDIT (extension)
+└── User.ts                  ✅ CAN EDIT (extension)
+```
+
+### Generated Types Per Model
+
+```typescript
+// Auto-generated in base/User.ts:
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  created_at?: DateTimeString;  // Uses DateTimeString
+  updated_at?: DateTimeString;
+}
+
+type UserCreate = Omit<User, 'id' | 'created_at' | 'updated_at'>;
+type UserUpdate = Partial<UserCreate>;
 ```
 
 ### Extending Model Types
@@ -67,36 +82,69 @@ export interface User extends UserBase {
 
 ---
 
-## 2. API Input Types
+## 2. Using Generated Types
+
+### Create/Update Types
+
+```typescript
+// ✅ Use Omnify-generated types
+import type { User, UserCreate, UserUpdate } from "@/types/model";
+
+const userService = {
+  create: (input: UserCreate) => api.post("/api/users", input),
+  update: (id: number, input: UserUpdate) => api.put(`/api/users/${id}`, input),
+};
+```
+
+### Validation Rules with Locale
+
+```typescript
+import { getUserRules, getUserPropertyDisplayName } from "@/types/model";
+import { useLocale } from "next-intl";
+
+function UserForm() {
+  const locale = useLocale();
+  const rules = getUserRules(locale);  // Returns Ant Design compatible rules
+
+  return (
+    <Form>
+      <Form.Item 
+        name="name" 
+        label={getUserPropertyDisplayName("name", locale)}
+        rules={rules.name}
+      >
+        <Input />
+      </Form.Item>
+    </Form>
+  );
+}
+```
+
+### DateTimeString
+
+```typescript
+import type { DateTimeString } from "@/types/model";
+import { formatDateTime } from "@/lib/dayjs";
+
+interface Event {
+  scheduled_at: DateTimeString;  // ISO 8601 UTC string
+}
+
+// Display
+formatDateTime(event.scheduled_at);  // "2024/01/15 19:30"
+```
+
+---
+
+## 3. API Params Types (Manual)
 
 **Location**: Service file (colocated)
 
-**Naming**: `{Model}CreateInput`, `{Model}UpdateInput`
+**Only define query params (not in Omnify):**
 
 ```typescript
 // services/users.ts
-
-import type { User } from "@/types/model";
-
-// ─────────────────────────────────────────────────────────────────
-// Input Types - Define here (not in types/ folder)
-// ─────────────────────────────────────────────────────────────────
-
-/** Input for creating a user (POST /api/users) */
-export interface UserCreateInput {
-  name: string;
-  email: string;
-  password: string;
-  role?: string;
-}
-
-/** Input for updating a user (PUT /api/users/:id) */
-export interface UserUpdateInput {
-  name?: string;
-  email?: string;
-  password?: string;
-  role?: string;
-}
+import type { User, UserCreate, UserUpdate } from "@/types/model";
 
 /** Query params for listing users (GET /api/users) */
 export interface UserListParams {
@@ -108,42 +156,16 @@ export interface UserListParams {
   sort_order?: "asc" | "desc";
 }
 
-// ─────────────────────────────────────────────────────────────────
-// Service
-// ─────────────────────────────────────────────────────────────────
-
 export const userService = {
   list: (params?: UserListParams) => ...,
-  create: (input: UserCreateInput) => ...,
-  update: (id: number, input: UserUpdateInput) => ...,
+  create: (input: UserCreate) => ...,      // ← Use Omnify type
+  update: (id: number, input: UserUpdate) => ...,  // ← Use Omnify type
 };
 ```
 
-### Why Colocate?
-
-```
-✅ Good: Types next to usage
-services/
-  users.ts          # UserCreateInput + userService
-
-❌ Bad: Types scattered
-types/
-  api/
-    UserCreateInput.ts
-    UserUpdateInput.ts
-    UserListParams.ts
-services/
-  users.ts
-```
-
-**Benefits**:
-- Change API = change one file
-- Easy to find related types
-- No orphan types
-
 ---
 
-## 3. API Response Types
+## 4. API Response Types
 
 **Location**: `src/lib/api.ts`
 

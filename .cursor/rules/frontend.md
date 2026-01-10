@@ -25,15 +25,23 @@ globs: ["frontend/**"]
 
 ```typescript
 // services/users.ts
-import type { User } from "@/types/model";  // Model from Omnify
+import type { User, UserCreate, UserUpdate } from "@/types/model";  // All from Omnify
 
-export interface UserCreateInput { ... }     // Input types - define locally
+export interface UserListParams { ... }  // Only params - define locally
 
 export const userService = {
-  list: (params?) => api.get("/api/users", { params }).then(r => r.data),
-  get: (id) => api.get(`/api/users/${id}`).then(r => r.data.data ?? r.data),
-  create: (input) => api.post("/api/users", input).then(r => r.data.data),
+  list: (params?: UserListParams) => api.get("/api/users", { params }).then(r => r.data),
+  get: (id: number) => api.get(`/api/users/${id}`).then(r => r.data.data ?? r.data),
+  create: (input: UserCreate) => api.post("/api/users", input).then(r => r.data.data),
+  update: (id: number, input: UserUpdate) => api.put(`/api/users/${id}`, input).then(r => r.data.data),
 };
+```
+
+### Validation Rules (from Omnify)
+
+```typescript
+import { getUserRules, getUserPropertyDisplayName } from "@/types/model";
+const rules = getUserRules(locale);  // Ant Design compatible
 ```
 
 ### TanStack Query
@@ -86,13 +94,15 @@ const t = useTranslations();
 ## Types Rule
 
 ```typescript
-// ✅ Use specific types (from service or @/types/model)
-list: (params?: UserListParams) => [...]
-const user: User = ...
+// ✅ Use Omnify-generated types
+import type { User, UserCreate, UserUpdate } from "@/types/model";
+import { getUserRules } from "@/types/model";
 
-// ❌ Don't use generic types when specific exists
-list: (params?: Record<string, unknown>) => [...]
-const user: any = ...
+// ✅ Only define query params locally
+export interface UserListParams { ... }
+
+// ❌ Don't redefine types that Omnify generates
+export interface UserCreateInput { ... }  // WRONG - use UserCreate
 ```
 
 ---

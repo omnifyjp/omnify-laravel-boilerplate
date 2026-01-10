@@ -22,7 +22,10 @@ docker/            → Dockerfiles & scripts
 ## Commands
 
 ```bash
-# Dev server
+# First time setup (Docker, SSL, Backend, Frontend)
+npm run setup
+
+# Dev server (requires setup first)
 npm run dev
 
 # Artisan (runs in Docker)

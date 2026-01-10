@@ -10,6 +10,8 @@ docker/nginx/certs/*.pem
 
 # Lock files
 .omnify.lock
+.omnify/versions/
+.omnify/current.lock
 
 # Local config (auto-generated)
 .env

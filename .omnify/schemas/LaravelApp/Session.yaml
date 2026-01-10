@@ -6,6 +6,7 @@ options:
   id: false
   timestamps: false
   tableName: sessions
+  hidden: true
   indexes:
     - columns: [user_id]
     - columns: [last_activity]

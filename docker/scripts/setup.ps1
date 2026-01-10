@@ -6,6 +6,42 @@
 
 $ErrorActionPreference = "Stop"
 
+# =============================================================================
+# Check required tools
+# =============================================================================
+Write-Host "🔍 Checking required tools..." -ForegroundColor Yellow
+
+# Check Docker
+if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+    Write-Host "❌ Docker is not installed!" -ForegroundColor Red
+    Write-Host "   Please install Docker Desktop: https://www.docker.com/products/docker-desktop" -ForegroundColor Yellow
+    exit 1
+}
+
+$dockerInfo = docker info 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Docker is not running!" -ForegroundColor Red
+    Write-Host "   Please start Docker Desktop and try again." -ForegroundColor Yellow
+    exit 1
+}
+Write-Host "   ✅ Docker" -ForegroundColor Green
+
+# Check Composer (only needed if backend doesn't exist)
+if (-not (Test-Path ".\backend")) {
+    if (-not (Get-Command composer -ErrorAction SilentlyContinue)) {
+        Write-Host "   📦 Installing Composer..." -ForegroundColor Yellow
+        if (Get-Command choco -ErrorAction SilentlyContinue) {
+            choco install composer -y
+        } else {
+            Write-Host "❌ Composer is not installed!" -ForegroundColor Red
+            Write-Host "   Please install Composer: https://getcomposer.org/download/" -ForegroundColor Yellow
+            Write-Host "   Or install Chocolatey first: https://chocolatey.org/" -ForegroundColor Yellow
+            exit 1
+        }
+    }
+    Write-Host "   ✅ Composer" -ForegroundColor Green
+}
+
 # Update @famgia packages to latest
 Write-Host "📦 Updating @famgia packages..." -ForegroundColor Yellow
 npm update @famgia/omnify @famgia/omnify-cli @famgia/omnify-japan

@@ -7,6 +7,57 @@
 
 set -e
 
+# =============================================================================
+# Check required tools
+# =============================================================================
+echo "🔍 Checking required tools..."
+
+# Check Docker
+if ! command -v docker &> /dev/null; then
+    echo "❌ Docker is not installed!"
+    echo "   Please install Docker Desktop: https://www.docker.com/products/docker-desktop"
+    exit 1
+fi
+
+if ! docker info &> /dev/null; then
+    echo "❌ Docker is not running!"
+    echo "   Please start Docker Desktop and try again."
+    exit 1
+fi
+echo "   ✅ Docker"
+
+# Check Composer (only needed if backend doesn't exist)
+if [ ! -d "./backend" ]; then
+    if ! command -v composer &> /dev/null; then
+        echo "   📦 Installing Composer..."
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            brew install composer
+        elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            sudo apt update && sudo apt install -y composer
+        else
+            echo "❌ Composer is not installed!"
+            echo "   Please install Composer: https://getcomposer.org/download/"
+            exit 1
+        fi
+    fi
+    echo "   ✅ Composer"
+fi
+
+# Check envsubst (for nginx.conf generation)
+if ! command -v envsubst &> /dev/null; then
+    echo "   📦 Installing envsubst (gettext)..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install gettext
+        brew link --force gettext
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo apt update && sudo apt install -y gettext
+    else
+        echo "❌ envsubst is not installed!"
+        exit 1
+    fi
+fi
+echo "   ✅ envsubst"
+
 # Update @famgia packages to latest
 echo "📦 Updating @famgia packages..."
 npm update @famgia/omnify @famgia/omnify-cli @famgia/omnify-japan

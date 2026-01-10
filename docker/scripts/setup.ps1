@@ -42,10 +42,23 @@ if (-not (Test-Path ".\backend")) {
     Write-Host "   ✅ Composer" -ForegroundColor Green
 }
 
-# Update @famgia packages to latest
-Write-Host "📦 Updating @famgia packages..." -ForegroundColor Yellow
-npm update @famgia/omnify @famgia/omnify-cli @famgia/omnify-japan
-Write-Host "   ✅ @famgia packages updated" -ForegroundColor Green
+# Check pnpm
+if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+    Write-Host "   📦 Installing pnpm..." -ForegroundColor Yellow
+    npm install -g pnpm
+}
+Write-Host "   ✅ pnpm" -ForegroundColor Green
+
+# Clean node_modules if installed by different package manager
+if ((Test-Path "node_modules") -and (-not (Test-Path "node_modules\.pnpm"))) {
+    Write-Host "🧹 Cleaning node_modules (switching to pnpm)..." -ForegroundColor Yellow
+    Remove-Item -Path "node_modules" -Recurse -Force
+}
+
+# Install/update packages
+Write-Host "📦 Installing packages..." -ForegroundColor Yellow
+pnpm install
+Write-Host "   ✅ Packages installed" -ForegroundColor Green
 
 # Run Omnify postinstall (generate .claude docs)
 Write-Host "📝 Generating Omnify docs..." -ForegroundColor Yellow
@@ -137,17 +150,24 @@ if (-not (Test-Path ".\backend")) {
     composer create-project laravel/laravel backend --prefer-dist --no-interaction
     
     Push-Location .\backend
-    
+
+    # Install API with Sanctum (Laravel 11+)
     php artisan install:api --no-interaction 2>$null
-    
+    Write-Host "   ✅ Sanctum installed" -ForegroundColor Green
+
+    # Install Pest for testing
+    Write-Host "   📦 Installing Pest..." -ForegroundColor Yellow
+    composer require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction
+    Write-Host "   ✅ Pest installed" -ForegroundColor Green
+
     # Remove frontend stuff
     Remove-Item -Path "resources\js", "resources\css", "public\build" -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -Path "vite.config.js", "package.json", "package-lock.json", "postcss.config.js", "tailwind.config.js" -Force -ErrorAction SilentlyContinue
     Remove-Item -Path "node_modules" -Recurse -Force -ErrorAction SilentlyContinue
-    
+
     # Remove default Laravel migrations
     Remove-Item -Path "database\migrations\*.php" -Force -ErrorAction SilentlyContinue
-    
+
     Pop-Location
     
     # Generate Omnify migrations
@@ -273,7 +293,7 @@ if (-not (Test-Path ".\frontend\package.json")) {
         --app `
         --src-dir `
         --import-alias "@/*" `
-        --use-npm `
+        --use-pnpm `
         --turbopack `
         --no-react-compiler
     
@@ -316,7 +336,7 @@ NEXT_PUBLIC_API_URL=https://$API_DOMAIN
         Write-Host ""
         Write-Host "📦 Installing frontend dependencies..." -ForegroundColor Yellow
         Push-Location .\frontend
-        npm install
+        pnpm install
         Pop-Location
     }
 }
@@ -340,5 +360,5 @@ Write-Host "  SMTP: mailpit:1025 (no auth)" -ForegroundColor Gray
 Write-Host "  S3: minio:9000 (minioadmin/minioadmin)" -ForegroundColor Gray
 Write-Host ""
 Write-Host "---------------------------------------------" -ForegroundColor DarkGray
-Write-Host "Run 'npm run dev:win' to start frontend server" -ForegroundColor Yellow
+Write-Host "Run 'pnpm dev' to start frontend server" -ForegroundColor Yellow
 Write-Host "---------------------------------------------" -ForegroundColor DarkGray

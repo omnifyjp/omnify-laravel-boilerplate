@@ -58,10 +58,23 @@ if ! command -v envsubst &> /dev/null; then
 fi
 echo "   ✅ envsubst"
 
-# Update @famgia packages to latest
-echo "📦 Updating @famgia packages..."
-npm update @famgia/omnify @famgia/omnify-cli @famgia/omnify-japan
-echo "   ✅ @famgia packages updated"
+# Check pnpm
+if ! command -v pnpm &> /dev/null; then
+    echo "   📦 Installing pnpm..."
+    npm install -g pnpm
+fi
+echo "   ✅ pnpm"
+
+# Clean node_modules if installed by different package manager
+if [ -d "node_modules" ] && [ ! -d "node_modules/.pnpm" ]; then
+    echo "🧹 Cleaning node_modules (switching to pnpm)..."
+    rm -rf node_modules
+fi
+
+# Install/update packages
+echo "📦 Installing packages..."
+pnpm install
+echo "   ✅ Packages installed"
 
 # Run Omnify postinstall (generate .claude docs)
 echo "📝 Generating Omnify docs..."
@@ -165,18 +178,24 @@ if [ ! -d "./backend" ]; then
     composer create-project laravel/laravel backend --prefer-dist --no-interaction
     
     cd backend
-    
-    # Install API (Laravel 11+)
+
+    # Install API with Sanctum (Laravel 11+)
     php artisan install:api --no-interaction 2>/dev/null || true
-    
+    echo "   ✅ Sanctum installed"
+
+    # Install Pest for testing
+    echo "   📦 Installing Pest..."
+    composer require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction
+    echo "   ✅ Pest installed"
+
     # Remove frontend stuff
     rm -rf resources/js resources/css public/build
     rm -f vite.config.js package.json package-lock.json postcss.config.js tailwind.config.js
     rm -rf node_modules
-    
+
     # Remove default Laravel migrations (Omnify will generate them)
     rm -f database/migrations/*.php
-    
+
     cd ..
     
     # Generate Omnify migrations
@@ -300,7 +319,7 @@ if [ ! -f "./frontend/package.json" ]; then
         --app \
         --src-dir \
         --import-alias "@/*" \
-        --use-npm \
+        --use-pnpm \
         --turbopack \
         --no-react-compiler
     
@@ -352,7 +371,7 @@ EOF
     if [ ! -d "./frontend/node_modules" ]; then
         echo ""
         echo "📦 Installing frontend dependencies..."
-        cd frontend && npm install && cd ..
+        cd frontend && pnpm install && cd ..
     fi
 fi
 
@@ -375,5 +394,5 @@ echo "  SMTP: mailpit:1025 (no auth)"
 echo "  S3: minio:9000 (minioadmin/minioadmin)"
 echo ""
 echo "---------------------------------------------"
-echo "Run 'npm run dev' to start frontend server"
+echo "Run 'pnpm dev' to start frontend server"
 echo "---------------------------------------------"

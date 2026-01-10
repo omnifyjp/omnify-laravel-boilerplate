@@ -28,7 +28,7 @@ API_DOMAIN="api.${PROJECT_NAME}.app"
 
 # Check if setup is needed
 if [ ! -d "./backend" ] || [ ! -f "./frontend/package.json" ]; then
-    echo "❌ Setup required. Run 'npm run setup' first."
+    echo "❌ Setup required. Run 'pnpm setup' first."
     exit 1
 fi
 
@@ -89,4 +89,4 @@ echo "---------------------------------------------"
 echo ""
 
 # Start frontend dev server (foreground)
-cd frontend && npm run dev -- -p ${FRONTEND_PORT}
+cd frontend && pnpm dev -- -p ${FRONTEND_PORT}

@@ -27,7 +27,6 @@
         ]
     },
     "scripts": {
-        "postinstall": "node node_modules/@famgia/omnify/scripts/postinstall.js 2>/dev/null || true",
         "setup": "node -e \"require('child_process').execSync(process.platform==='win32'?'powershell -ExecutionPolicy Bypass -File docker/scripts/setup.ps1':'bash docker/scripts/setup.sh',{stdio:'inherit'})\"",
         "dev": "node -e \"require('child_process').execSync(process.platform==='win32'?'powershell -ExecutionPolicy Bypass -File docker/scripts/dev.ps1':'bash docker/scripts/dev.sh',{stdio:'inherit'})\""
     },

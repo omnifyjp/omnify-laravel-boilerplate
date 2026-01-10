@@ -6,8 +6,15 @@
 
 $ErrorActionPreference = "Stop"
 
-# Run Omnify postinstall (generate docs)
+# Update @famgia packages to latest
+Write-Host "📦 Updating @famgia packages..." -ForegroundColor Yellow
+npm update @famgia/omnify @famgia/omnify-cli @famgia/omnify-japan
+Write-Host "   ✅ @famgia packages updated" -ForegroundColor Green
+
+# Run Omnify postinstall (generate .claude docs)
+Write-Host "📝 Generating Omnify docs..." -ForegroundColor Yellow
 node node_modules/@famgia/omnify/scripts/postinstall.js 2>$null
+Write-Host "   ✅ Omnify docs generated" -ForegroundColor Green
 
 # Project name = folder name
 $PROJECT_NAME = Split-Path -Leaf (Get-Location)

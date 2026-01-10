@@ -7,8 +7,15 @@
 
 set -e
 
-# Run Omnify postinstall (generate docs)
+# Update @famgia packages to latest
+echo "📦 Updating @famgia packages..."
+npm update @famgia/omnify @famgia/omnify-cli @famgia/omnify-japan
+echo "   ✅ @famgia packages updated"
+
+# Run Omnify postinstall (generate .claude docs)
+echo "📝 Generating Omnify docs..."
 node node_modules/@famgia/omnify/scripts/postinstall.js 2>/dev/null || true
+echo "   ✅ Omnify docs generated"
 
 # Project name = folder name
 PROJECT_NAME=$(basename "$(pwd)")

@@ -8,7 +8,10 @@
         "dev:win": "powershell -ExecutionPolicy Bypass -File docker/scripts/dev.ps1",
         "omnify": "omnify"
     },
+    "dependencies": {
+        "@famgia/omnify": "^1.0.23"
+    },
     "devDependencies": {
-        "@famgia/omnify-cli": "^0.0.14"
+        "@types/node": "^25.0.4"
     }
 }

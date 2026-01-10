@@ -1,14 +1,39 @@
-version: 1
-timestamp: "2026-01-09T16:28:15.673Z"
-driver: sqlite
-migration: 1 migration(s)
-description: Generated 1 change(s)
-changes:
-  - action: schema_added
-    schema: User
+version: 9
+timestamp: "2026-01-10T01:34:59.976Z"
+driver: mysql
+description: Generated 0 change(s)
+changes: []
 snapshot:
   User:
     name: User
     kind: object
+    properties:
+      name:
+        type: String
+        displayName:
+          ja: 名前
+          en: Name
+      email:
+        type: String
+        displayName:
+          ja: メールアドレス
+          en: Email
+        unique: true
+      email_verified_at:
+        type: DateTime
+        displayName:
+          ja: メール確認日時
+          en: Email Verified At
+      password:
+        type: String
+        displayName:
+          ja: パスワード
+          en: Password
+      remember_token:
+        type: String
+        displayName:
+          ja: リメンバートークン
+          en: Remember Token
     options:
+      timestamps: true
       softDelete: true

@@ -82,3 +82,17 @@ Endpoint: http://minio:9000 | Key: minioadmin | Secret: minioadmin | Bucket: loc
 - Do NOT run `git commit` without asking
 - Do NOT run code/tests automatically
 - Use `./artisan` and `./composer` wrappers (PHP 8.4 in Docker)
+
+---
+
+## Omnify Schema Integration
+
+This project uses **Omnify** for schema-driven code generation.
+
+For detailed Omnify documentation, see:
+- `.claude/omnify/schema-guide.md` - Complete schema format guide
+- `.claude/omnify/examples.md` - Example schemas
+
+### Quick Commands
+- `npx omnify generate` - Generate code from schemas
+- `npx omnify validate` - Validate all schemas

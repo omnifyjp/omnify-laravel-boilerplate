@@ -4,12 +4,12 @@ Full-stack boilerplate with Laravel backend and Next.js frontend.
 
 ## Tech Stack
 
-| Layer    | Technology                                                             |
-| -------- | ---------------------------------------------------------------------- |
-| Backend  | Laravel 12, PHP 8.4, MySQL 8                                           |
-| Frontend | Next.js 16, TypeScript                                                 |
+| Layer    | Technology                    |
+| -------- | ----------------------------- |
+| Backend  | Laravel 12, PHP 8.4, MySQL 8  |
+| Frontend | Next.js 16, TypeScript        |
 | Schema   | [@famgia/omnify-cli](https://www.npmjs.com/package/@famgia/omnify-cli) |
-| Dev      | Docker, mkcert (SSL)                                                   |
+| Dev      | Docker, Herd (optional)       |
 
 ## Quick Start
 
@@ -23,46 +23,27 @@ npm install
 npm run dev
 ```
 
-On first run:
-- **Project name** = folder name (automatic)
-- **Frontend port** = auto-detected to avoid conflicts
+On first run, you'll be prompted for:
+- **Project name** (defaults to folder name)
+- Ports are auto-detected to avoid conflicts
 
 ## Development URLs
 
 Domain is based on your folder name (`{folder}` = `basename $(pwd)`):
 
-| Service    | URL                         |
-| ---------- | --------------------------- |
-| Frontend   | `https://{folder}.app`      |
-| API        | `https://api.{folder}.app`  |
-| phpMyAdmin | `https://{folder}.app:8080` |
-| Mailpit    | `https://{folder}.app:8025` |
-| MinIO      | `https://{folder}.app:9001` |
+| Service    | With Herd           | Without Herd       |
+| ---------- | ------------------- | ------------------ |
+| Frontend   | `{folder}.test`     | `{folder}.app`     |
+| API        | `api.{folder}.test` | `api.{folder}.app` |
+| phpMyAdmin | `pma.{folder}.test` | `pma.{folder}.app` |
 
 ## Database
 
 ```
-Host: mysql (Docker)
+Host: mysql (Docker) / 127.0.0.1:3306 (local)
 Database: omnify
 Username: omnify
 Password: secret
-```
-
-## SMTP (Mailpit)
-
-```
-Host: mailpit
-Port: 1025
-Auth: none
-```
-
-## S3 Storage (MinIO)
-
-```
-Endpoint: http://minio:9000
-Access Key: minioadmin
-Secret Key: minioadmin
-Bucket: local
 ```
 
 ## Commands
@@ -98,6 +79,7 @@ npx omnify validate   # Validate schemas
 │   ├── nginx/            # Nginx + SSL certs
 │   └── scripts/          # Dev scripts
 ├── docker-compose.yml
+├── .env                  # Auto-generated (project name + ports)
 └── omnify.config.ts      # Omnify configuration
 ```
 
@@ -105,9 +87,8 @@ npx omnify validate   # Validate schemas
 
 ### Development Environment
 
-- Uses Docker Nginx + mkcert for `.app` domains with SSL
-- First run sets up SSL certificates and `/etc/hosts` automatically
-- Requires `sudo` once for hosts file modification
+1. **With Herd (macOS)**: Uses Herd's built-in Nginx + SSL for `.test` domains
+2. **Without Herd**: Uses Docker Nginx + mkcert for `.app` domains
 
 ### Schema-Driven Development
 

@@ -1,28 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Allow cross-origin requests from *.app domains
-  allowedDevOrigins: ["*.app"],
-
-  // Turbopack config
-  turbopack: {
-    root: process.cwd(),
+  // Enable hot reload in Docker
+  webpack: (config) => {
+    config.watchOptions = {
+      poll: 1000,
+      aggregateTimeout: 300,
+    };
+    return config;
   },
-
-  // Environment variables exposed to the browser
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  },
-
-  // Image optimization
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**.app",
-      },
-    ],
-  },
+  // Silence Turbopack warning (Next.js 16+)
+  turbopack: {},
 };
 
 export default nextConfig;

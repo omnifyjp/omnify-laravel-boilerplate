@@ -1,0 +1,27 @@
+# User Schema
+displayName: User
+group: auth
+
+options:
+  authenticatable: true
+  softDelete: true
+
+properties:
+  name:
+    type: String
+
+  email:
+    type: String
+    unique: true
+
+  email_verified_at:
+    type: Timestamp
+    nullable: true
+
+  password:
+    type: Password
+
+  remember_token:
+    type: String
+    length: 100
+    nullable: true

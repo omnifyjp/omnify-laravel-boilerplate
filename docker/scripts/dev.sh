@@ -60,6 +60,18 @@ if [ ! -d "./backend" ]; then
     npx omnify reset -y && npx omnify generate
     echo "   ✅ Omnify migrations generated"
     
+    # Register OmnifyServiceProvider
+    echo "📝 Registering OmnifyServiceProvider..."
+    cat > ./backend/bootstrap/providers.php << 'EOF'
+<?php
+
+return [
+    App\Providers\AppServiceProvider::class,
+    App\Providers\OmnifyServiceProvider::class,
+];
+EOF
+    echo "   ✅ OmnifyServiceProvider registered"
+    
     echo "   ✅ Laravel API project created"
     GENERATE_KEY=true
 fi
@@ -216,7 +228,7 @@ if [ "$GENERATE_KEY" = true ]; then
     
     # Run migrations
     echo "🗄️  Running migrations..."
-    docker compose exec -T backend php artisan migrate --force
+    docker compose exec -T backend php artisan migrate:fresh --force
     echo "   ✅ Migrations completed"
 fi
 
@@ -230,7 +242,8 @@ echo "   ✅ MinIO bucket 'local' ready"
 # =============================================================================
 # Setup frontend (create Next.js if not exists)
 # =============================================================================
-if [ ! -d "./frontend" ]; then
+if [ ! -f "./frontend/package.json" ]; then
+    rm -rf ./frontend 2>/dev/null
     echo ""
     echo "🚀 Creating Next.js project..."
     npx --yes create-next-app@latest frontend \

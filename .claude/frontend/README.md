@@ -41,30 +41,36 @@ frontend/src/
 │               ├── page.tsx    # GET    /users/:id  (Show)
 │               └── edit/page.tsx # PUT  /users/:id  (Edit)
 │
-├── components/                 # Reusable UI Components
-│   ├── providers/              # Context Providers
-│   │   └── AntdThemeProvider.tsx
-│   ├── layouts/                # Layout Components
+├── features/                   # Feature-specific components & hooks
+│   ├── users/                  # User feature
+│   │   ├── UserTable.tsx       # Only used in users feature
+│   │   ├── UserForm.tsx
+│   │   └── useUserFilters.ts   # Feature-specific hook
+│   └── posts/
+│       ├── PostCard.tsx
+│       └── PostEditor.tsx
+│
+├── components/                 # SHARED components (2+ features)
+│   ├── layouts/                # Layout wrappers
 │   │   ├── DashboardLayout.tsx
 │   │   └── AuthLayout.tsx
-│   ├── forms/                  # Form Components
-│   │   └── UserForm.tsx
-│   └── common/                 # Shared Components
-│       ├── DataTable.tsx
+│   └── common/                 # Reusable UI
+│       ├── DataTable.tsx       # Generic table
 │       └── PageHeader.tsx
 │
-├── lib/                        # Core Infrastructure (Centralized configs)
+├── services/                   # API Service Layer (ALWAYS here)
+│   ├── auth.ts                 # POST /login, /logout, /register
+│   └── users.ts                # CRUD /api/users
+│
+├── hooks/                      # SHARED hooks (2+ features)
+│   ├── useAuth.ts              # App-wide auth
+│   └── useDebounce.ts          # Utility hook
+│
+├── lib/                        # Core Infrastructure
 │   ├── api.ts                  # Axios instance + interceptors
 │   ├── query.tsx               # QueryClient provider
 │   ├── queryKeys.ts            # Query key factory
 │   └── dayjs.ts                # Day.js config + utilities
-│
-├── services/                   # API Service Layer
-│   ├── auth.ts                 # POST /login, /logout, /register
-│   └── users.ts                # CRUD /api/users
-│
-├── hooks/                      # Custom React Hooks
-│   └── useAuth.ts              # Auth state management
 │
 ├── i18n/                       # Internationalization
 │   ├── config.ts               # Locales config
@@ -76,6 +82,93 @@ frontend/src/
 │
 └── types/                      # TypeScript Types
     └── model/                  # Omnify auto-generated types
+```
+
+---
+
+## When to Use Which Folder
+
+### Decision Rules
+
+| Question                             | Answer      | Location              |
+| ------------------------------------ | ----------- | --------------------- |
+| Component used in how many features? | 1 feature   | `features/{feature}/` |
+| Component used in how many features? | 2+ features | `components/common/`  |
+| Is it a layout wrapper?              | Yes         | `components/layouts/` |
+| Is it a service (API calls)?         | Yes         | `services/` (ALWAYS)  |
+| Hook used in how many features?      | 1 feature   | `features/{feature}/` |
+| Hook used in how many features?      | 2+ features | `hooks/`              |
+
+### Flowchart
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   NEW COMPONENT                         │
+└─────────────────────┬───────────────────────────────────┘
+                      │
+          Used in how many features?
+                      │
+        ┌─────────────┴─────────────┐
+        │                           │
+    1 feature                   2+ features
+        │                           │
+        ▼                           ▼
+features/{feature}/         components/common/
+   UserTable.tsx               DataTable.tsx
+```
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     NEW HOOK                            │
+└─────────────────────┬───────────────────────────────────┘
+                      │
+          Used in how many features?
+                      │
+        ┌─────────────┴─────────────┐
+        │                           │
+    1 feature                   2+ features
+        │                           │
+        ▼                           ▼
+features/{feature}/              hooks/
+  useUserFilters.ts           useDebounce.ts
+```
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    NEW SERVICE                          │
+└─────────────────────┬───────────────────────────────────┘
+                      │
+                  ALWAYS
+                      │
+                      ▼
+                 services/
+                 users.ts
+```
+
+### Examples
+
+```typescript
+// ❌ WRONG: Service in features folder
+features/users/services/users.ts
+
+// ✅ CORRECT: Service always centralized
+services/users.ts
+```
+
+```typescript
+// ❌ WRONG: Feature-specific component in components/
+components/users/UserTable.tsx  // Only used in users feature
+
+// ✅ CORRECT: Feature-specific in features/
+features/users/UserTable.tsx
+```
+
+```typescript
+// ❌ WRONG: Shared component in features/
+features/users/DataTable.tsx  // Used in users AND posts
+
+// ✅ CORRECT: Shared in components/
+components/common/DataTable.tsx
 ```
 
 ---

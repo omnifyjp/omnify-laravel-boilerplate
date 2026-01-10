@@ -149,13 +149,37 @@ queryFn: () => axios.get("/api/users")
 
 ---
 
+## File Location Rules
+
+```
+Component used in 1 feature?  → features/{feature}/
+Component used in 2+ features? → components/common/
+Service (API calls)?           → services/ (ALWAYS)
+Hook used in 1 feature?        → features/{feature}/
+Hook used in 2+ features?      → hooks/
+```
+
+```typescript
+// ❌ WRONG
+features/users/services/users.ts     // Service in features
+components/users/UserTable.tsx       // Feature-specific in components
+
+// ✅ CORRECT
+services/users.ts                    // Service always centralized
+features/users/UserTable.tsx         // Feature-specific in features
+components/common/DataTable.tsx      // Shared in components
+```
+
+---
+
 ## Checklists
 
 ### New Resource
 1. `services/{resource}.ts` - Service with CRUD
 2. `lib/queryKeys.ts` - Add query keys
-3. Pages: List, Create, Detail, Edit
-4. Run `npm run typecheck && npm run lint`
+3. `features/{resource}/` - Feature components
+4. Pages: List, Create, Detail, Edit
+5. Run `npm run typecheck && npm run lint`
 
 ### New Language
 1. Create `src/i18n/messages/{locale}.json`

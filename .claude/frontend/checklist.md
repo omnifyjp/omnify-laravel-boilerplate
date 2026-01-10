@@ -23,14 +23,14 @@ npm run typecheck && npm run lint
 
 When adding a new resource (e.g., `posts`), follow these steps:
 
-### 1. Service Layer
+### 1. Service Layer (Always in `services/`)
 
 ```bash
 # Create: services/posts.ts
 ```
 
-- [ ] Import Model type from `@/types/model` (if exists)
-- [ ] Define Input interfaces (`PostCreateInput`, `PostUpdateInput`, `PostListParams`)
+- [ ] Import types: `import type { Post, PostCreate, PostUpdate } from "@/types/model"`
+- [ ] Define only `PostListParams` (Create/Update come from Omnify)
 - [ ] Create `postService` object with CRUD methods
 - [ ] Add JSDoc comments for each method
 
@@ -41,7 +41,6 @@ When adding a new resource (e.g., `posts`), follow these steps:
 ```
 
 - [ ] Add `posts` object to `queryKeys`
-- [ ] Include `all`, `lists`, `list`, `details`, `detail` keys
 
 ```typescript
 posts: {
@@ -53,28 +52,36 @@ posts: {
 },
 ```
 
-### 3. Pages
+### 3. Feature Components (in `features/posts/`)
+
+```bash
+# Create: features/posts/
+```
+
+- [ ] `PostTable.tsx` - Table component
+- [ ] `PostForm.tsx` - Form component
+- [ ] `usePostFilters.ts` - Feature-specific hooks (if needed)
+
+### 4. Pages
 
 ```bash
 # Create pages in app/(dashboard)/posts/
 ```
 
-- [ ] `page.tsx` - List page with table
+- [ ] `page.tsx` - List page (imports from `features/posts/`)
 - [ ] `new/page.tsx` - Create form
 - [ ] `[id]/page.tsx` - Detail view
 - [ ] `[id]/edit/page.tsx` - Edit form
 
-### 4. Optional Components
+### 5. Shared Components (only if reused)
 
-- [ ] `components/forms/PostForm.tsx` - If form is reused
-- [ ] `components/tables/PostTable.tsx` - If table is complex
-- [ ] `hooks/usePosts.ts` - If logic is complex/reusable
+- [ ] If component used in 2+ features → move to `components/common/`
 
-### 5. Translations
+### 6. Translations
 
 - [ ] Add labels to `src/i18n/messages/*.json` if needed
 
-### 6. Final Check
+### 7. Final Check
 
 - [ ] Run `npm run typecheck && npm run lint`
 - [ ] Test create, read, update, delete operations

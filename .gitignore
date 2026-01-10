@@ -18,6 +18,10 @@ backend/.env
 # IDE
 .idea/
 .vscode/
+
+# Omnify auto-generated docs
+.cursor/rules/omnify.md
+.claude/omnify/
 *.swp
 *.swo
 

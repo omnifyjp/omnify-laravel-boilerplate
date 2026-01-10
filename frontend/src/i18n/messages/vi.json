@@ -1,0 +1,64 @@
+{
+  "common": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "create": "Tạo mới",
+    "search": "Tìm kiếm",
+    "loading": "Đang tải...",
+    "noData": "Không có dữ liệu",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước đó",
+    "submit": "Gửi",
+    "reset": "Đặt lại",
+    "close": "Đóng",
+    "yes": "Có",
+    "no": "Không"
+  },
+  "messages": {
+    "created": "Tạo thành công",
+    "updated": "Cập nhật thành công",
+    "deleted": "Xóa thành công",
+    "saved": "Lưu thành công",
+    "error": "Đã xảy ra lỗi",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa?",
+    "networkError": "Lỗi kết nối mạng",
+    "serverError": "Lỗi máy chủ",
+    "unauthorized": "Vui lòng đăng nhập",
+    "forbidden": "Bạn không có quyền truy cập",
+    "notFound": "Không tìm thấy dữ liệu",
+    "sessionExpired": "Phiên đã hết hạn. Vui lòng tải lại trang",
+    "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng đợi"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "register": "Đăng ký",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "passwordConfirm": "Xác nhận mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "resetPassword": "Đặt lại mật khẩu",
+    "loginSuccess": "Đăng nhập thành công",
+    "logoutSuccess": "Đăng xuất thành công",
+    "registerSuccess": "Đăng ký thành công"
+  },
+  "validation": {
+    "required": "{field} là bắt buộc",
+    "email": "Vui lòng nhập email hợp lệ",
+    "minLength": "{field} phải có ít nhất {min} ký tự",
+    "maxLength": "{field} không được quá {max} ký tự",
+    "passwordMatch": "Mật khẩu không khớp"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "dashboard": "Bảng điều khiển",
+    "users": "Người dùng",
+    "settings": "Cài đặt",
+    "profile": "Hồ sơ"
+  }
+}

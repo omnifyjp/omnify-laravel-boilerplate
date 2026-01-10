@@ -1,10 +1,14 @@
 # Auto-generated projects
 backend/
-frontend/
 
 # Dependencies
 node_modules/
 vendor/
+
+# Frontend build
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
 
 # SSL Certificates (generated locally)
 docker/nginx/certs/*.pem

@@ -324,6 +324,13 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 "@ | Out-File -FilePath ".\frontend\next.config.ts" -Encoding UTF8
 
+    # Install Ant Design
+    Write-Host "   📦 Installing Ant Design..." -ForegroundColor Yellow
+    Push-Location .\frontend
+    npm install antd @ant-design/nextjs-registry @ant-design/icons
+    Pop-Location
+    Write-Host "   ✅ Ant Design installed" -ForegroundColor Green
+
     @"
 NEXT_PUBLIC_API_URL=https://$API_DOMAIN
 "@ | Out-File -FilePath ".\frontend\.env.local" -Encoding UTF8

@@ -79,6 +79,9 @@ echo ""
 echo "🐳 Starting Docker services..."
 docker compose up -d mysql phpmyadmin mailpit minio backend nginx
 
+# Restart nginx to pick up new config (port may have changed)
+docker compose restart nginx >/dev/null 2>&1 || true
+
 # =============================================================================
 # Step 4: Update frontend .env.local
 # =============================================================================

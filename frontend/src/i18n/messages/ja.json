@@ -1,0 +1,64 @@
+{
+  "common": {
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "create": "新規作成",
+    "search": "検索",
+    "loading": "読み込み中...",
+    "noData": "データがありません",
+    "confirm": "確認",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "submit": "送信",
+    "reset": "リセット",
+    "close": "閉じる",
+    "yes": "はい",
+    "no": "いいえ"
+  },
+  "messages": {
+    "created": "作成しました",
+    "updated": "更新しました",
+    "deleted": "削除しました",
+    "saved": "保存しました",
+    "error": "エラーが発生しました",
+    "confirmDelete": "本当に削除しますか？",
+    "networkError": "ネットワークエラーが発生しました",
+    "serverError": "サーバーエラーが発生しました",
+    "unauthorized": "ログインしてください",
+    "forbidden": "アクセス権限がありません",
+    "notFound": "データが見つかりません",
+    "sessionExpired": "セッションが切れました。ページを更新してください",
+    "tooManyRequests": "リクエストが多すぎます。しばらく待ってください"
+  },
+  "auth": {
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "register": "新規登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "passwordConfirm": "パスワード（確認）",
+    "rememberMe": "ログイン状態を保持",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "resetPassword": "パスワードリセット",
+    "loginSuccess": "ログインしました",
+    "logoutSuccess": "ログアウトしました",
+    "registerSuccess": "登録が完了しました"
+  },
+  "validation": {
+    "required": "{field}は必須です",
+    "email": "有効なメールアドレスを入力してください",
+    "minLength": "{field}は{min}文字以上で入力してください",
+    "maxLength": "{field}は{max}文字以内で入力してください",
+    "passwordMatch": "パスワードが一致しません"
+  },
+  "nav": {
+    "home": "ホーム",
+    "dashboard": "ダッシュボード",
+    "users": "ユーザー",
+    "settings": "設定",
+    "profile": "プロフィール"
+  }
+}

@@ -362,6 +362,11 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 EOF
 
+    # Install Ant Design
+    echo "   📦 Installing Ant Design..."
+    cd frontend && npm install antd @ant-design/nextjs-registry @ant-design/icons && cd ..
+    echo "   ✅ Ant Design installed"
+
     # Create frontend .env.local
     cat > ./frontend/.env.local << EOF
 NEXT_PUBLIC_API_URL=https://${API_DOMAIN}

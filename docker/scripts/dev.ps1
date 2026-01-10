@@ -69,6 +69,9 @@ Write-Host ""
 Write-Host "🐳 Starting Docker services..." -ForegroundColor Yellow
 docker compose up -d mysql phpmyadmin mailpit minio backend nginx
 
+# Restart nginx to pick up new config (port may have changed)
+docker compose restart nginx 2>$null
+
 # =============================================================================
 # Step 3: Update frontend .env.local
 # =============================================================================

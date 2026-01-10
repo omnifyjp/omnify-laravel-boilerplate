@@ -5,7 +5,6 @@ displayName:
 options:
   timestamps: true
   tableName: personal_access_tokens
-  hidden: true
   indexes:
     - columns: [expires_at]
 properties:

@@ -6,8 +6,9 @@ This guide covers TypeScript-specific features and generated code patterns for O
 
 When you run `npx omnify generate`, the following TypeScript files are generated:
 
-- `types/omnify-types.ts` - All type definitions
-- `types/enums.ts` - Enum types and helpers
+- `base/*.ts` - Base model interfaces
+- `enum/*.ts` - Enum types with multi-locale labels
+- `rules/*.ts` - Ant Design compatible validation rules
 
 ## Type Generation
 
@@ -50,10 +51,14 @@ export interface User {
 | Schema Type | TypeScript Type |
 |-------------|-----------------|
 | `String` | `string` |
+| `Text` | `string` |
+| `MediumText` | `string` |
 | `LongText` | `string` |
+| `TinyInt` | `number` |
 | `Int` | `number` |
 | `BigInt` | `number` |
 | `Float` | `number` |
+| `Decimal` | `number` |
 | `Boolean` | `boolean` |
 | `Date` | `Date` |
 | `DateTime` | `Date` |
@@ -61,16 +66,25 @@ export interface User {
 | `EnumRef` | Generated enum type |
 | `Association` | Related model type / array |
 
-## Enum Generation
+## Enum Generation (Multi-locale)
 
 ```yaml
 # schemas/PostStatus.yaml
 name: PostStatus
 kind: enum
+displayName:
+  ja: 投稿ステータス
+  en: Post Status
 values:
-  draft: 下書き
-  published: 公開済み
-  archived: アーカイブ
+  draft:
+    ja: 下書き
+    en: Draft
+  published:
+    ja: 公開済み
+    en: Published
+  archived:
+    ja: アーカイブ
+    en: Archived
 ```
 
 Generated:
@@ -83,23 +97,45 @@ export const PostStatus = {
 
 export type PostStatus = typeof PostStatus[keyof typeof PostStatus];
 
+// Multi-locale labels
+export const PostStatusLabels: Record<PostStatus, Record<string, string>> = {
+  draft: { ja: '下書き', en: 'Draft' },
+  published: { ja: '公開済み', en: 'Published' },
+  archived: { ja: 'アーカイブ', en: 'Archived' },
+};
+
+// Get label for specific locale
+export function getPostStatusLabel(value: PostStatus, locale: string = 'en'): string {
+  return PostStatusLabels[value]?.[locale] ?? PostStatusLabels[value]?.['en'] ?? value;
+}
+
 // Helper functions
 export const PostStatusValues = Object.values(PostStatus);
-export const PostStatusKeys = Object.keys(PostStatus) as (keyof typeof PostStatus)[];
-
 export function isPostStatus(value: unknown): value is PostStatus {
   return PostStatusValues.includes(value as PostStatus);
 }
+```
 
-// Display names for UI
-export const PostStatusDisplayNames: Record<PostStatus, string> = {
-  draft: '下書き',
-  published: '公開済み',
-  archived: 'アーカイブ',
-};
+## Validation Rules (Ant Design)
 
-export function getPostStatusDisplayName(value: PostStatus): string {
-  return PostStatusDisplayNames[value];
+Omnify generates Ant Design compatible validation rules in `rules/` directory.
+
+**See detailed guide:** `.claude/omnify/antdesign-guide.md`
+
+Quick example:
+```tsx
+import { Form, Input } from 'antd';
+import { getUserRules, getUserPropertyDisplayName } from './types/model/rules/User.rules';
+
+function UserForm({ locale = 'ja' }) {
+  const rules = getUserRules(locale);
+  return (
+    <Form>
+      <Form.Item name="name" label={getUserPropertyDisplayName('name', locale)} rules={rules.name}>
+        <Input />
+      </Form.Item>
+    </Form>
+  );
 }
 ```
 
@@ -194,27 +230,29 @@ function handleStatus(value: unknown) {
 
 ```bash
 # Generate TypeScript types
-npx omnify generate --typescript
+npx omnify generate
 
-# Generate to specific output
-npx omnify generate --typescript --output ./src/types
-
-# Watch for changes
-npx omnify watch --typescript
+# Force regenerate all files
+npx omnify generate --force
 ```
 
 ## Configuration
 
-```javascript
-// omnify.config.js
-export default {
+```typescript
+// omnify.config.ts
+import { defineConfig } from '@famgia/omnify';
+
+export default defineConfig({
   schemasDir: './schemas',
-  typescript: {
-    outputDir: './types',
-    outputFile: 'omnify-types.ts',
-    enumsFile: 'enums.ts',
-    generateHelpers: true,  // Generate enum helpers
-    strictNullChecks: true  // Use | null for optional
-  }
-};
+  output: {
+    typescript: {
+      path: './src/types/model',
+      generateRules: true,  // Generate Ant Design validation rules
+    },
+  },
+  locale: {
+    locales: ['ja', 'en'],
+    defaultLocale: 'ja',
+  },
+});
 ```

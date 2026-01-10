@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../node_modules/.omnify/combined-schema.json
+displayName:
+  ja: ジョブ
+  en: Job
+options:
+  timestamps: false
+  tableName: jobs
+  hidden: true
+  indexes:
+    - columns: [queue]
+properties:
+  queue:
+    type: String
+    displayName:
+      ja: キュー
+      en: Queue
+  payload:
+    type: LongText
+    displayName:
+      ja: ペイロード
+      en: Payload
+  attempts:
+    type: TinyInt
+    displayName:
+      ja: 試行回数
+      en: Attempts
+    unsigned: true
+  reserved_at:
+    type: Int
+    displayName:
+      ja: 予約日時
+      en: Reserved At
+    unsigned: true
+    nullable: true
+  available_at:
+    type: Int
+    displayName:
+      ja: 利用可能日時
+      en: Available At
+    unsigned: true
+  created_at:
+    type: Int
+    displayName:
+      ja: 作成日時
+      en: Created At
+    unsigned: true

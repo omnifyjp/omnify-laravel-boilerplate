@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../../node_modules/.omnify/combined-schema.json
+displayName:
+  ja: ジョブバッチ
+  en: Job Batch
+options:
+  id: false
+  timestamps: false
+  hidden: true
+  tableName: job_batches
+properties:
+  id:
+    type: String
+    primary: true
+    displayName:
+      ja: ID
+      en: ID
+  name:
+    type: String
+    displayName:
+      ja: 名前
+      en: Name
+  total_jobs:
+    type: Int
+    displayName:
+      ja: 合計ジョブ数
+      en: Total Jobs
+  pending_jobs:
+    type: Int
+    displayName:
+      ja: 保留中ジョブ数
+      en: Pending Jobs
+  failed_jobs:
+    type: Int
+    displayName:
+      ja: 失敗ジョブ数
+      en: Failed Jobs
+  failed_job_ids:
+    type: LongText
+    displayName:
+      ja: 失敗ジョブID
+      en: Failed Job IDs
+  options:
+    type: MediumText
+    displayName:
+      ja: オプション
+      en: Options
+    nullable: true
+  cancelled_at:
+    type: Int
+    displayName:
+      ja: キャンセル日時
+      en: Cancelled At
+    nullable: true
+  created_at:
+    type: Int
+    displayName:
+      ja: 作成日時
+      en: Created At
+  finished_at:
+    type: Int
+    displayName:
+      ja: 完了日時
+      en: Finished At
+    nullable: true

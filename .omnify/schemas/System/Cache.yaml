@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../node_modules/.omnify/combined-schema.json
+displayName:
+  ja: キャッシュ
+  en: Cache
+options:
+  id: false
+  timestamps: false
+  hidden: true
+  tableName: cache
+properties:
+  key:
+    type: String
+    primary: true
+    displayName:
+      ja: キー
+      en: Key
+  value:
+    type: MediumText
+    displayName:
+      ja: 値
+      en: Value
+  expiration:
+    type: Int
+    displayName:
+      ja: 有効期限
+      en: Expiration

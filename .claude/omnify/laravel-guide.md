@@ -195,27 +195,28 @@ $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
 
 ```bash
 # Generate Laravel migrations and models
-npx omnify generate --laravel
+npx omnify generate
+
+# Force regenerate all files
+npx omnify generate --force
 
 # Validate schemas
 npx omnify validate
-
-# Watch for changes
-npx omnify watch --laravel
 ```
 
 ## Configuration
 
-```javascript
-// omnify.config.js
-export default {
+```typescript
+// omnify.config.ts
+import { defineConfig } from '@famgia/omnify';
+
+export default defineConfig({
   schemasDir: './schemas',
-  outputDir: './',
-  laravel: {
-    migrationsDir: 'database/migrations/omnify',
-    modelsDir: 'app/Models',
-    baseModelsDir: 'app/Models/OmnifyBase',
-    namespace: 'App\\Models'
-  }
-};
+  output: {
+    laravel: {
+      migrationsPath: './database/migrations/omnify',
+      modelsPath: './app/Models',
+    },
+  },
+});
 ```

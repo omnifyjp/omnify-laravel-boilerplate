@@ -3,15 +3,25 @@
     "version": "1.0.0",
     "private": true,
     "type": "module",
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "@famgia/omnify",
+            "@famgia/omnify-laravel",
+            "@famgia/omnify-typescript"
+        ]
+    },
     "scripts": {
+        "postinstall": "node node_modules/@famgia/omnify/scripts/postinstall.js 2>/dev/null || true",
         "dev": "bash docker/scripts/dev.sh",
         "dev:win": "powershell -ExecutionPolicy Bypass -File docker/scripts/dev.ps1",
         "omnify": "omnify"
     },
-    "dependencies": {
-        "@famgia/omnify": "^1.0.23"
-    },
     "devDependencies": {
         "@types/node": "^25.0.4"
+    },
+    "dependencies": {
+        "@famgia/omnify": "1.0.66",
+        "@famgia/omnify-cli": "^0.0.62",
+        "@famgia/omnify-japan": "^0.0.49"
     }
 }

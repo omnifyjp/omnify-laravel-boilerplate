@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../node_modules/.omnify/combined-schema.json
+displayName:
+  ja: キャッシュロック
+  en: Cache Lock
+options:
+  id: false
+  timestamps: false
+  hidden: true
+  tableName: cache_locks
+properties:
+  key:
+    type: String
+    primary: true
+    displayName:
+      ja: キー
+      en: Key
+  owner:
+    type: String
+    displayName:
+      ja: オーナー
+      en: Owner
+  expiration:
+    type: Int
+    displayName:
+      ja: 有効期限
+      en: Expiration

@@ -8,6 +8,7 @@ For detailed documentation, read these files:
 - .claude/omnify/config-guide.md - Configuration (omnify.config.ts)
 - .claude/omnify/laravel-guide.md - Laravel generator (if exists)
 - .claude/omnify/typescript-guide.md - TypeScript generator (if exists)
+- .claude/omnify/antdesign-guide.md - Ant Design Form integration (if exists)
 
 Commands:
 - npx omnify generate - Generate code from schemas

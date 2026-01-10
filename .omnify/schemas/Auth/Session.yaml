@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=../../../node_modules/.omnify/combined-schema.json
+displayName:
+  ja: セッション
+  en: Session
+options:
+  id: false
+  timestamps: false
+  tableName: sessions
+  indexes:
+    - columns: [user_id]
+    - columns: [last_activity]
+properties:
+  id:
+    type: String
+    primary: true
+    displayName:
+      ja: セッションID
+      en: Session ID
+  user_id:
+    type: BigInt
+    displayName:
+      ja: ユーザーID
+      en: User ID
+    nullable: true
+  ip_address:
+    type: String
+    displayName:
+      ja: IPアドレス
+      en: IP Address
+    length: 45
+    nullable: true
+  user_agent:
+    type: Text
+    displayName:
+      ja: ユーザーエージェント
+      en: User Agent
+    nullable: true
+  payload:
+    type: LongText
+    displayName:
+      ja: ペイロード
+      en: Payload
+  last_activity:
+    type: Int
+    displayName:
+      ja: 最終アクティビティ
+      en: Last Activity

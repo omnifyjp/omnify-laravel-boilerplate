@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../node_modules/.omnify/combined-schema.json
+displayName:
+  ja: 失敗したジョブ
+  en: Failed Job
+options:
+  timestamps: false
+  tableName: failed_jobs
+  hidden: true
+properties:
+  uuid:
+    type: String
+    displayName:
+      ja: UUID
+      en: UUID
+    unique: true
+  connection:
+    type: Text
+    displayName:
+      ja: 接続
+      en: Connection
+  queue:
+    type: Text
+    displayName:
+      ja: キュー
+      en: Queue
+  payload:
+    type: LongText
+    displayName:
+      ja: ペイロード
+      en: Payload
+  exception:
+    type: LongText
+    displayName:
+      ja: 例外
+      en: Exception
+  failed_at:
+    type: Timestamp
+    displayName:
+      ja: 失敗日時
+      en: Failed At
+    useCurrent: true

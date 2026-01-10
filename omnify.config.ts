@@ -1,4 +1,5 @@
 import { defineConfig } from "@famgia/omnify-cli";
+import japanPlugin from "@famgia/omnify-japan";
 import { existsSync, readFileSync } from "fs";
 import { parse } from "yaml";
 
@@ -28,17 +29,21 @@ const dbConnection = getDbDriver() as "mysql" | "postgres" | "sqlite";
 
 export default defineConfig({
   schemasDir: "./.omnify/schemas",
+  plugins: [japanPlugin],
   locale: {
     locales: ["ja", "en"],
     defaultLocale: "ja",
   },
   database: {
     driver: dbConnection,
+    devUrl: "mysql://omnify:secret@localhost:3306/omnify",
   },
   output: {
     laravel: {
       migrationsPath: "./backend/database/migrations/omnify",
       modelsPath: "./backend/app/Models",
+      providersPath: "./backend/app/Providers",
+      factoriesPath: "./backend/database/factories",
     },
     typescript: {
       path: "./frontend/src/types/model",

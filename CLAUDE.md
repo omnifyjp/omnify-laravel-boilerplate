@@ -85,14 +85,17 @@ Endpoint: http://minio:9000 | Key: minioadmin | Secret: minioadmin | Bucket: loc
 
 ---
 
-## Omnify Schema Integration
+## Omnify
 
-This project uses **Omnify** for schema-driven code generation.
+This project uses Omnify for schema-driven code generation.
 
-For detailed Omnify documentation, see:
-- `.claude/omnify/schema-guide.md` - Complete schema format guide
-- `.claude/omnify/examples.md` - Example schemas
+**Documentation**: `.claude/omnify/`
+- `schema-guide.md` - Schema format and property types
+- `config-guide.md` - Configuration (omnify.config.ts)
+- `laravel-guide.md` - Laravel generator (if installed)
+- `typescript-guide.md` - TypeScript generator (if installed)
+- `antdesign-guide.md` - Ant Design Form integration (if installed)
 
-### Quick Commands
+**Commands**:
 - `npx omnify generate` - Generate code from schemas
-- `npx omnify validate` - Validate all schemas
+- `npx omnify validate` - Validate schemas

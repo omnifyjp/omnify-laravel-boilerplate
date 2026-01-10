@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../node_modules/.omnify/combined-schema.json
+displayName:
+  ja: 個人アクセストークン
+  en: Personal Access Token
+options:
+  timestamps: true
+  tableName: personal_access_tokens
+  hidden: true
+  indexes:
+    - columns: [expires_at]
+properties:
+  tokenable:
+    type: Association
+    relation: MorphTo
+    targets: [User]
+    nullable: false
+    displayName:
+      ja: トークン対象
+      en: Tokenable
+  name:
+    type: Text
+    displayName:
+      ja: 名前
+      en: Name
+  token:
+    type: String
+    displayName:
+      ja: トークン
+      en: Token
+    length: 64
+    unique: true
+  abilities:
+    type: Text
+    displayName:
+      ja: 権限
+      en: Abilities
+    nullable: true
+  last_used_at:
+    type: Timestamp
+    displayName:
+      ja: 最終使用日時
+      en: Last Used At
+    nullable: true
+  expires_at:
+    type: Timestamp
+    displayName:
+      ja: 有効期限
+      en: Expires At
+    nullable: true

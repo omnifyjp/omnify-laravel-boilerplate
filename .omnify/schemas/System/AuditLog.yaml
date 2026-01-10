@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../../../node_modules/.omnify/combined-schema.json
+options:
+  timestamps: false
+  hidden: true
+properties:
+  action:
+    type: String
+  createdAt:
+    type: Timestamp
+    useCurrent: true
+  updatedAt:
+    type: Timestamp
+    useCurrent: true
+    useCurrentOnUpdate: true

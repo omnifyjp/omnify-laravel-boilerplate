@@ -61,6 +61,39 @@ export default defineConfig({
 | `singleFile` | boolean | Generate single file vs multiple files |
 | `generateEnums` | boolean | Generate enum types |
 | `generateRelationships` | boolean | Generate relationship types |
+| `generateRules` | boolean | Generate Ant Design validation rules (default: true) |
+| `validationTemplates` | object | Custom validation message templates |
+
+#### Validation Templates
+
+Customize validation messages for your locales:
+
+```typescript
+{
+  output: {
+    typescript: {
+      validationTemplates: {
+        required: {
+          ja: '${displayName}を入力してください',
+          en: '${displayName} is required',
+        },
+        maxLength: {
+          ja: '${displayName}は${max}文字以内です',
+          en: '${displayName} must be at most ${max} characters',
+        },
+        minLength: { /* ... */ },
+        min: { /* ... */ },
+        max: { /* ... */ },
+        email: { /* ... */ },
+        url: { /* ... */ },
+        pattern: { /* ... */ },
+      },
+    },
+  },
+}
+```
+
+Built-in templates are available for: ja, en, vi, ko, zh
 
 ### locale (optional)
 | Option | Type | Description |
@@ -71,14 +104,14 @@ export default defineConfig({
 
 ## Common Mistakes
 
-❌ **Wrong** - `locales` at root level:
+**Wrong** - `locales` at root level:
 ```typescript
 {
   locales: ['en', 'ja'],  // ERROR: locales not in OmnifyConfig
 }
 ```
 
-✅ **Correct** - `locales` inside `locale` object:
+**Correct** - `locales` inside `locale` object:
 ```typescript
 {
   locale: {

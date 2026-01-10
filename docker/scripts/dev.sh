@@ -2,14 +2,13 @@
 
 # =============================================================================
 # Development Script
-# Supports both Herd (.test) and Docker nginx (.app) setups
+# Sets up Docker nginx with SSL for local development
 # =============================================================================
 
 set -e
 
-# Default project name from folder
-DEFAULT_NAME=$(basename "$(pwd)")
-CONFIG_FILE=".env"
+# Project name = folder name
+PROJECT_NAME=$(basename "$(pwd)")
 
 # Function to find available port
 find_available_port() {
@@ -20,56 +19,50 @@ find_available_port() {
     echo $port
 }
 
-# =============================================================================
-# First time setup - ask for project name and ports
-# =============================================================================
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo "🔧 First time setup"
-    echo ""
-    read -p "Project name [${DEFAULT_NAME}]: " PROJECT_NAME
-    PROJECT_NAME=${PROJECT_NAME:-$DEFAULT_NAME}
-    
-    # Find available ports
-    echo "🔍 Finding available ports..."
-    FRONTEND_PORT=$(find_available_port 3000)
-    BACKEND_PORT=$(find_available_port 8000)
-    PMA_PORT=$(find_available_port 8081)
-    
-    # Save config
-    cat > "$CONFIG_FILE" << EOF
-PROJECT_NAME=${PROJECT_NAME}
-FRONTEND_PORT=${FRONTEND_PORT}
-BACKEND_PORT=${BACKEND_PORT}
-PMA_PORT=${PMA_PORT}
-EOF
-    echo "   ✅ Ports: Frontend=${FRONTEND_PORT}, Backend=${BACKEND_PORT}, PMA=${PMA_PORT}"
-    echo ""
-else
-    source "$CONFIG_FILE"
-fi
+# Find available port for frontend
+FRONTEND_PORT=$(find_available_port 3000)
+
+# Set domains (based on folder name)
+DOMAIN="${PROJECT_NAME}.app"
+API_DOMAIN="api.${PROJECT_NAME}.app"
+CERTS_DIR="./docker/nginx/certs"
 
 echo "🚀 Starting development environment for: ${PROJECT_NAME}"
 echo ""
 
 # =============================================================================
-# Detect Herd
+# Setup backend (create Laravel if not exists)
 # =============================================================================
-USE_HERD=false
-if command -v herd &> /dev/null; then
-    USE_HERD=true
-    DOMAIN="${PROJECT_NAME}.test"
-    API_DOMAIN="api.${PROJECT_NAME}.test"
-    PMA_DOMAIN="pma.${PROJECT_NAME}.test"
-    echo "🦁 Herd detected - using .test domains"
-else
-    DOMAIN="${PROJECT_NAME}.app"
-    API_DOMAIN="api.${DOMAIN}"
-    PMA_DOMAIN="pma.${DOMAIN}"
-    CERTS_DIR="./docker/nginx/certs"
-    echo "🐳 Herd not found - using Docker nginx with .app domains"
+if [ ! -d "./backend" ]; then
+    echo ""
+    echo "🚀 Creating Laravel API project..."
+    
+    # Create Laravel project
+    composer create-project laravel/laravel backend --prefer-dist --no-interaction
+    
+    cd backend
+    
+    # Install API (Laravel 11+)
+    php artisan install:api --no-interaction 2>/dev/null || true
+    
+    # Remove frontend stuff
+    rm -rf resources/js resources/css public/build
+    rm -f vite.config.js package.json package-lock.json postcss.config.js tailwind.config.js
+    rm -rf node_modules
+    
+    # Remove default Laravel migrations (Omnify will generate them)
+    rm -f database/migrations/*.php
+    
+    cd ..
+    
+    # Generate Omnify migrations
+    echo "📦 Generating Omnify migrations..."
+    npx omnify reset -y && npx omnify generate
+    echo "   ✅ Omnify migrations generated"
+    
+    echo "   ✅ Laravel API project created"
+    GENERATE_KEY=true
 fi
-
-echo ""
 
 # =============================================================================
 # Generate backend/.env (if not exists)
@@ -96,84 +89,120 @@ DB_PASSWORD=secret
 SESSION_DRIVER=file
 CACHE_DRIVER=file
 QUEUE_CONNECTION=sync
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="\${APP_NAME}"
+
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=local
+AWS_ENDPOINT=http://minio:9000
+AWS_USE_PATH_STYLE_ENDPOINT=true
 EOF
     echo "   ✅ backend/.env created"
     GENERATE_KEY=true
 fi
 
 # =============================================================================
-# Setup based on environment
+# Step 1: Setup mkcert
 # =============================================================================
-if [ "$USE_HERD" = true ]; then
-    # Herd: Setup proxies
-    echo "🔗 Setting up Herd proxies..."
+echo "📦 Checking mkcert..."
+
+if ! command -v mkcert &> /dev/null; then
+    echo "   Installing mkcert..."
     
-    herd proxy "${PROJECT_NAME}" "http://127.0.0.1:${FRONTEND_PORT}" --secure 2>/dev/null || true
-    herd proxy "api.${PROJECT_NAME}" "http://127.0.0.1:${BACKEND_PORT}" --secure 2>/dev/null || true
-    herd proxy "pma.${PROJECT_NAME}" "http://127.0.0.1:${PMA_PORT}" --secure 2>/dev/null || true
-    
-    echo "   ✅ Herd proxies configured"
-    
-    # Start Docker services (without nginx)
-    echo ""
-    echo "🐳 Starting Docker services..."
-    docker compose up -d mysql phpmyadmin backend
-    
-else
-    # Docker nginx: Setup SSL and hosts
-    
-    # Step 1: Setup mkcert (if needed)
-    if [ ! -f "${CERTS_DIR}/${DOMAIN}.pem" ]; then
-        echo "📦 Checking mkcert..."
-
-        if ! command -v mkcert &> /dev/null; then
-            echo "   Installing mkcert..."
-            
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                brew install mkcert nss
-            elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-                sudo apt update && sudo apt install -y libnss3-tools
-                curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-                chmod +x mkcert-v*-linux-amd64
-                sudo mv mkcert-v*-linux-amd64 /usr/local/bin/mkcert
-            fi
-        fi
-
-        echo "   ✅ mkcert ready"
-
-        # Install local CA
-        echo ""
-        echo "🔐 Installing local CA (may require password)..."
-        mkcert -install
-        echo "   ✅ Local CA installed"
-
-        # Generate SSL certificates
-        echo ""
-        echo "📜 Generating SSL certificates..."
-        mkdir -p "${CERTS_DIR}"
-
-        mkcert -key-file "${CERTS_DIR}/${DOMAIN}-key.pem" \
-               -cert-file "${CERTS_DIR}/${DOMAIN}.pem" \
-               "${DOMAIN}" "*.${DOMAIN}" localhost 127.0.0.1 ::1
-
-        echo "   ✅ Certificates generated"
-    fi
-
-    # Step 2: Update /etc/hosts (if needed)
-    if ! grep -q "${DOMAIN}" /etc/hosts 2>/dev/null; then
-        echo ""
-        echo "🌐 Adding domains to /etc/hosts (requires sudo)..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS (Intel or Apple Silicon - brew handles both)
+        brew install mkcert nss
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux - detect architecture
+        ARCH=$(uname -m)
+        case $ARCH in
+            x86_64)  MKCERT_ARCH="amd64" ;;
+            aarch64) MKCERT_ARCH="arm64" ;;
+            arm64)   MKCERT_ARCH="arm64" ;;
+            *)       echo "❌ Unsupported architecture: $ARCH"; exit 1 ;;
+        esac
         
-        HOSTS_ENTRY="127.0.0.1 ${DOMAIN} ${API_DOMAIN} ${PMA_DOMAIN}"
-        echo "${HOSTS_ENTRY}" | sudo tee -a /etc/hosts > /dev/null
-        echo "   ✅ Added: ${HOSTS_ENTRY}"
+        sudo apt update && sudo apt install -y libnss3-tools
+        curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/${MKCERT_ARCH}"
+        chmod +x mkcert-v*-linux-${MKCERT_ARCH}
+        sudo mv mkcert-v*-linux-${MKCERT_ARCH} /usr/local/bin/mkcert
+    elif [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]]; then
+        # Windows (Git Bash / WSL)
+        echo "   Please install mkcert manually: https://github.com/FiloSottile/mkcert#installation"
+        exit 1
     fi
-
-    # Step 3: Start Docker services (with nginx)
-    echo ""
-    echo "🐳 Starting Docker services..."
-    docker compose up -d mysql phpmyadmin backend nginx
 fi
+
+echo "   ✅ mkcert ready"
+
+# Install local CA (always ensure it's installed)
+echo "🔐 Installing local CA..."
+mkcert -install 2>/dev/null || true
+echo "   ✅ Local CA ready"
+
+# Generate SSL certificates (if not exists)
+if [ ! -f "${CERTS_DIR}/${DOMAIN}.pem" ]; then
+    echo ""
+    echo "📜 Generating SSL certificates..."
+    mkdir -p "${CERTS_DIR}"
+
+    mkcert -key-file "${CERTS_DIR}/${DOMAIN}-key.pem" \
+           -cert-file "${CERTS_DIR}/${DOMAIN}.pem" \
+           "${DOMAIN}" "*.${DOMAIN}" localhost 127.0.0.1 ::1
+
+    echo "   ✅ Certificates generated"
+fi
+
+# =============================================================================
+# Step 2: Setup DNS via /etc/hosts → 127.0.0.2
+# =============================================================================
+echo ""
+echo "🌐 Setting up /etc/hosts..."
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS: Create loopback alias for 127.0.0.2 (needed for Docker to bind)
+    if ! ifconfig lo0 | grep -q "127.0.0.2"; then
+        echo "   Creating loopback alias 127.0.0.2..."
+        sudo ifconfig lo0 alias 127.0.0.2
+    fi
+fi
+
+# Add to /etc/hosts if not exists
+HOSTS_ENTRY="127.0.0.2 ${DOMAIN} ${API_DOMAIN}"
+if ! grep -q "${DOMAIN}" /etc/hosts 2>/dev/null; then
+    echo "${HOSTS_ENTRY}" | sudo tee -a /etc/hosts > /dev/null
+    echo "   ✅ Added to /etc/hosts: ${HOSTS_ENTRY}"
+else
+    echo "   ✅ /etc/hosts already configured"
+fi
+
+# =============================================================================
+# Step 3: Generate nginx.conf from template
+# =============================================================================
+echo ""
+echo "⚙️  Generating nginx.conf..."
+export DOMAIN API_DOMAIN FRONTEND_PORT
+envsubst '${DOMAIN} ${API_DOMAIN} ${FRONTEND_PORT}' \
+    < ./docker/stubs/nginx.conf.stub \
+    > ./docker/nginx/nginx.conf
+echo "   ✅ nginx.conf generated"
+
+# =============================================================================
+# Step 4: Start Docker services
+# =============================================================================
+echo ""
+echo "🐳 Starting Docker services..."
+docker compose up -d mysql phpmyadmin mailpit minio backend nginx
 
 echo ""
 echo "⏳ Waiting for services..."
@@ -184,15 +213,87 @@ if [ "$GENERATE_KEY" = true ]; then
     echo "🔑 Generating APP_KEY..."
     docker compose exec -T backend php artisan key:generate
     echo "   ✅ APP_KEY generated"
+    
+    # Run migrations
+    echo "🗄️  Running migrations..."
+    docker compose exec -T backend php artisan migrate --force
+    echo "   ✅ Migrations completed"
 fi
 
+# Create MinIO bucket if not exists
+echo "📦 Creating MinIO bucket..."
+docker compose exec -T minio mc alias set local http://localhost:9000 minioadmin minioadmin 2>/dev/null || true
+docker compose exec -T minio mc mb local/local --ignore-existing 2>/dev/null || true
+docker compose exec -T minio mc anonymous set public local/local 2>/dev/null || true
+echo "   ✅ MinIO bucket 'local' ready"
+
 # =============================================================================
-# Install frontend dependencies (if needed)
+# Setup frontend (create Next.js if not exists)
 # =============================================================================
-if [ ! -d "./frontend/node_modules" ]; then
+if [ ! -d "./frontend" ]; then
     echo ""
-    echo "📦 Installing frontend dependencies..."
-    cd frontend && npm install && cd ..
+    echo "🚀 Creating Next.js project..."
+    npx --yes create-next-app@latest frontend \
+        --typescript \
+        --tailwind \
+        --eslint \
+        --app \
+        --src-dir \
+        --import-alias "@/*" \
+        --use-npm \
+        --turbopack \
+        --no-react-compiler
+    
+    # Configure Next.js
+    echo ""
+    echo "⚙️  Configuring Next.js..."
+    cat > ./frontend/next.config.ts << 'EOF'
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  // Allow cross-origin requests from *.app domains
+  allowedDevOrigins: ["*.app"],
+
+  // Turbopack config
+  turbopack: {
+    root: process.cwd(),
+  },
+
+  // Environment variables exposed to the browser
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  },
+
+  // Image optimization
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.app",
+      },
+    ],
+  },
+};
+
+export default nextConfig;
+EOF
+
+    # Create frontend .env.local
+    cat > ./frontend/.env.local << EOF
+NEXT_PUBLIC_API_URL=https://${API_DOMAIN}
+EOF
+    echo "   ✅ Next.js project created"
+else
+    # Frontend exists - ensure .env.local is up to date
+    cat > ./frontend/.env.local << EOF
+NEXT_PUBLIC_API_URL=https://${API_DOMAIN}
+EOF
+    
+    if [ ! -d "./frontend/node_modules" ]; then
+        echo ""
+        echo "📦 Installing frontend dependencies..."
+        cd frontend && npm install && cd ..
+    fi
 fi
 
 # =============================================================================
@@ -203,14 +304,18 @@ echo "============================================="
 echo "✅ Development environment ready!"
 echo "============================================="
 echo ""
-echo "  🌐 Frontend:    https://${DOMAIN} (port ${FRONTEND_PORT})"
-echo "  🔌 API:         https://${API_DOMAIN} (port ${BACKEND_PORT})"
-echo "  🗄️  phpMyAdmin:  https://${PMA_DOMAIN} (port ${PMA_PORT})"
+echo "  🌐 Frontend:    https://${DOMAIN}"
+echo "  🔌 API:         https://${API_DOMAIN}"
+echo "  🗄️  phpMyAdmin:  https://${DOMAIN}:8080"
+echo "  📧 Mailpit:     https://${DOMAIN}:8025"
+echo "  📦 MinIO:       https://${DOMAIN}:9001 (console)"
 echo ""
 echo "  Database: omnify / omnify / secret"
+echo "  SMTP: mailpit:1025 (no auth)"
+echo "  S3: minio:9000 (minioadmin/minioadmin)"
 echo ""
 echo "---------------------------------------------"
-echo "🖥️  Starting frontend dev server on port ${FRONTEND_PORT}..."
+echo "🖥️  Starting frontend dev server..."
 echo "---------------------------------------------"
 echo ""
 

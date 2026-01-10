@@ -18,8 +18,8 @@
         "@types/node": "^25.0.4"
     },
     "dependencies": {
-        "@famgia/omnify": "1.0.67",
-        "@famgia/omnify-cli": "^0.0.63",
-        "@famgia/omnify-japan": "^0.0.50"
+        "@famgia/omnify": "latest",
+        "@famgia/omnify-cli": "latest",
+        "@famgia/omnify-japan": "latest"
     }
 }

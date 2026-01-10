@@ -71,6 +71,15 @@ echo "   ✅ Omnify docs generated"
 # Project name = folder name
 PROJECT_NAME=$(basename "$(pwd)")
 
+# Generate unique IP based on project name (127.0.0.2 - 127.0.0.254)
+generate_project_ip() {
+    local name=$1
+    local hash=$(echo -n "$name" | md5sum | cut -c1-4)
+    local num=$((16#$hash % 253 + 2))
+    echo "127.0.0.$num"
+}
+PROJECT_IP=$(generate_project_ip "$PROJECT_NAME")
+
 # Set domains (based on folder name)
 DOMAIN="${PROJECT_NAME}.app"
 API_DOMAIN="api.${PROJECT_NAME}.app"
@@ -132,21 +141,21 @@ if [ ! -f "${CERTS_DIR}/${DOMAIN}.pem" ]; then
 fi
 
 # =============================================================================
-# Step 2: Setup DNS via /etc/hosts → 127.0.0.2
+# Step 2: Setup DNS via /etc/hosts → unique IP per project
 # =============================================================================
 echo ""
-echo "🌐 Setting up /etc/hosts..."
+echo "🌐 Setting up /etc/hosts... (IP: ${PROJECT_IP})"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS: Create loopback alias for 127.0.0.2 (needed for Docker to bind)
-    if ! ifconfig lo0 | grep -q "127.0.0.2"; then
-        echo "   Creating loopback alias 127.0.0.2..."
-        sudo ifconfig lo0 alias 127.0.0.2
+    # macOS: Create loopback alias (needed for Docker to bind)
+    if ! ifconfig lo0 | grep -q "${PROJECT_IP}"; then
+        echo "   Creating loopback alias ${PROJECT_IP}..."
+        sudo ifconfig lo0 alias ${PROJECT_IP}
     fi
 fi
 
 # Add to /etc/hosts if not exists
-HOSTS_ENTRY="127.0.0.2 ${DOMAIN} ${API_DOMAIN}"
+HOSTS_ENTRY="${PROJECT_IP} ${DOMAIN} ${API_DOMAIN}"
 if ! grep -q "${DOMAIN}" /etc/hosts 2>/dev/null; then
     echo "${HOSTS_ENTRY}" | sudo tee -a /etc/hosts > /dev/null
     echo "   ✅ Added to /etc/hosts: ${HOSTS_ENTRY}"
@@ -257,9 +266,17 @@ fi
 # Step 5: Start Docker services
 # =============================================================================
 echo ""
-echo "⚙️  Generating nginx.conf..."
+echo "⚙️  Generating config files..."
 FRONTEND_PORT=3000
-export DOMAIN API_DOMAIN FRONTEND_PORT
+export DOMAIN API_DOMAIN FRONTEND_PORT PROJECT_IP
+
+# Generate docker-compose.yml
+envsubst '${PROJECT_IP}' \
+    < ./docker/stubs/docker-compose.yml.stub \
+    > ./docker-compose.yml
+echo "   ✅ docker-compose.yml generated (IP: ${PROJECT_IP})"
+
+# Generate nginx.conf
 envsubst '${DOMAIN} ${API_DOMAIN} ${FRONTEND_PORT}' \
     < ./docker/stubs/nginx.conf.stub \
     > ./docker/nginx/nginx.conf

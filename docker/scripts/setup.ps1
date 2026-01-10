@@ -55,6 +55,15 @@ Write-Host "   ✅ Omnify docs generated" -ForegroundColor Green
 # Project name = folder name
 $PROJECT_NAME = Split-Path -Leaf (Get-Location)
 
+# Generate unique IP based on project name (127.0.0.2 - 127.0.0.254)
+function Get-ProjectIP {
+    param([string]$Name)
+    $hash = [System.BitConverter]::ToString([System.Security.Cryptography.MD5]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($Name))).Replace("-","").Substring(0,4)
+    $num = [Convert]::ToInt32($hash, 16) % 253 + 2
+    return "127.0.0.$num"
+}
+$PROJECT_IP = Get-ProjectIP -Name $PROJECT_NAME
+
 # Set domains (based on folder name)
 $DOMAIN = "$PROJECT_NAME.app"
 $API_DOMAIN = "api.$PROJECT_NAME.app"
@@ -104,10 +113,10 @@ if (-not (Test-Path "$CERTS_DIR\$DOMAIN.pem")) {
 }
 
 # =============================================================================
-# Step 2: Setup hosts file
+# Step 2: Setup hosts file (unique IP per project)
 # =============================================================================
 Write-Host ""
-Write-Host "🌐 Setting up hosts file..." -ForegroundColor Yellow
+Write-Host "🌐 Setting up hosts file... (IP: $PROJECT_IP)" -ForegroundColor Yellow
 
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
 $hostsContent = Get-Content $hostsPath -Raw
@@ -117,9 +126,9 @@ if ($hostsContent -notmatch [regex]::Escape($DOMAIN)) {
     if (-not $isAdmin) {
         Write-Host "   ⚠️  Please run as Administrator to modify hosts file" -ForegroundColor Red
         Write-Host "   Or add manually to $hostsPath :" -ForegroundColor Yellow
-        Write-Host "   127.0.0.1 $DOMAIN $API_DOMAIN" -ForegroundColor White
+        Write-Host "   $PROJECT_IP $DOMAIN $API_DOMAIN" -ForegroundColor White
     } else {
-        $hostsEntry = "`n127.0.0.1 $DOMAIN $API_DOMAIN"
+        $hostsEntry = "`n$PROJECT_IP $DOMAIN $API_DOMAIN"
         Add-Content -Path $hostsPath -Value $hostsEntry
         Write-Host "   ✅ Added to hosts file" -ForegroundColor Green
     }
@@ -232,6 +241,14 @@ AWS_USE_PATH_STYLE_ENDPOINT=true
 Write-Host ""
 Write-Host "⚙️  Generating nginx.conf..." -ForegroundColor Yellow
 $FRONTEND_PORT = 3000
+
+# Generate docker-compose.yml
+$dcTemplate = Get-Content ".\docker\stubs\docker-compose.yml.stub" -Raw
+$dcTemplate = $dcTemplate -replace '\$\{PROJECT_IP\}', $PROJECT_IP
+$dcTemplate | Out-File -FilePath ".\docker-compose.yml" -Encoding UTF8
+Write-Host "   ✅ docker-compose.yml generated (IP: $PROJECT_IP)" -ForegroundColor Green
+
+# Generate nginx.conf
 $template = Get-Content ".\docker\stubs\nginx.conf.stub" -Raw
 $template = $template -replace '\$\{DOMAIN\}', $DOMAIN
 $template = $template -replace '\$\{API_DOMAIN\}', $API_DOMAIN

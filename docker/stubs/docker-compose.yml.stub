@@ -2,12 +2,12 @@ services:
   nginx:
     build: ./docker/nginx
     ports:
-      - "127.0.0.2:80:80"
-      - "127.0.0.2:443:443"
-      - "127.0.0.2:8080:8080"
-      - "127.0.0.2:8025:8025"
-      - "127.0.0.2:9000:9000"
-      - "127.0.0.2:9001:9001"
+      - "${PROJECT_IP}:80:80"
+      - "${PROJECT_IP}:443:443"
+      - "${PROJECT_IP}:8080:8080"
+      - "${PROJECT_IP}:8025:8025"
+      - "${PROJECT_IP}:9000:9000"
+      - "${PROJECT_IP}:9001:9001"
     volumes:
       - ./docker/nginx/certs:/etc/nginx/certs:ro
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro

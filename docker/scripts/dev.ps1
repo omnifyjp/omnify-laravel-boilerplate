@@ -8,6 +8,15 @@ $ErrorActionPreference = "Stop"
 # Project name = folder name
 $PROJECT_NAME = Split-Path -Leaf (Get-Location)
 
+# Generate unique IP based on project name (127.0.0.2 - 127.0.0.254)
+function Get-ProjectIP {
+    param([string]$Name)
+    $hash = [System.BitConverter]::ToString([System.Security.Cryptography.MD5]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($Name))).Replace("-","").Substring(0,4)
+    $num = [Convert]::ToInt32($hash, 16) % 253 + 2
+    return "127.0.0.$num"
+}
+$PROJECT_IP = Get-ProjectIP -Name $PROJECT_NAME
+
 # Function to find available port
 function Find-AvailablePort {
     param([int]$StartPort)
@@ -37,13 +46,21 @@ Write-Host ""
 # =============================================================================
 # Step 1: Generate nginx.conf with current port
 # =============================================================================
-Write-Host "⚙️  Generating nginx.conf..." -ForegroundColor Yellow
+Write-Host "⚙️  Generating config files..." -ForegroundColor Yellow
+
+# Generate docker-compose.yml
+$dcTemplate = Get-Content ".\docker\stubs\docker-compose.yml.stub" -Raw
+$dcTemplate = $dcTemplate -replace '\$\{PROJECT_IP\}', $PROJECT_IP
+$dcTemplate | Out-File -FilePath ".\docker-compose.yml" -Encoding UTF8
+Write-Host "   ✅ docker-compose.yml (IP: $PROJECT_IP)" -ForegroundColor Green
+
+# Generate nginx.conf
 $template = Get-Content ".\docker\stubs\nginx.conf.stub" -Raw
 $template = $template -replace '\$\{DOMAIN\}', $DOMAIN
 $template = $template -replace '\$\{API_DOMAIN\}', $API_DOMAIN
 $template = $template -replace '\$\{FRONTEND_PORT\}', $FRONTEND_PORT
 $template | Out-File -FilePath ".\docker\nginx\nginx.conf" -Encoding UTF8
-Write-Host "   ✅ nginx.conf generated (port: $FRONTEND_PORT)" -ForegroundColor Green
+Write-Host "   ✅ nginx.conf (port: $FRONTEND_PORT)" -ForegroundColor Green
 
 # =============================================================================
 # Step 2: Start Docker services

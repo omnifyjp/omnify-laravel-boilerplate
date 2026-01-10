@@ -17,6 +17,7 @@ docker/nginx/certs/*.pem
 # Local config (auto-generated)
 .env
 backend/.env
+docker-compose.yml
 
 # IDE
 .idea/

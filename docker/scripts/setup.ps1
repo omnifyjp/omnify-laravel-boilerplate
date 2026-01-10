@@ -119,21 +119,18 @@ Write-Host ""
 Write-Host "🌐 Setting up hosts file... (IP: $PROJECT_IP)" -ForegroundColor Yellow
 
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
-$hostsContent = Get-Content $hostsPath -Raw
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
-if ($hostsContent -notmatch [regex]::Escape($DOMAIN)) {
-    if (-not $isAdmin) {
-        Write-Host "   ⚠️  Please run as Administrator to modify hosts file" -ForegroundColor Red
-        Write-Host "   Or add manually to $hostsPath :" -ForegroundColor Yellow
-        Write-Host "   $PROJECT_IP $DOMAIN $API_DOMAIN" -ForegroundColor White
-    } else {
-        $hostsEntry = "`n$PROJECT_IP $DOMAIN $API_DOMAIN"
-        Add-Content -Path $hostsPath -Value $hostsEntry
-        Write-Host "   ✅ Added to hosts file" -ForegroundColor Green
-    }
+if (-not $isAdmin) {
+    Write-Host "   ⚠️  Please run as Administrator to modify hosts file" -ForegroundColor Red
+    Write-Host "   Or add manually to $hostsPath :" -ForegroundColor Yellow
+    Write-Host "   $PROJECT_IP $DOMAIN $API_DOMAIN" -ForegroundColor White
 } else {
-    Write-Host "   ✅ Hosts file already configured" -ForegroundColor Green
+    # Remove existing entry and add new one
+    $hostsContent = Get-Content $hostsPath | Where-Object { $_ -notmatch [regex]::Escape($DOMAIN) }
+    $hostsContent += "$PROJECT_IP $DOMAIN $API_DOMAIN"
+    $hostsContent | Set-Content $hostsPath
+    Write-Host "   ✅ Updated hosts file: $PROJECT_IP $DOMAIN $API_DOMAIN" -ForegroundColor Green
 }
 
 # =============================================================================

@@ -154,14 +154,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     fi
 fi
 
-# Add to /etc/hosts if not exists
+# Update /etc/hosts (remove old entry, add new)
 HOSTS_ENTRY="${PROJECT_IP} ${DOMAIN} ${API_DOMAIN}"
-if ! grep -q "${DOMAIN}" /etc/hosts 2>/dev/null; then
-    echo "${HOSTS_ENTRY}" | sudo tee -a /etc/hosts > /dev/null
-    echo "   ✅ Added to /etc/hosts: ${HOSTS_ENTRY}"
-else
-    echo "   ✅ /etc/hosts already configured"
+if grep -q "${DOMAIN}" /etc/hosts 2>/dev/null; then
+    # Remove existing entry
+    sudo sed -i '' "/${DOMAIN}/d" /etc/hosts
 fi
+# Add new entry
+echo "${HOSTS_ENTRY}" | sudo tee -a /etc/hosts > /dev/null
+echo "   ✅ Updated /etc/hosts: ${HOSTS_ENTRY}"
 
 # =============================================================================
 # Step 3: Setup backend (create Laravel if not exists)

@@ -4,6 +4,7 @@ frontend/
 
 # Dependencies
 node_modules/
+vendor/
 
 # SSL Certificates (generated locally)
 docker/nginx/certs/*.pem

@@ -42,22 +42,9 @@ if (-not (Test-Path ".\backend")) {
     Write-Host "   ✅ Composer" -ForegroundColor Green
 }
 
-# Check pnpm
-if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-    Write-Host "   📦 Installing pnpm..." -ForegroundColor Yellow
-    npm install -g pnpm
-}
-Write-Host "   ✅ pnpm" -ForegroundColor Green
-
-# Clean node_modules if installed by different package manager
-if ((Test-Path "node_modules") -and (-not (Test-Path "node_modules\.pnpm"))) {
-    Write-Host "🧹 Cleaning node_modules (switching to pnpm)..." -ForegroundColor Yellow
-    Remove-Item -Path "node_modules" -Recurse -Force
-}
-
 # Install/update packages
 Write-Host "📦 Installing packages..." -ForegroundColor Yellow
-pnpm install
+npm install
 Write-Host "   ✅ Packages installed" -ForegroundColor Green
 
 # Run Omnify postinstall (generate .claude docs)
@@ -293,7 +280,7 @@ if (-not (Test-Path ".\frontend\package.json")) {
         --app `
         --src-dir `
         --import-alias "@/*" `
-        --use-pnpm `
+        --use-npm `
         --turbopack `
         --no-react-compiler
     
@@ -336,7 +323,7 @@ NEXT_PUBLIC_API_URL=https://$API_DOMAIN
         Write-Host ""
         Write-Host "📦 Installing frontend dependencies..." -ForegroundColor Yellow
         Push-Location .\frontend
-        pnpm install
+        npm install
         Pop-Location
     }
 }
@@ -360,5 +347,5 @@ Write-Host "  SMTP: mailpit:1025 (no auth)" -ForegroundColor Gray
 Write-Host "  S3: minio:9000 (minioadmin/minioadmin)" -ForegroundColor Gray
 Write-Host ""
 Write-Host "---------------------------------------------" -ForegroundColor DarkGray
-Write-Host "Run 'pnpm dev' to start frontend server" -ForegroundColor Yellow
+Write-Host "Run 'npm run dev' to start frontend server" -ForegroundColor Yellow
 Write-Host "---------------------------------------------" -ForegroundColor DarkGray

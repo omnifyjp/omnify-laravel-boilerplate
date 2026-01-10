@@ -27,7 +27,7 @@ $API_DOMAIN = "api.$PROJECT_NAME.app"
 
 # Check if setup is needed
 if (-not (Test-Path ".\backend") -or -not (Test-Path ".\frontend\package.json")) {
-    Write-Host "❌ Setup required. Run 'pnpm setup' first." -ForegroundColor Red
+    Write-Host "❌ Setup required. Run 'npm run setup' first." -ForegroundColor Red
     exit 1
 }
 
@@ -80,5 +80,5 @@ Write-Host ""
 
 # Start frontend dev server
 Push-Location .\frontend
-pnpm dev -- -p $FRONTEND_PORT
+npm run dev -- -p $FRONTEND_PORT
 Pop-Location

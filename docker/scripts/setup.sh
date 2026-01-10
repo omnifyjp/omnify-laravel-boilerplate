@@ -58,22 +58,9 @@ if ! command -v envsubst &> /dev/null; then
 fi
 echo "   ✅ envsubst"
 
-# Check pnpm
-if ! command -v pnpm &> /dev/null; then
-    echo "   📦 Installing pnpm..."
-    npm install -g pnpm
-fi
-echo "   ✅ pnpm"
-
-# Clean node_modules if installed by different package manager
-if [ -d "node_modules" ] && [ ! -d "node_modules/.pnpm" ]; then
-    echo "🧹 Cleaning node_modules (switching to pnpm)..."
-    rm -rf node_modules
-fi
-
 # Install/update packages
 echo "📦 Installing packages..."
-pnpm install
+npm install
 echo "   ✅ Packages installed"
 
 # Run Omnify postinstall (generate .claude docs)
@@ -319,7 +306,7 @@ if [ ! -f "./frontend/package.json" ]; then
         --app \
         --src-dir \
         --import-alias "@/*" \
-        --use-pnpm \
+        --use-npm \
         --turbopack \
         --no-react-compiler
     
@@ -371,7 +358,7 @@ EOF
     if [ ! -d "./frontend/node_modules" ]; then
         echo ""
         echo "📦 Installing frontend dependencies..."
-        cd frontend && pnpm install && cd ..
+        cd frontend && npm install && cd ..
     fi
 fi
 
@@ -394,5 +381,5 @@ echo "  SMTP: mailpit:1025 (no auth)"
 echo "  S3: minio:9000 (minioadmin/minioadmin)"
 echo ""
 echo "---------------------------------------------"
-echo "Run 'pnpm dev' to start frontend server"
+echo "Run 'npm run dev' to start frontend server"
 echo "---------------------------------------------"

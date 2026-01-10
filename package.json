@@ -1,6 +1,22 @@
 {
-    "name": "boilerplate",
+    "name": "@dxscom/boilerplate",
     "version": "1.0.0",
+    "description": "Full-stack boilerplate with Laravel API + Next.js frontend, powered by Omnify schema-driven development",
+    "keywords": [
+        "laravel",
+        "nextjs",
+        "typescript",
+        "docker",
+        "omnify",
+        "boilerplate",
+        "fullstack"
+    ],
+    "author": "FamGia",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/dxscom/boilerplate"
+    },
     "private": true,
     "type": "module",
     "pnpm": {

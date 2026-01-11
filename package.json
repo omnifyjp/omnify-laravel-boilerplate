@@ -31,10 +31,11 @@
         "dev": "node -e \"require('child_process').execSync(process.platform==='win32'?'powershell -ExecutionPolicy Bypass -File docker/scripts/dev.ps1':'bash docker/scripts/dev.sh',{stdio:'inherit'})\""
     },
     "devDependencies": {
+        "@famgia/omnify": "latest",
+        "@famgia/omnify-laravel": "^0.0.84",
         "@types/node": "^25.0.4"
     },
     "dependencies": {
-        "@famgia/omnify": "latest",
         "@famgia/omnify-cli": "latest",
         "@famgia/omnify-japan": "latest"
     }

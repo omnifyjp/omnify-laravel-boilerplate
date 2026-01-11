@@ -6,136 +6,108 @@
 - **Frontend**: Next.js 16, TypeScript, Ant Design 6, TanStack Query
 - **Dev**: Docker, mkcert (SSL)
 
-## Structure
-
-```
-backend/           → Laravel app
-  database/
-    schemas/       → Omnify YAML schemas
-    migrations/
-      omnify/      → Auto-generated migrations
-frontend/          → Next.js app
-  src/types/model/ → Auto-generated TypeScript types
-docker/            → Dockerfiles & scripts
-```
-
 ## Commands
 
 ```bash
-# First time setup (Docker, SSL, Backend, Frontend)
-npm run setup
+npm run setup                # First time setup
+npm run dev                  # Dev server
 
-# Dev server (requires setup first)
-npm run dev
+./artisan migrate            # Run migrations
+./artisan test               # Run all tests
+./artisan l5-swagger:generate  # Generate OpenAPI
 
-# Artisan (runs in Docker)
-./artisan migrate
-./artisan make:model Post -mcr
+./composer require pkg/name  # Add package
 
-# Composer (runs in Docker)
-./composer require package/name
-
-# Omnify - schema-driven code generation
-npx omnify generate   # Generate migrations + types
-npx omnify validate   # Validate schemas
+npx omnify generate          # Generate from schemas
 ```
 
 ## URLs
 
-Domain based on folder name: `{folder}.app`
-
-| Service    | URL                       |
-| ---------- | ------------------------- |
-| Frontend   | https://{folder}.app      |
-| API        | https://api.{folder}.app  |
-| phpMyAdmin | https://{folder}.app:8080 |
-| Mailpit    | https://{folder}.app:8025 |
-| MinIO      | https://{folder}.app:9001 |
+| Service  | URL                                        |
+| -------- | ------------------------------------------ |
+| Frontend | https://{folder}.app                       |
+| API      | https://api.{folder}.app                   |
+| Docs     | https://api.{folder}.app/api/documentation |
 
 ## Database
 
 ```
-Host: mysql | DB: omnify | User: omnify | Pass: secret
+Host: mysql | User: omnify | Pass: secret
+Dev: omnify | Test: omnify_testing
 ```
-
-## SMTP (Mailpit)
-
-```
-Host: mailpit | Port: 1025 | No auth
-```
-
-## S3 (MinIO)
-
-```
-Endpoint: http://minio:9000 | Key: minioadmin | Secret: minioadmin | Bucket: local
-```
-
-## Auto-generated Files (gitignored)
-
-- `backend/.env` - Laravel env
-- `docker/nginx/nginx.conf` - Generated from template
-
-## Ports
-
-- Frontend: auto-detected on first run (starts at 3000, runs on host)
-- Backend/phpMyAdmin: internal Docker network only (accessed via nginx)
 
 ## Rules
 
-- Do NOT run `git commit` without asking
-- Do NOT run code/tests automatically
-- Use `./artisan` and `./composer` wrappers (PHP 8.4 in Docker)
+- ❌ Do NOT run `git commit` without asking
+- ❌ Do NOT run tests automatically
+- ✅ Use `./artisan` and `./composer` wrappers
 
 ---
 
-## Frontend Documentation
+## Documentation (BMAD Structure)
 
-When working on **frontend**, read these guides in `.claude/frontend/`:
+> **Entry point**: [.claude/README.md](/.claude/README.md)
 
-| Guide                                                              | Content                             |
-| ------------------------------------------------------------------ | ----------------------------------- |
-| [design-philosophy.md](/.claude/frontend/design-philosophy.md)     | ⭐ Why this architecture, principles |
-| [README.md](/.claude/frontend/README.md)                           | Directory Structure, Naming         |
-| [types-guide.md](/.claude/frontend/types-guide.md)                 | Where & how to define types         |
-| [service-pattern.md](/.claude/frontend/service-pattern.md)         | Service Layer                       |
-| [tanstack-query.md](/.claude/frontend/tanstack-query.md)           | Query, Mutation, Tips               |
-| [antd-guide.md](/.claude/frontend/antd-guide.md)                   | Components, Deprecated Props        |
-| [i18n-guide.md](/.claude/frontend/i18n-guide.md)                   | Multi-language                      |
-| [datetime-guide.md](/.claude/frontend/datetime-guide.md)           | Day.js, Timezone, UTC handling      |
-| [laravel-integration.md](/.claude/frontend/laravel-integration.md) | Sanctum, Error Handling             |
-| [checklist.md](/.claude/frontend/checklist.md)                     | New Resource, Before Commit         |
+| Purpose        | Folder                                      | Description                             |
+| -------------- | ------------------------------------------- | --------------------------------------- |
+| **Agents**     | [.claude/agents/](/.claude/agents/)         | AI personas (developer, reviewer, etc.) |
+| **Workflows**  | [.claude/workflows/](/.claude/workflows/)   | Step-by-step processes                  |
+| **Rules**      | [.claude/rules/](/.claude/rules/)           | Security, performance, naming           |
+| **Guides**     | [.claude/guides/](/.claude/guides/)         | Implementation reference                |
+| **Checklists** | [.claude/checklists/](/.claude/checklists/) | Quick verification                      |
+| **Schema**     | [.claude/omnify/](/.claude/omnify/)         | Auto-generated                          |
 
-**Quick patterns:**
+### Agents
+
+| Agent                                      | Use For            |
+| ------------------------------------------ | ------------------ |
+| [@developer](/.claude/agents/developer.md) | Implement features |
+| [@reviewer](/.claude/agents/reviewer.md)   | Code review        |
+| [@architect](/.claude/agents/architect.md) | System design      |
+| [@tester](/.claude/agents/tester.md)       | Write tests        |
+
+### Quick Links
+
+| Task           | Go To                                                           |
+| -------------- | --------------------------------------------------------------- |
+| New feature    | [workflows/new-feature.md](/.claude/workflows/new-feature.md)   |
+| Bug fix        | [workflows/bug-fix.md](/.claude/workflows/bug-fix.md)           |
+| Code review    | [workflows/code-review.md](/.claude/workflows/code-review.md)   |
+| Security rules | [rules/security.md](/.claude/rules/security.md)                 |
+| Backend guide  | [guides/backend/README.md](/.claude/guides/backend/README.md)   |
+| Frontend guide | [guides/frontend/README.md](/.claude/guides/frontend/README.md) |
+
+---
+
+## Quick Patterns
+
+### Backend (Thin Controller)
+
+```php
+public function store(UserStoreRequest $request): UserResource
+{
+    return new UserResource(User::create($request->validated()));
+}
+```
+
+### Frontend (TanStack Query)
+
 ```typescript
-// Query
 const { data } = useQuery({
   queryKey: queryKeys.users.list(filters),
   queryFn: () => userService.list(filters),
 });
-
-// Mutation
-const mutation = useMutation({
-  mutationFn: userService.create,
-  onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.users.all }),
-});
 ```
 
 ---
 
-## Laravel Documentation
+## Key Principles
 
-When working on **backend**, read these guides in `.claude/laravel/`:
-
-| Guide                                                   | Content                      |
-| ------------------------------------------------------- | ---------------------------- |
-| [datetime-guide.md](/.claude/laravel/datetime-guide.md) | Carbon, UTC, API Date Format |
-
-**Key rules:**
-- `config/app.php` timezone must be `UTC`
-- All API dates return ISO 8601 UTC: `->toISOString()`
-- Always use `Carbon`, never raw `DateTime` or `date()`
-
----
+1. **Schema-First**: `.omnify/schemas/` → generate everything
+2. **Thin Controllers**: Validate → Delegate → Respond
+3. **UTC Everywhere**: Store UTC, send `toISOString()`
+4. **Test Everything**: 正常系 + 異常系
+5. **Don't Over-Engineer**: Simple CRUD = Controller + Model
 
 ## Omnify
 

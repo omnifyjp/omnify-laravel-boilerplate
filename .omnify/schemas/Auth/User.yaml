@@ -6,7 +6,7 @@ options:
   timestamps: true
 properties:
   name:
-    type: String
+    type: JapaneseName
     displayName:
       ja: 名前
       en: Name

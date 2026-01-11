@@ -1,0 +1,34 @@
+---
+description: "Omnify schema-driven code generation rules"
+globs: [".omnify/**", "**/*.yaml"]
+alwaysApply: false
+---
+
+# Omnify Schema Rules
+
+This project uses Omnify for schema-driven code generation.
+
+## Documentation
+
+Read these files in `.claude/omnify/`:
+
+| File                  | Content                          |
+| --------------------- | -------------------------------- |
+| `schema-guide.md`     | Base schema format               |
+| `config-guide.md`     | Configuration (omnify.config.ts) |
+| `laravel-guide.md`    | Laravel generator                |
+| `typescript-guide.md` | TypeScript generator             |
+| `japan-guide.md`      | Japanese field types             |
+
+## Commands
+
+```bash
+npx omnify generate  # Generate code from schemas
+npx omnify validate  # Validate all schemas
+```
+
+## Important
+
+- **DO NOT** manually edit files in `backend/database/omnify/`
+- **DO NOT** manually edit files in `frontend/src/types/model/base/`
+- Schema changes → Run `npx omnify generate`

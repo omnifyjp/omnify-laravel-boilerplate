@@ -226,7 +226,9 @@ APP_NAME=${PROJECT_NAME}
 APP_KEY=
 APP_ENV=local
 APP_DEBUG=true
+APP_TIMEZONE=UTC
 APP_URL=https://${API_DOMAIN}
+FRONTEND_URL=https://${DOMAIN}
 
 LOG_CHANNEL=stack
 LOG_LEVEL=debug
@@ -238,9 +240,13 @@ DB_DATABASE=omnify
 DB_USERNAME=omnify
 DB_PASSWORD=secret
 
-SESSION_DRIVER=file
+SESSION_DRIVER=cookie
+SESSION_DOMAIN=.${DOMAIN}
 CACHE_DRIVER=file
 QUEUE_CONNECTION=sync
+
+SANCTUM_STATEFUL_DOMAINS=${DOMAIN},${API_DOMAIN}
+CORS_ALLOWED_ORIGINS=https://${DOMAIN}
 
 MAIL_MAILER=smtp
 MAIL_HOST=mailpit
@@ -261,6 +267,15 @@ AWS_USE_PATH_STYLE_ENDPOINT=true
 EOF
     echo "   ✅ backend/.env created"
     GENERATE_KEY=true
+fi
+
+# =============================================================================
+# Step 4b: Generate backend/.env.testing (if not exists)
+# =============================================================================
+if [ ! -f "./backend/.env.testing" ]; then
+    echo "📝 Generating backend/.env.testing..."
+    cp ./docker/stubs/env.testing.stub ./backend/.env.testing
+    echo "   ✅ backend/.env.testing created"
 fi
 
 # =============================================================================
@@ -400,6 +415,7 @@ echo "  📧 Mailpit:     https://${DOMAIN}:8025"
 echo "  📦 MinIO:       https://${DOMAIN}:9001 (console)"
 echo ""
 echo "  Database: omnify / omnify / secret"
+echo "  Testing DB: omnify_testing"
 echo "  SMTP: mailpit:1025 (no auth)"
 echo "  S3: minio:9000 (minioadmin/minioadmin)"
 echo ""

@@ -2,6 +2,47 @@
 
 > **Related:** [README](./README.md) | [Naming Conventions](./naming-conventions.md) | [Checklist](./checklist.md)
 
+## Quick Start - How to Run Tests
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Run ALL tests
+./artisan test
+
+# Run specific test file
+./artisan test --filter=UserControllerTest
+
+# Run specific test method
+./artisan test --filter="creates user with valid data"
+
+# Run with verbose output
+./artisan test -v
+```
+
+## Critical: Database Trait
+
+**MUST use `RefreshDatabase` for SQLite in-memory testing:**
+
+```php
+// ✅ CORRECT - Use RefreshDatabase
+use Illuminate\Foundation\Testing\RefreshDatabase;
+uses(RefreshDatabase::class);
+
+// ❌ WRONG - DatabaseTransactions doesn't run migrations
+// Will fail with "no such table" error!
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+uses(DatabaseTransactions::class);
+```
+
+| Trait | Database | Behavior |
+|-------|----------|----------|
+| `RefreshDatabase` | SQLite in-memory | Runs migrations → truncates after each test |
+| `DatabaseTransactions` | MySQL/PostgreSQL | Only wraps in transaction (tables must exist) |
+
+---
+
 ## Overview
 
 This project uses **PEST** for testing. Every API endpoint MUST have tests covering:

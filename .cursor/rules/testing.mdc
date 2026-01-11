@@ -10,12 +10,64 @@ alwaysApply: false
 > - Read `.claude/agents/tester.md` for principles
 > - Read `.claude/guides/backend/testing.md` for full guide
 
+## How to Run Tests
+
+```bash
+# Run ALL tests
+cd backend && ./artisan test
+
+# Run specific test file
+./artisan test --filter=UserControllerTest
+
+# Run specific test method
+./artisan test --filter="creates user with valid data"
+
+# Run with coverage (if xdebug installed)
+./artisan test --coverage
+```
+
+## Testing Process
+
+1. **Before writing tests:**
+   - Read the Controller to understand endpoints
+   - Read the Request to understand validation rules
+   - Read the Resource to understand response structure
+
+2. **Write tests covering:**
+   - 正常系 (Normal cases) - success scenarios
+   - 異常系 (Abnormal cases) - failure scenarios
+
+3. **Run tests to verify:**
+   ```bash
+   cd backend && ./artisan test
+   ```
+
+4. **All tests must pass before committing**
+
 ## Critical Rules
 
 1. **PEST Syntax** - Use `describe()` + `it()`, not PHPUnit
 2. **正常系 + 異常系** - Cover both success and failure
 3. **Naming** - Use `正常:` and `異常:` prefixes
 4. **Coverage** - All endpoints, all validation rules
+5. **RefreshDatabase** - MUST use for SQLite in-memory
+
+## Database Trait - IMPORTANT
+
+```php
+// ✅ CORRECT - Use RefreshDatabase for SQLite in-memory
+use Illuminate\Foundation\Testing\RefreshDatabase;
+uses(RefreshDatabase::class);
+
+// ❌ WRONG - DatabaseTransactions doesn't run migrations
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+uses(DatabaseTransactions::class);  // Will fail with "no such table"
+```
+
+| Trait                  | When to Use                       | Notes                           |
+| ---------------------- | --------------------------------- | ------------------------------- |
+| `RefreshDatabase`      | SQLite in-memory (default)        | Runs migrations, then truncates |
+| `DatabaseTransactions` | MySQL/PostgreSQL with existing DB | Only wraps in transaction       |
 
 ## Test Naming
 

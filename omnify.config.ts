@@ -32,20 +32,11 @@ export default defineConfig({
   schemasDir: "./.omnify/schemas",
   plugins: [
     japanPlugin,
+    // Laravel plugin with base path for monorepo
     laravelPlugin({
-      migrationsPath: "./backend/database/migrations/omnify",
-      modelsPath: "./backend/app/Models",
-      baseModelsPath: "./backend/app/Models/OmnifyBase",
-      providersPath: "./backend/app/Providers",
-      factoriesPath: "./backend/database/factories",
-      // FormRequest generation
+      base: "./backend/",
       generateRequests: true,
-      requestsPath: "./backend/app/Http/Requests",
-      baseRequestsPath: "./backend/app/Http/Requests/OmnifyBase",
-      // Resource generation
       generateResources: true,
-      resourcesPath: "./backend/app/Http/Resources",
-      baseResourcesPath: "./backend/app/Http/Resources/OmnifyBase",
     }),
   ],
   locale: {
@@ -58,7 +49,7 @@ export default defineConfig({
   },
   output: {
     typescript: {
-      path: "./frontend/src/types/model",
+      path: "./frontend/src/omnify",
     },
   },
 });

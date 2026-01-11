@@ -5,7 +5,7 @@
  */
 
 import api, { csrf } from "@/lib/api";
-import type { User } from "@/types/model";
+import type { User } from "@/omnify/schemas";
 
 // =============================================================================
 // Types - Input/Request types only (Model types come from Omnify)

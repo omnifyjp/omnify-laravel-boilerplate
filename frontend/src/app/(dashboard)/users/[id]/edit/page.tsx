@@ -5,12 +5,13 @@ import { Typography, Button, Space, Spin, Form } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { userService } from "@/services/users";
 import { queryKeys } from "@/lib/queryKeys";
-import { useFormMutation } from "@/hooks/useFormMutation";
+import { useFormMutation } from "@/omnify/hooks";
 import { UserForm } from "@/features/users/UserForm";
-import type { UserUpdate } from "@/types/model";
+import type { UserUpdate } from "@/omnify/schemas";
 
 const { Title } = Typography;
 
@@ -22,6 +23,7 @@ export default function EditUserPage({ params }: PageProps) {
   const { id } = use(params);
   const userId = parseInt(id, 10);
   const t = useTranslations();
+  const router = useRouter();
   const [form] = Form.useForm();
 
   // Fetch user
@@ -35,8 +37,8 @@ export default function EditUserPage({ params }: PageProps) {
     form,
     mutationFn: (data) => userService.update(userId, data),
     invalidateKeys: [queryKeys.users.all, queryKeys.users.detail(userId)],
-    successMessage: "messages.updated",
-    redirectTo: `/users/${userId}`,
+    successMessage: t("messages.updated"),
+    onSuccess: () => router.push(`/users/${userId}`),
   });
 
   if (isLoading) {
@@ -65,7 +67,7 @@ export default function EditUserPage({ params }: PageProps) {
           <Button icon={<ArrowLeftOutlined />}>{t("common.back")}</Button>
         </Link>
         <Title level={2} style={{ margin: 0 }}>
-          {t("common.edit")} - {user.name}
+          {t("common.edit")} - {user.name_full_name ?? `${user.name_lastname} ${user.name_firstname}`}
         </Title>
       </Space>
 

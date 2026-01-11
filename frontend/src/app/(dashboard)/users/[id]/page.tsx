@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { userService } from "@/services/users";
 import { queryKeys } from "@/lib/queryKeys";
-import { getUserPropertyDisplayName } from "@/types/model";
+import { getUserFieldLabel } from "@/omnify/schemas";
 import { formatDateTime } from "@/lib/dayjs";
 
 const { Title } = Typography;
@@ -73,7 +73,7 @@ export default function UserDetailPage({ params }: PageProps) {
             <Button icon={<ArrowLeftOutlined />}>{t("common.back")}</Button>
           </Link>
           <Title level={2} style={{ margin: 0 }}>
-            {user.name}
+            {user.name_full_name ?? `${user.name_lastname} ${user.name_firstname}`}
           </Title>
         </Space>
         <Space>
@@ -98,13 +98,13 @@ export default function UserDetailPage({ params }: PageProps) {
       <Card>
         <Descriptions column={1} bordered>
           <Descriptions.Item label="ID">{user.id}</Descriptions.Item>
-          <Descriptions.Item label={getUserPropertyDisplayName("name", locale)}>
-            {user.name}
+          <Descriptions.Item label={getUserFieldLabel("name", locale)}>
+            {user.name_full_name ?? `${user.name_lastname} ${user.name_firstname}`}
           </Descriptions.Item>
-          <Descriptions.Item label={getUserPropertyDisplayName("email", locale)}>
+          <Descriptions.Item label={getUserFieldLabel("email", locale)}>
             {user.email}
           </Descriptions.Item>
-          <Descriptions.Item label={getUserPropertyDisplayName("email_verified_at", locale)}>
+          <Descriptions.Item label={getUserFieldLabel("email_verified_at", locale)}>
             {user.email_verified_at ? formatDateTime(user.email_verified_at) : "-"}
           </Descriptions.Item>
           <Descriptions.Item label="Created At">

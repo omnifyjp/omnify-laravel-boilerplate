@@ -1,0 +1,289 @@
+---
+description: Frontend Design System - Japanese Business UI Guidelines
+globs: ["./frontend/src/**/*.tsx", "./frontend/src/**/*.css"]
+alwaysApply: false
+---
+
+# React Design System
+
+## Overview
+
+This design system follows **Japanese Business UI principles**: compact, functional, and minimal.
+Primary color: Violet (#7C3AED).
+
+## Design Principles
+
+### 日本のビジネスUI (Japanese Business UI)
+
+1. **コンパクト (Compact)** - High information density, minimal wasted space
+2. **機能的 (Functional)** - Prioritize usability and efficiency
+3. **シンプル (Simple)** - Minimize visual noise, flat design
+4. **高密度 (High Density)** - More information visible on screen
+
+## Color System
+
+### HSL-Based Color Harmony
+
+All colors follow HSL color theory with consistent saturation (~84%) for harmony.
+
+```
+Primary Hue: 258° (Violet)
+```
+
+### Brand Colors
+
+| Role              | Hex       | HSL            | Usage                            |
+| ----------------- | --------- | -------------- | -------------------------------- |
+| **Primary**       | `#7C3AED` | 258°, 84%, 58% | Buttons, links, sidebar, accents |
+| **Primary Light** | `#9061F9` | 258°, 84%, 68% | Hover states, selected items     |
+| **Primary Dark**  | `#6D28D9` | 258°, 84%, 50% | Active states, sub-menus         |
+
+### Semantic Colors (Complementary Harmony)
+
+| Role        | Hex       | HSL            | Usage                              |
+| ----------- | --------- | -------------- | ---------------------------------- |
+| **Success** | `#10B981` | 160°, 84%, 39% | Success messages, positive actions |
+| **Warning** | `#F59E0B` | 38°, 92%, 50%  | Warnings, caution states           |
+| **Error**   | `#EF4444` | 0°, 84%, 60%   | Errors, destructive actions        |
+
+### Neutral Colors (Violet Undertone)
+
+| Role                     | Hex       | Usage                         |
+| ------------------------ | --------- | ----------------------------- |
+| **Text Primary**         | `#1E1B2E` | Main text, headings           |
+| **Text Secondary**       | `#4B5563` | Secondary text, labels        |
+| **Text Tertiary**        | `#9CA3AF` | Placeholder, disabled text    |
+| **Background Layout**    | `#F8F7FA` | Page background (violet-gray) |
+| **Background Container** | `#FFFFFF` | Cards, containers             |
+| **Border**               | `#E5E7EB` | Borders, dividers             |
+| **Border Secondary**     | `#F3F4F6` | Subtle borders                |
+
+### Color Usage Rules
+
+1. **60-30-10 Rule**: 60% neutral, 30% primary, 10% accent
+2. **Same Saturation Family**: Keep semantic colors at ~84% saturation
+3. **Cool Tone Neutrals**: Grays should have slight violet undertone
+4. **WCAG AA Compliance**: Maintain contrast ratio ≥ 4.5:1 for text
+
+## Typography
+
+### Locale-Specific Font Stacks
+
+```typescript
+const fontFamilies = {
+  // Japanese - CJK optimized
+  ja: "'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif",
+  
+  // English - Modern western
+  en: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  
+  // Vietnamese - Light, clean font with diacritics support
+  vi: "'Inter', 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+};
+```
+
+### Font Sizes (Compact)
+
+| Token              | Size | Usage          |
+| ------------------ | ---- | -------------- |
+| `fontSize`         | 13px | Base text      |
+| `fontSizeLG`       | 14px | Large text     |
+| `fontSizeHeading1` | 24px | Page titles    |
+| `fontSizeHeading2` | 20px | Section titles |
+| `fontSizeHeading3` | 16px | Card titles    |
+| `fontSizeHeading4` | 14px | Sub-headings   |
+| `fontSizeHeading5` | 13px | Small headings |
+
+### Line Height
+
+- Default: `1.5` (compact, suitable for Japanese text)
+
+## Spacing System
+
+### Compact Spacing Scale
+
+| Token       | Value | Usage           |
+| ----------- | ----- | --------------- |
+| `paddingXS` | 4px   | Minimal spacing |
+| `paddingSM` | 8px   | Small spacing   |
+| `padding`   | 12px  | Default spacing |
+| `paddingLG` | 16px  | Large spacing   |
+| `marginXS`  | 4px   | Minimal margin  |
+| `marginSM`  | 8px   | Small margin    |
+| `margin`    | 12px  | Default margin  |
+| `marginLG`  | 16px  | Large margin    |
+
+### Layout Spacing
+
+- Content margin: `12px`
+- Content padding: `16px`
+- Header height: `48px`
+- Sidebar width: `180px`
+
+## Border Radius
+
+### Subtle, Professional Corners
+
+| Token            | Value | Usage                    |
+| ---------------- | ----- | ------------------------ |
+| `borderRadiusSM` | 2px   | Tags, badges             |
+| `borderRadius`   | 4px   | Buttons, inputs, cards   |
+| `borderRadiusLG` | 6px   | Modals, large containers |
+
+> **Note**: Japanese business UIs prefer subtle corners over heavily rounded designs.
+
+## Shadows
+
+### Almost Flat Design
+
+```css
+/* Primary shadow - very subtle */
+boxShadow: "0 1px 2px rgba(0, 0, 0, 0.03)"
+
+/* Secondary shadow - hover states */
+boxShadowSecondary: "0 1px 3px rgba(0, 0, 0, 0.04)"
+```
+
+> **Note**: Prefer borders over shadows for Japanese business style.
+
+## Control Sizes
+
+### Compact Controls
+
+| Token             | Value | Usage                 |
+| ----------------- | ----- | --------------------- |
+| `controlHeightSM` | 28px  | Small buttons, inputs |
+| `controlHeight`   | 32px  | Default controls      |
+| `controlHeightLG` | 36px  | Large controls        |
+
+## Component Guidelines
+
+### Buttons
+
+```typescript
+Button: {
+  controlHeight: 32,
+  paddingInline: 12,
+  fontWeight: 500,
+}
+```
+
+### Inputs
+
+```typescript
+Input: {
+  controlHeight: 32,
+  paddingInline: 8,
+}
+```
+
+### Tables
+
+```typescript
+Table: {
+  cellPaddingBlock: 8,
+  cellPaddingInline: 8,
+  headerBg: "#F8F7FA",
+}
+```
+
+### Forms
+
+```typescript
+Form: {
+  itemMarginBottom: 16,
+  verticalLabelPadding: "0 0 4px",
+}
+```
+
+### Menu (Dark Theme for Sidebar)
+
+```typescript
+Menu: {
+  itemHeight: 36,
+  itemMarginBlock: 2,
+  itemMarginInline: 4,
+  darkItemBg: "#7C3AED",
+  darkSubMenuItemBg: "#6D28D9",
+  darkItemSelectedBg: "#9061F9",
+  darkItemSelectedColor: "#FFFFFF",
+  darkItemColor: "rgba(255, 255, 255, 0.9)",
+  darkItemHoverBg: "rgba(144, 97, 249, 0.6)",
+  darkItemHoverColor: "#FFFFFF",
+}
+```
+
+### Layout
+
+```typescript
+Layout: {
+  siderBg: "#7C3AED",
+  headerPadding: "0 16px",
+  headerHeight: 48,
+}
+```
+
+## Implementation
+
+### Ant Design Theme Configuration
+
+All design tokens are configured in:
+```
+frontend/src/components/AntdThemeProvider.tsx
+```
+
+### Google Fonts Loading
+
+Fonts are loaded in:
+```
+frontend/src/app/layout.tsx
+```
+
+Required fonts:
+- Noto Sans JP (Japanese)
+- Inter (English)
+- Be Vietnam Pro (Vietnamese)
+
+## Do's and Don'ts
+
+### ✅ Do
+
+- Use compact spacing (8-16px)
+- Keep shadows minimal or none
+- Use subtle border radius (2-6px)
+- Maintain high information density
+- Use locale-specific fonts
+- Follow HSL color harmony
+
+### ❌ Don't
+
+- Use excessive padding (>24px)
+- Use heavy shadows
+- Use large border radius (>10px)
+- Leave large empty spaces
+- Mix warm and cool grays
+- Use colors outside the harmony system
+
+## Quick Reference
+
+```typescript
+// Primary colors
+const primary = "#7C3AED";
+const primaryLight = "#9061F9";
+const primaryDark = "#6D28D9";
+
+// Semantic colors
+const success = "#10B981";
+const warning = "#F59E0B";
+const error = "#EF4444";
+
+// Neutrals
+const textPrimary = "#1E1B2E";
+const bgLayout = "#F8F7FA";
+const border = "#E5E7EB";
+
+// Sizes
+const controlHeight = 32;
+const borderRadius = 4;
+const padding = 12;
+```

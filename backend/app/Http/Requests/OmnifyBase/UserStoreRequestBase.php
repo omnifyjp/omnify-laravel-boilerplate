@@ -27,8 +27,8 @@ abstract class UserStoreRequestBase extends FormRequest
         return [
             'name_lastname' => ['required', 'string', 'max:50'],
             'name_firstname' => ['required', 'string', 'max:50'],
-            'name_kana_lastname' => ['required', 'string', 'max:100', 'regex:/^[\x{30A0}-\x{30FF}\x{3000}-\x{303F}\x{FF00}-\x{FF9F}\s]+$/u'],
-            'name_kana_firstname' => ['required', 'string', 'max:100', 'regex:/^[\x{30A0}-\x{30FF}\x{3000}-\x{303F}\x{FF00}-\x{FF9F}\s]+$/u'],
+            'name_kana_lastname' => ['nullable', 'string', 'max:100', 'regex:/^[\x{30A0}-\x{30FF}\x{3000}-\x{303F}\x{FF00}-\x{FF9F}\s]+$/u'],
+            'name_kana_firstname' => ['nullable', 'string', 'max:100', 'regex:/^[\x{30A0}-\x{30FF}\x{3000}-\x{303F}\x{FF00}-\x{FF9F}\s]+$/u'],
             'email' => ['required', 'string', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'max:255'],
         ];

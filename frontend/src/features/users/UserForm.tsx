@@ -3,11 +3,9 @@
 import { Form, Input, Button, Space, Card, Row, Col } from "antd";
 import type { FormInstance } from "antd";
 import { useTranslations, useLocale } from "next-intl";
-import type { User } from "@/types/model";
-import { getUserPropertyDisplayName } from "@/types/model";
-import { zodRule } from "@/lib/form-validation";
-import { userSchemas } from "@/schemas/user";
-import { setZodTranslator } from "@/lib/zod-i18n";
+import type { User } from "@/omnify/schemas";
+import { userSchemas, getUserFieldLabel } from "@/omnify/schemas";
+import { zodRule, setZodLocale } from "@/omnify/lib";
 
 // =============================================================================
 // Types
@@ -39,10 +37,10 @@ export function UserForm({
   const t = useTranslations();
   const locale = useLocale();
 
-  // Set translator for Zod validation messages
-  setZodTranslator(t);
+  // Set locale for Zod validation messages
+  setZodLocale(locale);
 
-  const label = (key: string) => getUserPropertyDisplayName(key, locale);
+  const label = (key: string) => getUserFieldLabel(key, locale);
 
   return (
     <Card>

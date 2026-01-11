@@ -118,7 +118,6 @@ This project uses Omnify for schema-driven code generation.
 - `config-guide.md` - Configuration (omnify.config.ts)
 - `laravel-guide.md` - Laravel generator (if installed)
 - `typescript-guide.md` - TypeScript generator (if installed)
-- `antdesign-guide.md` - Ant Design Form integration (if installed)
 
 **Commands**:
 - `npx omnify generate` - Generate code from schemas

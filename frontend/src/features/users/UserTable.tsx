@@ -5,7 +5,7 @@ import type { ColumnsType } from "antd/es/table";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import type { User } from "@/types/model";
+import type { User } from "@/omnify/schemas";
 import type { PaginatedResponse } from "@/lib/api";
 import { formatDateTime } from "@/lib/dayjs";
 
@@ -48,7 +48,9 @@ export function UserTable({
     },
     {
       title: "Name",
-      dataIndex: "name",
+      key: "name",
+      render: (_, record) =>
+        record.name_full_name ?? `${record.name_lastname} ${record.name_firstname}`,
     },
     {
       title: "Created",

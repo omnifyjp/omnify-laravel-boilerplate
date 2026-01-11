@@ -6,7 +6,7 @@
  */
 
 import api, { PaginatedResponse } from "@/lib/api";
-import type { User, UserCreate, UserUpdate } from "@/types/model";
+import type { User, UserCreate, UserUpdate } from "@/omnify/schemas";
 
 // =============================================================================
 // Types - Only query params (Create/Update come from Omnify)

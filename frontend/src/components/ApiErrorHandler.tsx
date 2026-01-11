@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { message } from "antd";
+import { App } from "antd";
 import { useTranslations } from "next-intl";
 import { setApiErrorHandler, ApiErrorType } from "@/lib/api";
 
 export default function ApiErrorHandler() {
   const t = useTranslations("messages");
+  const { message } = App.useApp();
 
   useEffect(() => {
     setApiErrorHandler((type: ApiErrorType) => {
@@ -26,7 +27,7 @@ export default function ApiErrorHandler() {
         message.error(msg);
       }
     });
-  }, [t]);
+  }, [t, message]);
 
   return null;
 }

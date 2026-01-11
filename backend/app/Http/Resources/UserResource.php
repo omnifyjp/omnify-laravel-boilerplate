@@ -24,7 +24,7 @@ use App\Http\Resources\OmnifyBase\UserResourceBase;
         new OA\Property(property: 'name_full_name', type: 'string'),
         new OA\Property(property: 'name_full_name_kana', type: 'string'),
         new OA\Property(property: 'email', type: 'string', format: 'email'),
-        new OA\Property(property: 'email_verified_at', type: 'string', format: 'email', nullable: true),
+        new OA\Property(property: 'email_verified_at', type: 'string', format: 'date-time', nullable: true),
         new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
         new OA\Property(property: 'updated_at', type: 'string', format: 'date-time'),
     ]

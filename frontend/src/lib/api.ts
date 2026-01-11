@@ -135,16 +135,55 @@ export const csrf = () => api.get("/sanctum/csrf-cookie");
 // Helper to extract validation errors for Ant Design Form
 // =============================================================================
 
+/**
+ * Extract field errors for form.setFields()
+ * Supports:
+ * - Simple fields: "email" → name: "email"
+ * - Dot notation: "user.name" → name: ["user", "name"]
+ * - Array notation: "items.0.name" → name: ["items", 0, "name"]
+ * 
+ * @example form.setFields(getFormErrors(error))
+ */
 export const getFormErrors = (error: unknown) => {
   const axiosError = error as AxiosError<ValidationError>;
   const errors = axiosError.response?.data?.errors;
 
   if (!errors) return [];
 
-  return Object.entries(errors).map(([name, messages]) => ({
-    name,
+  return Object.entries(errors).map(([fieldName, messages]) => ({
+    // Convert "user.name" or "items.0.name" to array path for Ant Design
+    name: fieldName.includes(".")
+      ? fieldName.split(".").map((part) => (/^\d+$/.test(part) ? parseInt(part, 10) : part))
+      : fieldName,
     errors: messages,
   }));
+};
+
+/**
+ * Extract validation message từ Laravel 422 response
+ * @example "The name_lastname field is required. (and 3 more errors)"
+ */
+export const getValidationMessage = (error: unknown): string | null => {
+  const axiosError = error as AxiosError<ValidationError>;
+
+  // Only for 422 validation errors
+  if (axiosError.response?.status !== 422) return null;
+
+  return axiosError.response?.data?.message ?? null;
+};
+
+/**
+ * Get first error message from validation errors
+ * Useful when field names don't match form fields
+ */
+export const getFirstValidationError = (error: unknown): string | null => {
+  const axiosError = error as AxiosError<ValidationError>;
+  const errors = axiosError.response?.data?.errors;
+
+  if (!errors) return null;
+
+  const firstField = Object.keys(errors)[0];
+  return firstField ? errors[firstField][0] : null;
 };
 
 export default api;

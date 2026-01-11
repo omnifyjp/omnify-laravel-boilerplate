@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Space, Typography, message } from "antd";
+import { Button, Input, Space, Typography, App } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
@@ -15,6 +15,7 @@ const { Title } = Typography;
 export default function UsersPage() {
   const t = useTranslations();
   const queryClient = useQueryClient();
+  const { message } = App.useApp();
   const [params, setParams] = useState<UserListParams>({ page: 1, per_page: 10 });
   const [searchValue, setSearchValue] = useState("");
 
@@ -37,7 +38,7 @@ export default function UsersPage() {
   });
 
   const handleSearch = () => {
-    setParams({ ...params, search: searchValue, page: 1 });
+    setParams({ ...params, filter: { search: searchValue }, page: 1 });
   };
 
   const handlePageChange = (page: number, pageSize: number) => {

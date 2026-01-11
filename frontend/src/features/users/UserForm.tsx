@@ -1,24 +1,26 @@
 "use client";
 
-import { Form, Input, Button, Space, Card } from "antd";
+import { Form, Input, Button, Space, Card, Row, Col } from "antd";
+import type { FormInstance } from "antd";
 import { useTranslations, useLocale } from "next-intl";
-import type { User, UserCreate, UserUpdate } from "@/types/model";
-import { getUserRules, getUserPropertyDisplayName } from "@/types/model";
+import type { User } from "@/types/model";
+import { getUserPropertyDisplayName } from "@/types/model";
+import { zodRule } from "@/lib/form-validation";
+import { userSchemas } from "@/schemas/user";
+import { setZodTranslator } from "@/lib/zod-i18n";
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface UserFormProps {
-  /** Initial values for edit mode */
+  /** Form instance từ parent - BẮT BUỘC để nhận lỗi từ backend */
+  form: FormInstance;
   initialValues?: Partial<User>;
-  /** Submit handler */
-  onSubmit: (values: UserCreate | UserUpdate) => void;
-  /** Loading state */
+  /** Validation đảm bảo values đầy đủ - cast type ở page */
+  onSubmit: (values: Record<string, unknown>) => void;
   loading?: boolean;
-  /** Is edit mode (hides password field if true) */
   isEdit?: boolean;
-  /** Cancel handler */
   onCancel?: () => void;
 }
 
@@ -27,6 +29,7 @@ interface UserFormProps {
 // =============================================================================
 
 export function UserForm({
+  form,
   initialValues,
   onSubmit,
   loading = false,
@@ -35,60 +38,100 @@ export function UserForm({
 }: UserFormProps) {
   const t = useTranslations();
   const locale = useLocale();
-  const [form] = Form.useForm();
-  const rules = getUserRules(locale);
+
+  // Set translator for Zod validation messages
+  setZodTranslator(t);
+
+  const label = (key: string) => getUserPropertyDisplayName(key, locale);
 
   return (
     <Card>
       <Form
         form={form}
-        layout="vertical"
+        layout="horizontal"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
         initialValues={initialValues}
         onFinish={onSubmit}
-        style={{ maxWidth: 600 }}
+        style={{ maxWidth: 800 }}
       >
-        <Form.Item
-          name="name"
-          label={getUserPropertyDisplayName("name", locale)}
-          rules={rules.name}
-        >
-          <Input />
+        {/* 名前 (姓・名) / Name */}
+        <Form.Item label={label("name_lastname")} required style={{ marginBottom: 0 }}>
+          <Row gutter={8}>
+            <Col span={12}>
+              <Form.Item
+                name="name_lastname"
+                rules={[zodRule(userSchemas.name_lastname, label("name_lastname"))]}
+                style={{ marginBottom: 16 }}
+              >
+                <Input placeholder={label("name_lastname")} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="name_firstname"
+                rules={[zodRule(userSchemas.name_firstname, label("name_firstname"))]}
+                style={{ marginBottom: 16 }}
+              >
+                <Input placeholder={label("name_firstname")} />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form.Item>
 
+        {/* 名前カナ (姓・名) / Name Kana */}
+        <Form.Item label={label("name_kana_lastname")} required style={{ marginBottom: 0 }}>
+          <Row gutter={8}>
+            <Col span={12}>
+              <Form.Item
+                name="name_kana_lastname"
+                rules={[zodRule(userSchemas.name_kana_lastname, label("name_kana_lastname"))]}
+                style={{ marginBottom: 16 }}
+              >
+                <Input placeholder={label("name_kana_lastname")} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="name_kana_firstname"
+                rules={[zodRule(userSchemas.name_kana_firstname, label("name_kana_firstname"))]}
+                style={{ marginBottom: 16 }}
+              >
+                <Input placeholder={label("name_kana_firstname")} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form.Item>
+
+        {/* メールアドレス / Email */}
         <Form.Item
           name="email"
-          label={getUserPropertyDisplayName("email", locale)}
-          rules={[...rules.email, { type: "email", message: t("validation.email") }]}
+          label={label("email")}
+          rules={[zodRule(userSchemas.email, label("email"))]}
         >
           <Input type="email" />
         </Form.Item>
 
+        {/* パスワード / Password */}
         {!isEdit && (
           <Form.Item
             name="password"
-            label={getUserPropertyDisplayName("password", locale)}
-            rules={rules.password}
+            label={label("password")}
+            rules={[zodRule(userSchemas.password, label("password"))]}
           >
             <Input.Password />
           </Form.Item>
         )}
 
-        <Form.Item>
+        <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
           <Space>
             <Button type="primary" htmlType="submit" loading={loading}>
               {t("common.save")}
             </Button>
-            {onCancel && (
-              <Button onClick={onCancel}>{t("common.cancel")}</Button>
-            )}
+            {onCancel && <Button onClick={onCancel}>{t("common.cancel")}</Button>}
           </Space>
         </Form.Item>
       </Form>
     </Card>
   );
-}
-
-/** Expose form instance for external control (e.g., setFields for errors) */
-export function useUserForm() {
-  return Form.useForm();
 }

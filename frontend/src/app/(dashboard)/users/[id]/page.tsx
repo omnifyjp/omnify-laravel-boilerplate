@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { Typography, Descriptions, Card, Button, Space, Spin, Popconfirm, message } from "antd";
+import { Typography, Descriptions, Card, Button, Space, Spin, Popconfirm, App } from "antd";
 import { EditOutlined, DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
@@ -25,6 +25,7 @@ export default function UserDetailPage({ params }: PageProps) {
   const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { message } = App.useApp();
 
   // Fetch user
   const { data: user, isLoading } = useQuery({

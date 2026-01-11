@@ -23,32 +23,45 @@ export const UserDisplayName: LocaleMap = {
 
 /** Property display names for User */
 export const UserPropertyDisplayNames: Record<string, LocaleMap> = {
-  name: {"ja":"名前","en":"Name"},
-  email: {"ja":"メールアドレス","en":"Email"},
-  email_verified_at: {"ja":"メール確認日時","en":"Email Verified At"},
-  password: {"ja":"パスワード","en":"Password"},
-  remember_token: {"ja":"リメンバートークン","en":"Remember Token"},
+  name: { "ja": "名前", "en": "Name" },
+  email: { "ja": "メールアドレス", "en": "Email" },
+  email_verified_at: { "ja": "メール確認日時", "en": "Email Verified At" },
+  password: { "ja": "パスワード", "en": "Password" },
+  remember_token: { "ja": "リメンバートークン", "en": "Remember Token" },
 };
 
 /** Validation rules for User (Ant Design compatible) */
 export const UserRules: Record<string, ValidationRule[]> = {
   name: [
-    { required: true, message: {"ja":"名前は必須です","en":"Name is required"} },
+    { required: true, message: { "ja": "名前は必須です", "en": "Name is required" } },
   ],
   email: [
-    { required: true, message: {"ja":"メールアドレスは必須です","en":"Email is required"} },
+    { required: true, message: { "ja": "メールアドレスは必須です", "en": "Email is required" } },
   ],
   password: [
-    { required: true, message: {"ja":"パスワードは必須です","en":"Password is required"} },
+    { required: true, message: { "ja": "パスワードは必須です", "en": "Password is required" } },
   ],
   remember_token: [
-    { max: 100, message: {"ja":"リメンバートークンは100文字以内で入力してください","en":"Remember Token must be at most 100 characters"} },
+    { max: 100, message: { "ja": "リメンバートークンは100文字以内で入力してください", "en": "Remember Token must be at most 100 characters" } },
   ],
 };
 
+/** Ant Design Rule type */
+type RuleType = 'string' | 'number' | 'boolean' | 'method' | 'regexp' | 'integer' | 'float' | 'array' | 'object' | 'enum' | 'date' | 'url' | 'hex' | 'email' | 'any';
+
+interface AntdRule {
+  required?: boolean;
+  type?: RuleType;
+  min?: number;
+  max?: number;
+  len?: number;
+  pattern?: RegExp;
+  message?: string;
+}
+
 /** Get validation rules with messages for a specific locale */
-export function getUserRules(locale: string): Record<string, Array<{ required?: boolean; type?: string; min?: number; max?: number; pattern?: RegExp; message: string }>> {
-  const result: Record<string, Array<{ required?: boolean; type?: string; min?: number; max?: number; pattern?: RegExp; message: string }>> = {};
+export function getUserRules(locale: string): Record<string, AntdRule[]> {
+  const result: Record<string, AntdRule[]> = {};
   for (const [prop, rules] of Object.entries(UserRules)) {
     result[prop] = rules.map(rule => ({
       ...rule,

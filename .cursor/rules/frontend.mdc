@@ -70,15 +70,97 @@ export interface UserListParams { ... }
 export interface UserCreateInput { ... }  // WRONG
 ```
 
+## Form Validation (Zod)
+
+### Schema (`schemas/{model}.ts`)
+
+```typescript
+import { z } from "zod";
+
+// Field schemas (generator tạo)
+export const userSchemas = {
+  name: z.string().min(1).max(255),
+  email: z.email(),
+  password: z.string().min(8),
+};
+
+// Form schemas
+export const userCreateSchema = z.object({
+  name: userSchemas.name,
+  email: userSchemas.email,
+  password: userSchemas.password,
+});
+```
+
+### Form Component
+
+```typescript
+import type { FormInstance } from "antd";
+import { zodRule } from "@/lib/form-validation";
+import { userSchemas } from "@/schemas/user";
+import { setZodTranslator } from "@/lib/zod-i18n";
+
+interface UserFormProps {
+  form: FormInstance;  // ← BẮT BUỘC để nhận lỗi từ backend
+  onSubmit: (values: UserCreate) => void;
+  loading?: boolean;
+}
+
+export function UserForm({ form, onSubmit, loading }: UserFormProps) {
+  const t = useTranslations();
+  setZodTranslator(t);
+
+  const label = (key: string) => getUserPropertyDisplayName(key, locale);
+
+  return (
+    <Form form={form} onFinish={onSubmit} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>
+      {/* 名前 / Name */}
+      <Form.Item name="name" label={label("name")} rules={[zodRule(userSchemas.name, label("name"))]}>
+        <Input />
+      </Form.Item>
+    </Form>
+  );
+}
+```
+
+### Messages (`i18n/messages/*.json`)
+
+```json
+"validation": {
+  "required": "{field} is required",
+  "email": "Please enter a valid email address",
+  "minLength": "{field} must be at least {min} characters",
+  "maxLength": "{field} must be at most {max} characters"
+}
+```
+
+### Key Files
+
+| File                     | Purpose                     |
+| ------------------------ | --------------------------- |
+| `schemas/{model}.ts`     | Zod schemas (generator tạo) |
+| `lib/form-validation.ts` | `zodRule()` converter       |
+| `lib/zod-i18n.ts`        | i18n integration            |
+| `i18n/messages/*.json`   | Validation messages         |
+
+### Rules
+
+1. **Schema ở `schemas/`** - Không define trong component
+2. **Messages ở `i18n/`** - Không hardcode trong schema
+3. **Comment field label** - `{/* 名前 / Name */}` trước Form.Item
+4. **Dùng `label()` helper** - Lấy từ `getUserPropertyDisplayName()`
+
 ## File Location
 
-| What                    | Where                 |
-| ----------------------- | --------------------- |
-| Component (1 feature)   | `features/{feature}/` |
-| Component (2+ features) | `components/common/`  |
-| Service (API)           | `services/` (ALWAYS)  |
-| Hook (1 feature)        | `features/{feature}/` |
-| Hook (2+ features)      | `hooks/`              |
+| What                    | Where                                       |
+| ----------------------- | ------------------------------------------- |
+| Component (1 feature)   | `features/{feature}/`                       |
+| Component (2+ features) | `components/common/`                        |
+| Service (API)           | `services/` (ALWAYS)                        |
+| Hook (1 feature)        | `features/{feature}/`                       |
+| Hook (2+ features)      | `hooks/`                                    |
+| Zod Schema              | `schemas/{model}.ts`                        |
+| Validation utils        | `lib/form-validation.ts`, `lib/zod-i18n.ts` |
 
 ## Ant Design v6 Deprecated Props
 
@@ -87,6 +169,29 @@ export interface UserCreateInput { ... }  // WRONG
 | `visible`                  | `open`                  |
 | `direction` (Space)        | `orientation`           |
 | `dropdownMatchSelectWidth` | `popupMatchSelectWidth` |
+
+## Ant Design Static Method Warning
+
+⚠️ **Warning:** `Static function can not consume context like dynamic theme`
+
+```typescript
+// ❌ Wrong - Static import không có context
+import { message } from "antd";
+message.success("Done");  // Warning!
+
+// ✅ Correct - Dùng App.useApp() hook
+import { App } from "antd";
+
+function MyComponent() {
+  const { message, notification, modal } = App.useApp();
+  message.success("Done");  // ✅ No warning
+}
+```
+
+**Lưu ý:**
+- `App` component đã wrap ở `AntdThemeProvider` 
+- Chỉ cần dùng `App.useApp()` trong component/hook
+- Áp dụng cho: `message`, `notification`, `modal`
 
 ## Common Mistakes
 
@@ -100,3 +205,104 @@ const [users, setUsers] = useState([]);  // Use TanStack for server state
 const { data } = useQuery({ queryKey, queryFn });
 <Button>{t("common.save")}</Button>
 ```
+
+### Form Validation Mistakes
+
+```typescript
+// ❌ Wrong - Hardcode message trong schema
+z.string().min(1, "名前は必須です")
+
+// ❌ Wrong - Define schema trong component
+const schema = z.object({ name: z.string() });
+
+// ❌ Wrong - Không có comment field label
+<Form.Item name="name" label={label("name")}>
+
+// ✅ Correct - Schema ở schemas/, message ở i18n/
+import { userSchemas } from "@/schemas/user";
+{/* 名前 / Name */}
+<Form.Item name="name" label={label("name")} rules={[zodRule(userSchemas.name, label("name"))]}>
+```
+
+### Form.useForm() Warning
+
+⚠️ **Warning:** `Instance created by useForm is not connected to any Form element`
+
+```typescript
+// ❌ Wrong - Export hook tạo form instance không dùng
+export function useUserForm() {
+  return Form.useForm();  // Instance không connect với Form nào!
+}
+
+// ❌ Wrong - Tạo form instance nhưng không pass vào Form
+const [form] = Form.useForm();
+return <Form>...</Form>  // Thiếu form={form}
+
+// ✅ Correct - Form instance phải connect với Form
+const [form] = Form.useForm();
+return <Form form={form}>...</Form>
+```
+
+**Rule:** Mỗi `Form.useForm()` phải có đúng 1 `<Form form={form}>` tương ứng.
+
+### Backend Validation Errors (422)
+
+⚠️ **QUAN TRỌNG:** Form phải hiển thị lỗi từ backend!
+
+**Form component PHẢI nhận `form` prop từ parent:**
+
+```typescript
+// Form component
+interface UserFormProps {
+  form: FormInstance;  // ← BẮT BUỘC
+  onSubmit: (values: UserCreate) => void;
+  // ...
+}
+
+export function UserForm({ form, onSubmit, ... }: UserFormProps) {
+  return (
+    <Form form={form} onFinish={onSubmit}>
+      ...
+    </Form>
+  );
+}
+```
+
+**Page tạo form và xử lý lỗi backend:**
+
+```typescript
+// Page component
+export default function NewUserPage() {
+  const [form] = Form.useForm();  // ← Tạo ở parent
+
+  const mutation = useMutation({
+    mutationFn: userService.create,
+    onSuccess: () => { ... },
+    onError: (error) => {
+      form.setFields(getFormErrors(error));  // ← Set lỗi từ backend
+    },
+  });
+
+  return (
+    <UserForm
+      form={form}  // ← Pass vào form component
+      onSubmit={(values) => mutation.mutate(values)}
+    />
+  );
+}
+```
+
+**Helper `getFormErrors`** (đã có sẵn trong `lib/api.ts`):
+
+```typescript
+import { getFormErrors } from "@/lib/api";
+
+// Converts Laravel 422 response to Ant Design format:
+// { errors: { email: ["Email đã tồn tại"] } }
+// → [{ name: "email", errors: ["Email đã tồn tại"] }]
+```
+
+**Rules:**
+1. Form component KHÔNG tự tạo `Form.useForm()` - nhận từ parent
+2. Page tạo form instance và pass xuống
+3. `onError` gọi `form.setFields(getFormErrors(error))`

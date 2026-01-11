@@ -63,18 +63,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Sider trigger={null} collapsible collapsed={collapsed} width={180}>
         <div
           style={{
-            height: 32,
-            margin: 16,
-            background: "rgba(255, 255, 255, 0.2)",
-            borderRadius: 6,
+            height: 28,
+            margin: "8px 8px 12px",
+            background: "#9061F9",
+            borderRadius: 4,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             color: "#fff",
-            fontWeight: "bold",
+            fontWeight: 600,
+            fontSize: 12,
           }}
         >
           {collapsed ? "B" : "Boilerplate"}
@@ -89,7 +90,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <Layout>
         <Header
           style={{
-            padding: "0 24px",
+            padding: "0 16px",
+            height: 48,
+            lineHeight: "48px",
             background: colorBgContainer,
             display: "flex",
             alignItems: "center",
@@ -100,14 +103,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
-            style={{ fontSize: "16px", width: 64, height: 64 }}
+            style={{ fontSize: 14, width: 32, height: 32 }}
           />
           <LocaleSwitcher />
         </Header>
         <Content
           style={{
-            margin: "24px 16px",
-            padding: 24,
+            margin: 12,
+            padding: 16,
             minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,

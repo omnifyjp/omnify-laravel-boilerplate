@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { message } from "antd";
+import { App } from "antd";
 import { useTranslations } from "next-intl";
 import { authService, LoginInput, RegisterInput } from "@/services/auth";
 import { getFormErrors } from "@/lib/api";
@@ -18,6 +18,7 @@ export function useAuth() {
   const t = useTranslations();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { message } = App.useApp();
 
   // Current user query
   const {

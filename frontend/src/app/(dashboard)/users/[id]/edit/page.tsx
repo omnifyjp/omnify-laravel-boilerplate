@@ -1,15 +1,14 @@
 "use client";
 
 import { use } from "react";
-import { Typography, Button, Space, Spin, Form, message } from "antd";
+import { Typography, Button, Space, Spin, Form } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { userService } from "@/services/users";
 import { queryKeys } from "@/lib/queryKeys";
-import { getFormErrors } from "@/lib/api";
+import { useFormMutation } from "@/hooks/useFormMutation";
 import { UserForm } from "@/features/users/UserForm";
 import type { UserUpdate } from "@/types/model";
 
@@ -23,8 +22,6 @@ export default function EditUserPage({ params }: PageProps) {
   const { id } = use(params);
   const userId = parseInt(id, 10);
   const t = useTranslations();
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const [form] = Form.useForm();
 
   // Fetch user
@@ -34,17 +31,12 @@ export default function EditUserPage({ params }: PageProps) {
   });
 
   // Update mutation
-  const updateMutation = useMutation({
-    mutationFn: (data: UserUpdate) => userService.update(userId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.users.detail(userId) });
-      message.success(t("messages.updated"));
-      router.push(`/users/${userId}`);
-    },
-    onError: (error) => {
-      form.setFields(getFormErrors(error));
-    },
+  const { mutate, isPending } = useFormMutation<UserUpdate>({
+    form,
+    mutationFn: (data) => userService.update(userId, data),
+    invalidateKeys: [queryKeys.users.all, queryKeys.users.detail(userId)],
+    successMessage: "messages.updated",
+    redirectTo: `/users/${userId}`,
   });
 
   if (isLoading) {
@@ -78,11 +70,12 @@ export default function EditUserPage({ params }: PageProps) {
       </Space>
 
       <UserForm
+        form={form}
         initialValues={user}
-        onSubmit={(values) => updateMutation.mutate(values as UserUpdate)}
-        loading={updateMutation.isPending}
+        onSubmit={(values) => mutate(values as UserUpdate)}
+        loading={isPending}
         isEdit
-        onCancel={() => router.push(`/users/${userId}`)}
+        onCancel={() => history.back()}
       />
     </div>
   );

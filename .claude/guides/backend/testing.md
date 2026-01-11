@@ -35,9 +35,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 uses(DatabaseTransactions::class);
 ```
 
-| Trait | Database | Behavior |
-|-------|----------|----------|
-| `RefreshDatabase` | SQLite in-memory | Runs migrations → truncates after each test |
+| Trait                  | Database         | Behavior                                      |
+| ---------------------- | ---------------- | --------------------------------------------- |
+| `RefreshDatabase`      | SQLite in-memory | Runs migrations → truncates after each test   |
 | `DatabaseTransactions` | MySQL/PostgreSQL | Only wraps in transaction (tables must exist) |
 
 ---

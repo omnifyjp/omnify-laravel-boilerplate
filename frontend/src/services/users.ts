@@ -12,13 +12,23 @@ import type { User, UserCreate, UserUpdate } from "@/types/model";
 // Types - Only query params (Create/Update come from Omnify)
 // =============================================================================
 
+/** Sort fields from api-docs.json enum */
+export type UserSortField =
+  | "id" | "-id"
+  | "name_lastname" | "-name_lastname"
+  | "name_firstname" | "-name_firstname"
+  | "email" | "-email"
+  | "created_at" | "-created_at"
+  | "updated_at" | "-updated_at";
+
 /** Query params for listing users */
 export interface UserListParams {
-  search?: string;
   page?: number;
   per_page?: number;
-  sort_by?: keyof User;
-  sort_order?: "asc" | "desc";
+  sort?: UserSortField;
+  filter?: {
+    search?: string;
+  };
 }
 
 // =============================================================================
@@ -31,6 +41,8 @@ export const userService = {
   /**
    * Get paginated list of users
    * GET /api/users
+   *
+   * Axios auto-serializes: { filter: { search: "x" } } → ?filter[search]=x
    */
   list: async (params?: UserListParams): Promise<PaginatedResponse<User>> => {
     const { data } = await api.get(BASE_URL, { params });

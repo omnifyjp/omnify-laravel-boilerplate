@@ -7,26 +7,26 @@ alwaysApply: false
 # Backend Rules (Laravel)
 
 > **Documentation:** `.claude/guides/backend/`
-> **Specific Rules:** See also `controller.mdc`, `resource.mdc`, `request.mdc`, `testing.mdc`
+> **Specific Rules:** See also `backend-controller.mdc`, `backend-resource.mdc`, `backend-request.mdc`, `backend-testing.mdc`
 
 ## Critical Rules
 
-1. **Thin Controller** - Validate → Delegate → Respond (see `controller.mdc`)
+1. **Thin Controller** - Validate → Delegate → Respond (see `backend-controller.mdc`)
 2. **Schema-First** - Use Omnify schemas, don't create migrations manually
 3. **Security** - Always use `$request->validated()`, never `$request->all()`
 4. **Performance** - Use `with()` for relations, `paginate()` for lists
 5. **Dates** - Store UTC, return `->toISOString()`
-6. **Testing** - Write 正常系 + 異常系 tests (see `testing.mdc`)
+6. **Testing** - Write 正常系 + 異常系 tests (see `backend-testing.mdc`)
 7. **Imports** - Always `use` and short class names, never FQCN inline
 
 ## File-Specific Rules
 
-| File Type  | Rule File        | Key Focus                    |
-| ---------- | ---------------- | ---------------------------- |
-| Controller | `controller.mdc` | Thin, Query Builder, OpenAPI |
-| Resource   | `resource.mdc`   | Schema matches output        |
-| Request    | `request.mdc`    | Schema matches validation    |
-| Test       | `testing.mdc`    | 正常系 + 異常系 coverage     |
+| File Type  | Rule File                | Key Focus                    |
+| ---------- | ------------------------ | ---------------------------- |
+| Controller | `backend-controller.mdc` | Thin, Query Builder, OpenAPI |
+| Resource   | `backend-resource.mdc`   | Schema matches output        |
+| Request    | `backend-request.mdc`    | Schema matches validation    |
+| Test       | `backend-testing.mdc`    | 正常系 + 異常系 coverage     |
 
 ## Security Checklist
 

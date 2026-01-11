@@ -49,7 +49,7 @@ export default defineConfig({
     }),
   ],
   locale: {
-    locales: ["ja", "en"],
+    locales: ["ja", "en", "vi"],
     defaultLocale: "ja",
   },
   database: {

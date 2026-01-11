@@ -19,8 +19,8 @@ importers:
         specifier: latest
         version: 1.0.85(@types/node@25.0.5)(hono@4.11.3)
       '@famgia/omnify-laravel':
-        specifier: ^0.0.85
-        version: 0.0.85
+        specifier: ^0.0.86
+        version: 0.0.86
       '@types/node':
         specifier: ^25.0.4
         version: 25.0.5
@@ -33,8 +33,8 @@ packages:
   '@famgia/omnify-atlas@0.0.69':
     resolution: {integrity: sha512-5GTIVHBl+A9X7ge7a8YZjtvrJEy/INlTpC0AAx0WiKur+aSXzxNUyHvFvXErr0u/tlDSNKvEBJOhh9puD2hP0Q==}
 
-  '@famgia/omnify-atlas@0.0.70':
-    resolution: {integrity: sha512-MWS8iozkzwSDRDVIoqSxGuArmY9Qh+DVBq2hi2J1PJGhnew+POabJF6hOzP4XzFkxi0EVhoutrY2b86YN1Od4w==}
+  '@famgia/omnify-atlas@0.0.71':
+    resolution: {integrity: sha512-6kwxZ+3yGQRFF3J+dWyK0F55MMWENlDfA/z0YfHH1O86HFxa0/oPfd2vdqfBJRbergvlIJG1Gon+3LSRrlcSIw==}
 
   '@famgia/omnify-cli@0.0.70':
     resolution: {integrity: sha512-4dj9AkDsY+/uH5jTssrgQxv8Uiw2nKEUH9FE2UXN6wmOY7oGr4C1a6OpScdv2WrMiNlpbgDhop7VZ4QcfEQ8jw==}
@@ -50,8 +50,8 @@ packages:
   '@famgia/omnify-core@0.0.75':
     resolution: {integrity: sha512-0wMSfAqVkJl9Fcbbh2LeecegsT0TM5iDtzxlDhiK4u7iwSkhkZnBV192A+uW+TCHXJ3mXll9zLQLlJ+4Y1CV6A==}
 
-  '@famgia/omnify-core@0.0.76':
-    resolution: {integrity: sha512-sWmgridzMFNNMrY/oBZbgumTgNdpWGTWLWwplTakTxtGMBfmRMyZwjOPY9es6eRy7lEePZFoUPLepKfwZTz95A==}
+  '@famgia/omnify-core@0.0.77':
+    resolution: {integrity: sha512-9fTRyhgFDDqRrS4+ppKyk42TqHXcpebtiO4Dbd1HTNrxZz2wLgkGTyklPPu8d0rWPHnSzFetpB+SZxxXricO6w==}
 
   '@famgia/omnify-japan@0.0.68':
     resolution: {integrity: sha512-NBDhtHjYXJwms7KtkUb8/9uW5VpimdxJVIWmQqw81AZEHTw/uvYv53cpduGngN97oGkmJQBSKwbx706364mDng==}
@@ -62,8 +62,8 @@ packages:
   '@famgia/omnify-laravel@0.0.84':
     resolution: {integrity: sha512-gIEladd22tP0/SZkoIDO09gfnIiVM2l6n95GV3FtcDrbqltXlB5fZ1WWTgGOFcLFnaCuF949SVkCxjIUS7fWPA==}
 
-  '@famgia/omnify-laravel@0.0.85':
-    resolution: {integrity: sha512-8RJEOZRts3MV/zBdWVCkgSlMIomsyKVEePI1Seci4Q9Y1pr8JrvchW1HWS/8t6pAf/8aHIvhpxFatEvSw/Hc9w==}
+  '@famgia/omnify-laravel@0.0.86':
+    resolution: {integrity: sha512-5imfCDtGJMHc0T5kHZ3bgt1GF73lbzbRikzxz4pF8+ZRFAexJpKbJ5Pq4f33IPBPGS8OYZgQ66IvDFezdoUTVw==}
 
   '@famgia/omnify-mcp@0.0.61':
     resolution: {integrity: sha512-f3NeqeseNtNh70k7OxrKrhzSNQz548Yo6MsqjrSosIDBwyAqUOPMY3hKcrRY0LAMIJCnOMGVz0ncaDCLm7Rxmg==}
@@ -75,8 +75,8 @@ packages:
   '@famgia/omnify-types@0.0.73':
     resolution: {integrity: sha512-fEydtIesH9ySv8k8/rwKQJ7potbkcI5DGMf/mFOF0ovKPkxH8uH7aH4qJD/RElJh2y9OR3qZSvNpDBasrlUGpg==}
 
-  '@famgia/omnify-types@0.0.74':
-    resolution: {integrity: sha512-xk1oAhMLlGL0MOdqYZ4vpoZcPBrAnm7eJgsoOwIjDNEFn756m04yIsXM4ce+NKxtgBY0Acm4AUteIKeX6MKYVw==}
+  '@famgia/omnify-types@0.0.75':
+    resolution: {integrity: sha512-qqmAdcfWTDQnT4apAK5IWtdoGWZoYldIHBvNTFkPSI+oNsU3wN3Fqa5SwaoPTU+Np/2IyZJEZ5ScpWZlYAp4fg==}
 
   '@famgia/omnify-typescript@0.0.52':
     resolution: {integrity: sha512-PNhled/tVpkTAtfq9TNLDwZy7JXOQo7S0fs+2le1R4aYMiej2rha1wiB0RCH5D7zw96ZkmPVpsarHzpmltLEHA==}
@@ -732,10 +732,10 @@ snapshots:
       '@famgia/omnify-types': 0.0.73
       execa: 9.6.1
 
-  '@famgia/omnify-atlas@0.0.70':
+  '@famgia/omnify-atlas@0.0.71':
     dependencies:
-      '@famgia/omnify-core': 0.0.76
-      '@famgia/omnify-types': 0.0.74
+      '@famgia/omnify-core': 0.0.77
+      '@famgia/omnify-types': 0.0.75
       execa: 9.6.1
 
   '@famgia/omnify-cli@0.0.70(@types/node@25.0.5)':
@@ -776,9 +776,9 @@ snapshots:
       '@famgia/omnify-types': 0.0.73
       js-yaml: 4.1.1
 
-  '@famgia/omnify-core@0.0.76':
+  '@famgia/omnify-core@0.0.77':
     dependencies:
-      '@famgia/omnify-types': 0.0.74
+      '@famgia/omnify-types': 0.0.75
       js-yaml: 4.1.1
 
   '@famgia/omnify-japan@0.0.68':
@@ -797,11 +797,11 @@ snapshots:
       '@famgia/omnify-core': 0.0.75
       '@famgia/omnify-types': 0.0.73
 
-  '@famgia/omnify-laravel@0.0.85':
+  '@famgia/omnify-laravel@0.0.86':
     dependencies:
-      '@famgia/omnify-atlas': 0.0.70
-      '@famgia/omnify-core': 0.0.76
-      '@famgia/omnify-types': 0.0.74
+      '@famgia/omnify-atlas': 0.0.71
+      '@famgia/omnify-core': 0.0.77
+      '@famgia/omnify-types': 0.0.75
 
   '@famgia/omnify-mcp@0.0.61(hono@4.11.3)':
     dependencies:
@@ -819,7 +819,7 @@ snapshots:
 
   '@famgia/omnify-types@0.0.73': {}
 
-  '@famgia/omnify-types@0.0.74': {}
+  '@famgia/omnify-types@0.0.75': {}
 
   '@famgia/omnify-typescript@0.0.52':
     dependencies:

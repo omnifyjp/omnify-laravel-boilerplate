@@ -13,8 +13,8 @@ alwaysApply: false
 ## How to Run Tests
 
 ```bash
-# Run ALL tests
-cd backend && ./artisan test
+# Run ALL tests (from project root - uses Docker wrapper)
+./artisan test
 
 # Run specific test file
 ./artisan test --filter=UserControllerTest
@@ -25,6 +25,8 @@ cd backend && ./artisan test
 # Run with coverage (if xdebug installed)
 ./artisan test --coverage
 ```
+
+> **Note:** The root `./artisan` script is a wrapper that runs commands inside Docker container.
 
 ## Testing Process
 

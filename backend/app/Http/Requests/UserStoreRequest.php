@@ -8,8 +8,8 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Requests\OmnifyBase\UserStoreRequestBase;
 use OpenApi\Attributes as OA;
+use App\Http\Requests\OmnifyBase\UserStoreRequestBase;
 
 #[OA\Schema(
     schema: 'UserStoreRequest',
@@ -19,8 +19,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'name_firstname', type: 'string', maxLength: 50, example: '太郎'),
         new OA\Property(property: 'name_kana_lastname', type: 'string', maxLength: 100, example: 'タナカ'),
         new OA\Property(property: 'name_kana_firstname', type: 'string', maxLength: 100, example: 'タロウ'),
-        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255, example: 'tanaka@example.com'),
-        new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, maxLength: 255, example: 'password123'),
+        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255, example: 'user@example.com'),
+        new OA\Property(property: 'password', type: 'string', format: 'password', maxLength: 255, example: 'password123'),
     ]
 )]
 class UserStoreRequest extends UserStoreRequestBase
@@ -41,10 +41,7 @@ class UserStoreRequest extends UserStoreRequestBase
     public function rules(): array
     {
         return array_merge($this->schemaRules(), [
-            // Add email format validation
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            // Add password minimum length
-            'password' => ['required', 'string', 'min:8', 'max:255'],
+            // Custom/override rules here
         ]);
     }
 

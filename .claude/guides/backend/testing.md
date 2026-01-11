@@ -5,10 +5,7 @@
 ## Quick Start - How to Run Tests
 
 ```bash
-# Navigate to backend directory
-cd backend
-
-# Run ALL tests
+# Run ALL tests (from project root - uses Docker wrapper)
 ./artisan test
 
 # Run specific test file
@@ -20,6 +17,8 @@ cd backend
 # Run with verbose output
 ./artisan test -v
 ```
+
+> **Note:** The root `./artisan` script is a wrapper that runs `docker compose exec backend php artisan` automatically.
 
 ## Critical: Database Trait
 
@@ -1001,11 +1000,11 @@ Tests use a separate database `omnify_testing` (auto-created by Docker).
 ## Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (from project root)
 ./artisan test
 
 # Run specific test file
-./artisan test tests/Feature/Api/UserControllerTest.php
+./artisan test --filter=UserControllerTest
 
 # Run specific describe block
 ./artisan test --filter="GET /api/users"

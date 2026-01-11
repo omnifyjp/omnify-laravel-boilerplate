@@ -8,19 +8,18 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Requests\OmnifyBase\UserUpdateRequestBase;
-use Illuminate\Validation\Rule;
 use OpenApi\Attributes as OA;
+use App\Http\Requests\OmnifyBase\UserUpdateRequestBase;
 
 #[OA\Schema(
     schema: 'UserUpdateRequest',
     properties: [
-        new OA\Property(property: 'name_lastname', type: 'string', maxLength: 50, example: '山田'),
-        new OA\Property(property: 'name_firstname', type: 'string', maxLength: 50, example: '花子'),
-        new OA\Property(property: 'name_kana_lastname', type: 'string', maxLength: 100, example: 'ヤマダ'),
-        new OA\Property(property: 'name_kana_firstname', type: 'string', maxLength: 100, example: 'ハナコ'),
-        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255, example: 'yamada@example.com'),
-        new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, maxLength: 255),
+        new OA\Property(property: 'name_lastname', type: 'string', maxLength: 50, example: '田中'),
+        new OA\Property(property: 'name_firstname', type: 'string', maxLength: 50, example: '太郎'),
+        new OA\Property(property: 'name_kana_lastname', type: 'string', maxLength: 100, example: 'タナカ'),
+        new OA\Property(property: 'name_kana_firstname', type: 'string', maxLength: 100, example: 'タロウ'),
+        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255, example: 'user@example.com'),
+        new OA\Property(property: 'password', type: 'string', format: 'password', maxLength: 255, example: 'password123'),
     ]
 )]
 class UserUpdateRequest extends UserUpdateRequestBase
@@ -41,10 +40,7 @@ class UserUpdateRequest extends UserUpdateRequestBase
     public function rules(): array
     {
         return array_merge($this->schemaRules(), [
-            // Add email format validation
-            'email' => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->route('user'))],
-            // Add password minimum length
-            'password' => ['sometimes', 'string', 'min:8', 'max:255'],
+            // Custom/override rules here
         ]);
     }
 

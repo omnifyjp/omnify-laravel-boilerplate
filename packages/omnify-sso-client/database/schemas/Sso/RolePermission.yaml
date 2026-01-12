@@ -1,0 +1,41 @@
+# RolePermission pivot table schema
+
+displayName:
+  ja: ロール権限
+  en: Role Permission
+
+options:
+  timestamps: true
+
+properties:
+  role_id:
+    type: UnsignedBigInteger
+    displayName:
+      ja: ロールID
+      en: Role ID
+  
+  permission_id:
+    type: UnsignedBigInteger
+    displayName:
+      ja: 権限ID
+      en: Permission ID
+
+indexes:
+  primary:
+    columns: [role_id, permission_id]
+    unique: true
+
+relationships:
+  role:
+    type: BelongsTo
+    model: Role
+    displayName:
+      ja: ロール
+      en: Role
+  
+  permission:
+    type: BelongsTo
+    model: Permission
+    displayName:
+      ja: 権限
+      en: Permission

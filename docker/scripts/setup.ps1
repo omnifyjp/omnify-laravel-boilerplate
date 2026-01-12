@@ -239,6 +239,15 @@ AWS_USE_PATH_STYLE_ENDPOINT=true
 }
 
 # =============================================================================
+# Step 4b: Generate backend/.env.testing (if not exists)
+# =============================================================================
+if (-not (Test-Path ".\backend\.env.testing")) {
+    Write-Host "📝 Generating backend/.env.testing..." -ForegroundColor Yellow
+    Copy-Item ".\docker\stubs\env.testing.stub" ".\backend\.env.testing"
+    Write-Host "   ✅ backend/.env.testing created" -ForegroundColor Green
+}
+
+# =============================================================================
 # Step 5: Start Docker services
 # =============================================================================
 Write-Host ""
@@ -265,7 +274,45 @@ docker compose up -d mysql phpmyadmin mailpit minio backend nginx
 
 Write-Host ""
 Write-Host "⏳ Waiting for services..." -ForegroundColor Yellow
-Start-Sleep -Seconds 3
+
+# Wait for backend to be healthy (MySQL healthcheck can take up to 50s, then backend needs time to start)
+Write-Host "   Waiting for backend to be ready..." -ForegroundColor Gray
+$MAX_RETRIES = 60
+$RETRY_COUNT = 0
+
+while ($RETRY_COUNT -lt $MAX_RETRIES) {
+    $BACKEND_STATUS = docker compose ps backend --format "{{.Health}}" 2>$null
+    $BACKEND_STATE = docker compose ps backend --format "{{.State}}" 2>$null
+    
+    if ($BACKEND_STATUS -eq "healthy") {
+        Write-Host "   ✅ Backend is healthy" -ForegroundColor Green
+        break
+    }
+    elseif ($BACKEND_STATE -eq "running") {
+        # Container is running but not yet healthy - check if PHP server is responding
+        $curlResult = docker compose exec -T backend curl -sf http://localhost:8000 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "   ✅ Backend is ready" -ForegroundColor Green
+            break
+        }
+    }
+    
+    $RETRY_COUNT++
+    if ($RETRY_COUNT % 5 -eq 0) {
+        $stateDisplay = if ($BACKEND_STATE) { $BACKEND_STATE } else { "pending" }
+        $healthDisplay = if ($BACKEND_STATUS) { $BACKEND_STATUS } else { "unknown" }
+        Write-Host "   ... still waiting ($RETRY_COUNT/$MAX_RETRIES) - state: $stateDisplay, health: $healthDisplay" -ForegroundColor Gray
+    }
+    Start-Sleep -Seconds 2
+}
+
+if ($RETRY_COUNT -eq $MAX_RETRIES) {
+    Write-Host "❌ Backend failed to start in time. Checking logs..." -ForegroundColor Red
+    docker compose logs mysql --tail 20
+    Write-Host ""
+    docker compose logs backend --tail 30
+    exit 1
+}
 
 # Generate APP_KEY if needed
 if ($GENERATE_KEY) {

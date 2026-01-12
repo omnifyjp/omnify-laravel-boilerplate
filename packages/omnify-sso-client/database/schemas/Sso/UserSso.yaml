@@ -1,0 +1,47 @@
+# Partial schema to extend User model with SSO fields
+# This will be merged with the main User.yaml schema
+
+kind: partial
+target: User
+
+properties:
+  console_user_id:
+    type: UnsignedBigInteger
+    unique: true
+    index: true
+    displayName:
+      ja: Console User ID
+      en: Console User ID
+    description:
+      ja: Console側のユーザーID
+      en: User ID from Console SSO
+  
+  console_access_token:
+    type: Text
+    nullable: true
+    displayName:
+      ja: Console Access Token
+      en: Console Access Token
+    description:
+      ja: Console APIアクセス用トークン（暗号化）
+      en: Encrypted token for Console API access
+  
+  console_refresh_token:
+    type: Text
+    nullable: true
+    displayName:
+      ja: Console Refresh Token
+      en: Console Refresh Token
+    description:
+      ja: トークン更新用リフレッシュトークン（暗号化）
+      en: Encrypted refresh token for token renewal
+  
+  console_token_expires_at:
+    type: Timestamp
+    nullable: true
+    displayName:
+      ja: Console Token有効期限
+      en: Console Token Expiry
+    description:
+      ja: アクセストークンの有効期限
+      en: Access token expiration time

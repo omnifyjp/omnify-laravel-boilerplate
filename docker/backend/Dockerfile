@@ -1,6 +1,6 @@
 FROM php:8.4-cli
 
-# Install system dependencies
+# Install system dependencies (curl is needed for healthcheck)
 RUN apt-get update && apt-get install -y \
     git \
     curl \

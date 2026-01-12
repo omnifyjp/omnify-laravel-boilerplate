@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Omnify\SsoClient\Models\Traits\HasConsoleSso;
+use Omnify\SsoClient\Models\Traits\HasTeamPermissions;
 
 class User extends UserBaseModel implements
     AuthenticatableContract,
@@ -21,6 +23,7 @@ class User extends UserBaseModel implements
 {
     use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;
     use HasApiTokens, HasFactory, Notifiable;
+    use HasConsoleSso, HasTeamPermissions;
 
     // Inherited from UserBaseModel:
     // - $fillable (name_lastname, name_firstname, etc.)

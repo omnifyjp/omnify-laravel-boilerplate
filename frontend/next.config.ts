@@ -7,10 +7,14 @@ const nextConfig: NextConfig = {
   // Allow cross-origin requests from *.app domains
   allowedDevOrigins: ["*.app"],
 
-  // Turbopack config
-  turbopack: {
-    root: process.cwd(),
-  },
+  // Transpile linked packages
+  transpilePackages: ["@omnify/sso-react"],
+
+  // Note: Turbopack has issues with symlinked packages
+  // Use webpack for local development with linked packages
+  // turbopack: {
+  //   root: process.cwd(),
+  // },
 
   // Environment variables exposed to the browser
   env: {

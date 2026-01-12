@@ -1,0 +1,61 @@
+{
+    "name": "omnify/sso-client",
+    "description": "SSO Client package for Laravel applications connecting to Omnify Console",
+    "keywords": [
+        "laravel",
+        "sso",
+        "authentication",
+        "omnify"
+    ],
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Omnify Team",
+            "email": "dev@omnify.io"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/http": "^11.0|^12.0",
+        "illuminate/routing": "^11.0|^12.0",
+        "illuminate/cache": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "lcobucci/jwt": "^5.0",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0",
+        "pestphp/pest": "^3.0",
+        "phpstan/phpstan": "^1.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "Omnify\\SsoClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnify\\SsoClient\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Omnify\\SsoClient\\SsoClientServiceProvider"
+            ],
+            "aliases": {
+                "SsoClient": "Omnify\\SsoClient\\Facades\\SsoClient"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

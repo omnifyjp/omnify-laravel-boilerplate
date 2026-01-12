@@ -5,6 +5,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import AntdThemeProvider from "@/components/AntdThemeProvider";
 import ApiErrorHandler from "@/components/ApiErrorHandler";
 import QueryProvider from "@/lib/query";
+import SsoWrapper from "@/components/SsoWrapper";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -38,14 +39,16 @@ export default async function RootLayout({
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <QueryProvider>
-            <AntdRegistry>
-              <AntdThemeProvider>
-                <ApiErrorHandler />
-                {children}
-              </AntdThemeProvider>
-            </AntdRegistry>
-          </QueryProvider>
+          <SsoWrapper>
+            <QueryProvider>
+              <AntdRegistry>
+                <AntdThemeProvider>
+                  <ApiErrorHandler />
+                  {children}
+                </AntdThemeProvider>
+              </AntdRegistry>
+            </QueryProvider>
+          </SsoWrapper>
         </NextIntlClientProvider>
       </body>
     </html>

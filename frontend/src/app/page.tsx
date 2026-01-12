@@ -1,14 +1,16 @@
 "use client";
 
-import { Button, Card, Space, Typography } from "antd";
-import { GithubOutlined, RocketOutlined } from "@ant-design/icons";
+import { Button, Card, Space, Typography, Avatar, Divider } from "antd";
+import { GithubOutlined, RocketOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import { useSso } from "@omnify/sso-react";
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
 export default function Home() {
   const t = useTranslations();
+  const { user, isAuthenticated, isLoading, login, logout } = useSso();
 
   return (
     <div
@@ -30,7 +32,7 @@ export default function Home() {
         }}
         extra={<LocaleSwitcher />}
       >
-        <Space orientation="vertical" size="large" style={{ width: "100%" }}>
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
           <RocketOutlined style={{ fontSize: 64, color: "#1677ff" }} />
 
           <Title level={2} style={{ margin: 0 }}>
@@ -40,6 +42,38 @@ export default function Home() {
           <Paragraph type="secondary" style={{ fontSize: 16 }}>
             Laravel 12 + Next.js 16 + Ant Design 6
           </Paragraph>
+
+          {/* SSO User Info */}
+          <div style={{ padding: "16px 0" }}>
+            {isLoading ? (
+              <Text type="secondary">Loading...</Text>
+            ) : isAuthenticated && user ? (
+              <Space direction="vertical" size="small">
+                <Avatar size={64} icon={<UserOutlined />} />
+                <Text strong>{user.name}</Text>
+                <Text type="secondary">{user.email}</Text>
+                <Button 
+                  type="default" 
+                  icon={<LogoutOutlined />}
+                  onClick={logout}
+                  danger
+                >
+                  Logout
+                </Button>
+              </Space>
+            ) : (
+              <Button 
+                type="primary" 
+                size="large"
+                icon={<LoginOutlined />}
+                onClick={() => login()}
+              >
+                Login with SSO
+              </Button>
+            )}
+          </div>
+
+          <Divider />
 
           <Space>
             <Button

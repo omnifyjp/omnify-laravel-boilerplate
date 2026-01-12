@@ -304,7 +304,40 @@ docker compose up -d mysql phpmyadmin mailpit minio backend nginx
 
 echo ""
 echo "⏳ Waiting for services..."
-sleep 3
+
+# Wait for backend to be healthy (MySQL healthcheck can take up to 50s, then backend needs time to start)
+echo "   Waiting for backend to be ready..."
+MAX_RETRIES=60
+RETRY_COUNT=0
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    BACKEND_STATUS=$(docker compose ps backend --format "{{.Health}}" 2>/dev/null)
+    BACKEND_STATE=$(docker compose ps backend --format "{{.State}}" 2>/dev/null)
+    
+    if [ "$BACKEND_STATUS" = "healthy" ]; then
+        echo "   ✅ Backend is healthy"
+        break
+    elif [ "$BACKEND_STATE" = "running" ]; then
+        # Container is running but not yet healthy - check if PHP server is responding
+        if docker compose exec -T backend curl -sf http://localhost:8000 >/dev/null 2>&1; then
+            echo "   ✅ Backend is ready"
+            break
+        fi
+    fi
+    
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ $((RETRY_COUNT % 5)) -eq 0 ]; then
+        echo "   ... still waiting ($RETRY_COUNT/$MAX_RETRIES) - state: ${BACKEND_STATE:-pending}, health: ${BACKEND_STATUS:-unknown}"
+    fi
+    sleep 2
+done
+
+if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+    echo "❌ Backend failed to start in time. Checking logs..."
+    docker compose logs mysql --tail 20
+    echo ""
+    docker compose logs backend --tail 30
+    exit 1
+fi
 
 # Generate APP_KEY if needed
 if [ "$GENERATE_KEY" = true ]; then

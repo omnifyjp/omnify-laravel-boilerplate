@@ -7,7 +7,7 @@ import {
     TeamOutlined,
     MailOutlined,
 } from '@ant-design/icons';
-import { useSso } from '@omnify/sso-react';
+import { useSso } from '@famgia/sso-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 

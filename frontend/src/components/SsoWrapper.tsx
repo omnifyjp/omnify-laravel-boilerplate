@@ -1,6 +1,6 @@
 'use client';
 
-import { SsoProvider } from '@omnify/sso-react';
+import { SsoProvider } from '@famgia/sso-react';
 import type { ReactNode } from 'react';
 
 const ssoConfig = {

@@ -33,6 +33,10 @@ function getStorage(type) {
   if (typeof window === "undefined") return null;
   return type === "localStorage" ? window.localStorage : window.sessionStorage;
 }
+function getXsrfToken() {
+  if (typeof document === "undefined") return void 0;
+  return document.cookie.split("; ").find((row) => row.startsWith("XSRF-TOKEN="))?.split("=")[1];
+}
 function SsoProvider({ children, config, onAuthChange }) {
   const [user, setUser] = useState(null);
   const [organizations, setOrganizations] = useState([]);
@@ -65,7 +69,15 @@ function SsoProvider({ children, config, onAuthChange }) {
   );
   const fetchUser = useCallback(async () => {
     try {
+      const xsrfToken = getXsrfToken();
+      const headers = {
+        "Accept": "application/json"
+      };
+      if (xsrfToken) {
+        headers["X-XSRF-TOKEN"] = decodeURIComponent(xsrfToken);
+      }
       const response = await fetch(`${config.apiUrl}/api/sso/user`, {
+        headers,
         credentials: "include"
       });
       if (!response.ok) {
@@ -119,8 +131,14 @@ function SsoProvider({ children, config, onAuthChange }) {
   );
   const logout = useCallback(async () => {
     try {
+      const xsrfToken = getXsrfToken();
+      const headers = {};
+      if (xsrfToken) {
+        headers["X-XSRF-TOKEN"] = decodeURIComponent(xsrfToken);
+      }
       await fetch(`${config.apiUrl}/api/sso/logout`, {
         method: "POST",
+        headers,
         credentials: "include"
       });
     } catch {
@@ -365,10 +383,16 @@ function SsoCallback({
         if (!code) {
           throw new Error("No authorization code received");
         }
+        await fetch(`${config.apiUrl}/sanctum/csrf-cookie`, {
+          credentials: "include"
+        });
+        const xsrfToken = document.cookie.split("; ").find((row) => row.startsWith("XSRF-TOKEN="))?.split("=")[1];
         const response = await fetch(`${config.apiUrl}/api/sso/callback`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            ...xsrfToken ? { "X-XSRF-TOKEN": decodeURIComponent(xsrfToken) } : {}
           },
           credentials: "include",
           body: JSON.stringify({ code })
@@ -411,61 +435,11 @@ function SsoCallback({
 }
 
 // src/components/OrganizationSwitcher.tsx
-import { useCallback as useCallback4, useRef as useRef2, useState as useState3, useEffect as useEffect3 } from "react";
+import React3, { useCallback as useCallback4, useMemo as useMemo4 } from "react";
+import { Dropdown, Button, Space, Typography, Badge } from "antd";
+import { SwapOutlined, CheckOutlined } from "@ant-design/icons";
 import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
-function DefaultTrigger({
-  currentOrg,
-  isOpen,
-  onClick
-}) {
-  return /* @__PURE__ */ jsxs2(
-    "button",
-    {
-      onClick,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "0.5rem",
-        padding: "0.5rem 1rem",
-        border: "1px solid #ccc",
-        borderRadius: "0.375rem",
-        background: "white",
-        cursor: "pointer",
-        minWidth: "200px",
-        justifyContent: "space-between"
-      },
-      children: [
-        /* @__PURE__ */ jsx3("span", { children: currentOrg?.name ?? "Select Organization" }),
-        /* @__PURE__ */ jsx3("span", { style: { transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }, children: "\u25BC" })
-      ]
-    }
-  );
-}
-function DefaultOption({
-  org,
-  isSelected,
-  onClick
-}) {
-  return /* @__PURE__ */ jsxs2(
-    "button",
-    {
-      onClick,
-      style: {
-        display: "block",
-        width: "100%",
-        padding: "0.5rem 1rem",
-        textAlign: "left",
-        border: "none",
-        background: isSelected ? "#f0f0f0" : "transparent",
-        cursor: "pointer"
-      },
-      children: [
-        /* @__PURE__ */ jsx3("div", { style: { fontWeight: isSelected ? 600 : 400 }, children: org.name }),
-        org.serviceRole && /* @__PURE__ */ jsx3("div", { style: { fontSize: "0.75rem", color: "#666" }, children: org.serviceRole })
-      ]
-    }
-  );
-}
+var { Text } = Typography;
 function OrganizationSwitcher({
   className,
   renderTrigger,
@@ -473,17 +447,7 @@ function OrganizationSwitcher({
   onChange
 }) {
   const { organizations, currentOrg, hasMultipleOrgs, switchOrg } = useOrganization();
-  const [isOpen, setIsOpen] = useState3(false);
-  const containerRef = useRef2(null);
-  useEffect3(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const [isOpen, setIsOpen] = React3.useState(false);
   const handleSelect = useCallback4(
     (org) => {
       switchOrg(org.slug);
@@ -492,65 +456,63 @@ function OrganizationSwitcher({
     },
     [switchOrg, onChange]
   );
+  const menuItems = useMemo4(() => {
+    return organizations.map((org) => {
+      const isSelected = currentOrg?.slug === org.slug;
+      if (renderOption) {
+        return {
+          key: org.slug,
+          label: /* @__PURE__ */ jsx3("div", { onClick: () => handleSelect(org), children: renderOption(org, isSelected) })
+        };
+      }
+      return {
+        key: org.slug,
+        label: /* @__PURE__ */ jsxs2(Space, { style: { width: "100%", justifyContent: "space-between" }, children: [
+          /* @__PURE__ */ jsxs2(Space, { direction: "vertical", size: 0, children: [
+            /* @__PURE__ */ jsx3(Text, { strong: isSelected, children: org.name }),
+            org.serviceRole && /* @__PURE__ */ jsx3(Text, { type: "secondary", style: { fontSize: 12 }, children: org.serviceRole })
+          ] }),
+          isSelected && /* @__PURE__ */ jsx3(CheckOutlined, { style: { color: "#1890ff" } })
+        ] }),
+        onClick: () => handleSelect(org)
+      };
+    });
+  }, [organizations, currentOrg, renderOption, handleSelect]);
   if (!hasMultipleOrgs) {
     return null;
   }
-  return /* @__PURE__ */ jsxs2(
-    "div",
+  if (renderTrigger) {
+    return /* @__PURE__ */ jsx3(
+      Dropdown,
+      {
+        menu: { items: menuItems },
+        trigger: ["click"],
+        open: isOpen,
+        onOpenChange: setIsOpen,
+        className,
+        children: /* @__PURE__ */ jsx3("div", { style: { cursor: "pointer" }, children: renderTrigger(currentOrg, isOpen) })
+      }
+    );
+  }
+  return /* @__PURE__ */ jsx3(
+    Dropdown,
     {
-      ref: containerRef,
+      menu: { items: menuItems },
+      trigger: ["click"],
+      open: isOpen,
+      onOpenChange: setIsOpen,
       className,
-      style: { position: "relative", display: "inline-block" },
-      children: [
-        renderTrigger ? /* @__PURE__ */ jsx3("div", { onClick: () => setIsOpen(!isOpen), children: renderTrigger(currentOrg, isOpen) }) : /* @__PURE__ */ jsx3(
-          DefaultTrigger,
-          {
-            currentOrg,
-            isOpen,
-            onClick: () => setIsOpen(!isOpen)
-          }
-        ),
-        isOpen && /* @__PURE__ */ jsx3(
-          "div",
-          {
-            style: {
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              right: 0,
-              marginTop: "0.25rem",
-              background: "white",
-              border: "1px solid #ccc",
-              borderRadius: "0.375rem",
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-              zIndex: 50,
-              maxHeight: "300px",
-              overflowY: "auto"
-            },
-            children: organizations.map((org) => {
-              const isSelected = currentOrg?.slug === org.slug;
-              if (renderOption) {
-                return /* @__PURE__ */ jsx3("div", { onClick: () => handleSelect(org), children: renderOption(org, isSelected) }, org.slug);
-              }
-              return /* @__PURE__ */ jsx3(
-                DefaultOption,
-                {
-                  org,
-                  isSelected,
-                  onClick: () => handleSelect(org)
-                },
-                org.slug
-              );
-            })
-          }
-        )
-      ]
+      children: /* @__PURE__ */ jsx3(Button, { children: /* @__PURE__ */ jsxs2(Space, { children: [
+        /* @__PURE__ */ jsx3(Badge, { status: "success" }),
+        /* @__PURE__ */ jsx3("span", { children: currentOrg?.name ?? "Select Organization" }),
+        /* @__PURE__ */ jsx3(SwapOutlined, {})
+      ] }) })
     }
   );
 }
 
 // src/components/ProtectedRoute.tsx
-import { useEffect as useEffect4 } from "react";
+import { useEffect as useEffect3 } from "react";
 import { Fragment as Fragment2, jsx as jsx4, jsxs as jsxs3 } from "react/jsx-runtime";
 function DefaultLoading2() {
   return /* @__PURE__ */ jsx4("div", { style: {
@@ -610,7 +572,7 @@ function ProtectedRoute({
 }) {
   const { user, isLoading, isAuthenticated, login } = useAuth();
   const { hasRole, currentOrg } = useOrganization();
-  useEffect4(() => {
+  useEffect3(() => {
     if (isLoading) return;
     if (!isAuthenticated) {
       onAccessDenied?.("unauthenticated");

@@ -308,7 +308,7 @@ declare function useSso(): UseSsoReturn;
 declare function SsoCallback({ onSuccess, onError, redirectTo, loadingComponent, errorComponent, }: SsoCallbackProps): react_jsx_runtime.JSX.Element | null;
 
 /**
- * Organization Switcher component
+ * Organization Switcher component using Ant Design
  *
  * A dropdown component for switching between organizations.
  * Only renders if user has access to multiple organizations.
@@ -324,7 +324,7 @@ declare function SsoCallback({ onSuccess, onError, redirectTo, loadingComponent,
  * // With custom render
  * <OrganizationSwitcher
  *   renderTrigger={(org, isOpen) => (
- *     <button>{org?.name} {isOpen ? '▲' : '▼'}</button>
+ *     <Button>{org?.name} {isOpen ? '▲' : '▼'}</Button>
  *   )}
  *   renderOption={(org, isSelected) => (
  *     <div className={isSelected ? 'selected' : ''}>{org.name}</div>

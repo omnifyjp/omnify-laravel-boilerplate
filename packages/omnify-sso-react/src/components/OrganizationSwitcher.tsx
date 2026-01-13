@@ -1,78 +1,16 @@
 'use client';
 
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { Dropdown, Button, Space, Typography, Badge } from 'antd';
+import { SwapOutlined, CheckOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import { useOrganization } from '../hooks/useOrganization';
 import type { OrganizationSwitcherProps, SsoOrganization } from '../types';
 
-/**
- * Default trigger component
- */
-function DefaultTrigger({
-    currentOrg,
-    isOpen,
-    onClick,
-}: {
-    currentOrg: SsoOrganization | null;
-    isOpen: boolean;
-    onClick: () => void;
-}) {
-    return (
-        <button
-            onClick={onClick}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                border: '1px solid #ccc',
-                borderRadius: '0.375rem',
-                background: 'white',
-                cursor: 'pointer',
-                minWidth: '200px',
-                justifyContent: 'space-between',
-            }}
-        >
-            <span>{currentOrg?.name ?? 'Select Organization'}</span>
-            <span style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-        </button>
-    );
-}
+const { Text } = Typography;
 
 /**
- * Default option component
- */
-function DefaultOption({
-    org,
-    isSelected,
-    onClick,
-}: {
-    org: SsoOrganization;
-    isSelected: boolean;
-    onClick: () => void;
-}) {
-    return (
-        <button
-            onClick={onClick}
-            style={{
-                display: 'block',
-                width: '100%',
-                padding: '0.5rem 1rem',
-                textAlign: 'left',
-                border: 'none',
-                background: isSelected ? '#f0f0f0' : 'transparent',
-                cursor: 'pointer',
-            }}
-        >
-            <div style={{ fontWeight: isSelected ? 600 : 400 }}>{org.name}</div>
-            {org.serviceRole && (
-                <div style={{ fontSize: '0.75rem', color: '#666' }}>{org.serviceRole}</div>
-            )}
-        </button>
-    );
-}
-
-/**
- * Organization Switcher component
+ * Organization Switcher component using Ant Design
  *
  * A dropdown component for switching between organizations.
  * Only renders if user has access to multiple organizations.
@@ -88,7 +26,7 @@ function DefaultOption({
  * // With custom render
  * <OrganizationSwitcher
  *   renderTrigger={(org, isOpen) => (
- *     <button>{org?.name} {isOpen ? '▲' : '▼'}</button>
+ *     <Button>{org?.name} {isOpen ? '▲' : '▼'}</Button>
  *   )}
  *   renderOption={(org, isSelected) => (
  *     <div className={isSelected ? 'selected' : ''}>{org.name}</div>
@@ -103,20 +41,7 @@ export function OrganizationSwitcher({
     onChange,
 }: OrganizationSwitcherProps) {
     const { organizations, currentOrg, hasMultipleOrgs, switchOrg } = useOrganization();
-    const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    const [isOpen, setIsOpen] = React.useState(false);
 
     const handleSelect = useCallback(
         (org: SsoOrganization) => {
@@ -127,68 +52,79 @@ export function OrganizationSwitcher({
         [switchOrg, onChange]
     );
 
+    const menuItems: MenuProps['items'] = useMemo(() => {
+        return organizations.map((org) => {
+            const isSelected = currentOrg?.slug === org.slug;
+
+            if (renderOption) {
+                return {
+                    key: org.slug,
+                    label: (
+                        <div onClick={() => handleSelect(org)}>
+                            {renderOption(org, isSelected)}
+                        </div>
+                    ),
+                };
+            }
+
+            return {
+                key: org.slug,
+                label: (
+                    <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                        <Space direction="vertical" size={0}>
+                            <Text strong={isSelected}>{org.name}</Text>
+                            {org.serviceRole && (
+                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                    {org.serviceRole}
+                                </Text>
+                            )}
+                        </Space>
+                        {isSelected && <CheckOutlined style={{ color: '#1890ff' }} />}
+                    </Space>
+                ),
+                onClick: () => handleSelect(org),
+            };
+        });
+    }, [organizations, currentOrg, renderOption, handleSelect]);
+
     // Don't render if only one org
     if (!hasMultipleOrgs) {
         return null;
     }
 
-    return (
-        <div
-            ref={containerRef}
-            className={className}
-            style={{ position: 'relative', display: 'inline-block' }}
-        >
-            {/* Trigger */}
-            {renderTrigger ? (
-                <div onClick={() => setIsOpen(!isOpen)}>{renderTrigger(currentOrg, isOpen)}</div>
-            ) : (
-                <DefaultTrigger
-                    currentOrg={currentOrg}
-                    isOpen={isOpen}
-                    onClick={() => setIsOpen(!isOpen)}
-                />
-            )}
-
-            {/* Dropdown */}
-            {isOpen && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: 0,
-                        right: 0,
-                        marginTop: '0.25rem',
-                        background: 'white',
-                        border: '1px solid #ccc',
-                        borderRadius: '0.375rem',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                        zIndex: 50,
-                        maxHeight: '300px',
-                        overflowY: 'auto',
-                    }}
-                >
-                    {organizations.map((org) => {
-                        const isSelected = currentOrg?.slug === org.slug;
-
-                        if (renderOption) {
-                            return (
-                                <div key={org.slug} onClick={() => handleSelect(org)}>
-                                    {renderOption(org, isSelected)}
-                                </div>
-                            );
-                        }
-
-                        return (
-                            <DefaultOption
-                                key={org.slug}
-                                org={org}
-                                isSelected={isSelected}
-                                onClick={() => handleSelect(org)}
-                            />
-                        );
-                    })}
+    // Custom trigger
+    if (renderTrigger) {
+        return (
+            <Dropdown
+                menu={{ items: menuItems }}
+                trigger={['click']}
+                open={isOpen}
+                onOpenChange={setIsOpen}
+                className={className}
+            >
+                <div style={{ cursor: 'pointer' }}>
+                    {renderTrigger(currentOrg, isOpen)}
                 </div>
-            )}
-        </div>
+            </Dropdown>
+        );
+    }
+
+    // Default Ant Design trigger
+    return (
+        <Dropdown
+            menu={{ items: menuItems }}
+            trigger={['click']}
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            className={className}
+        >
+            <Button>
+                <Space>
+                    <Badge status="success" />
+                    <span>{currentOrg?.name ?? 'Select Organization'}</span>
+                    <SwapOutlined />
+                </Space>
+            </Button>
+        </Dropdown>
     );
 }

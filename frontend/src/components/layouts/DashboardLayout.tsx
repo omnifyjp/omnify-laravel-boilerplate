@@ -14,7 +14,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
-import { useSso } from "@omnify/sso-react";
+import { useSso } from "@famgia/sso-react";
 
 const { Header, Sider, Content } = Layout;
 

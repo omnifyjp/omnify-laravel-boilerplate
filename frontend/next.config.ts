@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
   ],
 
   // Transpile linked packages (required for Turbopack with symlinked packages)
-  transpilePackages: ["@omnify/sso-react"],
+  transpilePackages: ["@famgia/sso-react"],
 
   // Environment variables exposed to the browser
   env: {

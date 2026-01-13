@@ -1,6 +1,6 @@
 'use client';
 
-import { SsoCallback } from '@omnify/sso-react';
+import { SsoCallback } from '@famgia/sso-react';
 import { Spin, Alert } from 'antd';
 
 function LoadingComponent() {

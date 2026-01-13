@@ -331,5 +331,5 @@ pkill -f "next dev" 2>/dev/null || true
 rm -f ./frontend/.next/dev/lock 2>/dev/null || true
 sleep 1
 
-# フロントエンドdevサーバーを起動
-cd frontend && npm run dev -- -p ${FRONTEND_PORT}
+# Start frontend dev server (bind to 0.0.0.0 for tunnel access)
+cd frontend && npm run dev -- -H 0.0.0.0 -p ${FRONTEND_PORT}

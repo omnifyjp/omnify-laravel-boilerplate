@@ -235,7 +235,7 @@ Write-Host ""
 # Cleanup: Remove lock file
 Remove-Item -Path ".\frontend\.next\dev\lock" -Force -ErrorAction SilentlyContinue
 
-# Start frontend dev server
+# Start frontend dev server (bind to 0.0.0.0 for tunnel access)
 Push-Location .\frontend
-npm run dev -- -p $FRONTEND_PORT
+npm run dev -- -H 0.0.0.0 -p $FRONTEND_PORT
 Pop-Location

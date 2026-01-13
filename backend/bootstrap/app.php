@@ -13,10 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Exclude SSO callback from CSRF verification (SSOコールバックはCSRF検証から除外)
-        $middleware->validateCsrfTokens(except: [
-            'api/sso/callback',
-        ]);
+        //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

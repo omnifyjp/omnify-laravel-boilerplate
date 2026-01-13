@@ -115,7 +115,7 @@ class SsoInstallCommand extends Command
     protected function showNextSteps(): void
     {
         $this->newLine();
-        $this->info('📋 Next Steps:');
+        $this->info('Next Steps:');
         $this->newLine();
 
         $this->line('1. Add the HasConsoleSso trait to your User model:');

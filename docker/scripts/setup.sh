@@ -43,21 +43,6 @@ if [ ! -d "./backend" ]; then
     echo "   ✅ Composer"
 fi
 
-# Check envsubst (for nginx.conf generation)
-if ! command -v envsubst &> /dev/null; then
-    echo "   📦 Installing envsubst (gettext)..."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        brew install gettext
-        brew link --force gettext
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        sudo apt update && sudo apt install -y gettext
-    else
-        echo "❌ envsubst is not installed!"
-        exit 1
-    fi
-fi
-echo "   ✅ envsubst"
-
 # Install/update packages
 echo "📦 Installing packages..."
 npm install
@@ -71,77 +56,15 @@ echo "   ✅ Omnify docs generated"
 # Project name = folder name
 PROJECT_NAME=$(basename "$(pwd)")
 
-# Generate unique IP based on project name (127.0.0.2 - 127.0.0.254)
-generate_project_ip() {
-    local name=$1
-    local hash=$(echo -n "$name" | md5sum | cut -c1-4)
-    local num=$((16#$hash % 253 + 2))
-    echo "127.0.0.$num"
-}
-PROJECT_IP=$(generate_project_ip "$PROJECT_NAME")
-
-# Set domains (based on folder name)
+# Set domains (used for .env files, actual URLs come from tunnel)
 DOMAIN="${PROJECT_NAME}.app"
 API_DOMAIN="api.${PROJECT_NAME}.app"
-CERTS_DIR="./docker/nginx/certs"
 
 echo "🚀 Setting up development environment for: ${PROJECT_NAME}"
 echo ""
 
 # =============================================================================
-# Step 1: Setup mkcert
-# =============================================================================
-echo "📦 Checking mkcert..."
-
-if ! command -v mkcert &> /dev/null; then
-    echo "   Installing mkcert..."
-    
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS (Intel or Apple Silicon - brew handles both)
-        brew install mkcert nss
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        # Linux - detect architecture
-        ARCH=$(uname -m)
-        case $ARCH in
-            x86_64)  MKCERT_ARCH="amd64" ;;
-            aarch64) MKCERT_ARCH="arm64" ;;
-            arm64)   MKCERT_ARCH="arm64" ;;
-            *)       echo "❌ Unsupported architecture: $ARCH"; exit 1 ;;
-        esac
-        
-        sudo apt update && sudo apt install -y libnss3-tools
-        curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/${MKCERT_ARCH}"
-        chmod +x mkcert-v*-linux-${MKCERT_ARCH}
-        sudo mv mkcert-v*-linux-${MKCERT_ARCH} /usr/local/bin/mkcert
-    elif [[ "$OSTYPE" == "msys"* ]] || [[ "$OSTYPE" == "cygwin"* ]]; then
-        # Windows (Git Bash / WSL)
-        echo "   Please install mkcert manually: https://github.com/FiloSottile/mkcert#installation"
-        exit 1
-    fi
-fi
-
-echo "   ✅ mkcert ready"
-
-# Install local CA (always ensure it's installed)
-echo "🔐 Installing local CA..."
-mkcert -install 2>/dev/null || true
-echo "   ✅ Local CA ready"
-
-# Generate SSL certificates (if not exists)
-if [ ! -f "${CERTS_DIR}/${DOMAIN}.pem" ]; then
-    echo ""
-    echo "📜 Generating SSL certificates..."
-    mkdir -p "${CERTS_DIR}"
-
-    mkcert -key-file "${CERTS_DIR}/${DOMAIN}-key.pem" \
-           -cert-file "${CERTS_DIR}/${DOMAIN}.pem" \
-           "${DOMAIN}" "*.${DOMAIN}" localhost 127.0.0.1 ::1
-
-    echo "   ✅ Certificates generated"
-fi
-
-# =============================================================================
-# Step 2: Setup backend (create Laravel if not exists)
+# Step 1: Setup backend (create Laravel if not exists)
 # =============================================================================
 if [ ! -d "./backend" ]; then
     echo ""
@@ -193,7 +116,7 @@ EOF
 fi
 
 # =============================================================================
-# Step 4: Generate backend/.env (if not exists)
+# Step 2: Generate backend/.env (if not exists)
 # =============================================================================
 if [ ! -f "./backend/.env" ]; then
     echo "📝 Generating backend/.env..."
@@ -246,7 +169,7 @@ EOF
 fi
 
 # =============================================================================
-# Step 4b: Generate backend/.env.testing (if not exists)
+# Step 2b: Generate backend/.env.testing (if not exists)
 # =============================================================================
 if [ ! -f "./backend/.env.testing" ]; then
     echo "📝 Generating backend/.env.testing..."
@@ -255,28 +178,18 @@ if [ ! -f "./backend/.env.testing" ]; then
 fi
 
 # =============================================================================
-# Step 5: Start Docker services
+# Step 3: Start Docker services
 # =============================================================================
 echo ""
-echo "⚙️  Generating config files..."
-FRONTEND_PORT=3000
-export DOMAIN API_DOMAIN FRONTEND_PORT PROJECT_IP
+echo "⚙️  Generating docker-compose.yml..."
 
-# Generate docker-compose.yml
-envsubst '${PROJECT_IP}' \
-    < ./docker/stubs/docker-compose.yml.stub \
-    > ./docker-compose.yml
-echo "   ✅ docker-compose.yml generated (IP: ${PROJECT_IP})"
-
-# Generate nginx.conf
-envsubst '${DOMAIN} ${API_DOMAIN} ${FRONTEND_PORT}' \
-    < ./docker/stubs/nginx.conf.stub \
-    > ./docker/nginx/nginx.conf
-echo "   ✅ nginx.conf generated"
+# Copy docker-compose.yml (no variable substitution needed for tunnel setup)
+cp ./docker/stubs/docker-compose.yml.stub ./docker-compose.yml
+echo "   ✅ docker-compose.yml generated"
 
 echo ""
 echo "🐳 Starting Docker services..."
-docker compose up -d mysql phpmyadmin mailpit minio backend nginx
+docker compose up -d mysql redis phpmyadmin mailpit minio backend
 
 echo ""
 echo "⏳ Waiting for services..."
@@ -335,7 +248,7 @@ docker compose exec -T minio mc anonymous set public local/local 2>/dev/null || 
 echo "   ✅ MinIO bucket 'local' ready"
 
 # =============================================================================
-# Step 6: Setup frontend (create Next.js if not exists)
+# Step 4: Setup frontend (create Next.js if not exists)
 # =============================================================================
 if [ ! -f "./frontend/package.json" ]; then
     rm -rf ./frontend 2>/dev/null
@@ -417,17 +330,12 @@ echo "============================================="
 echo "✅ Setup complete!"
 echo "============================================="
 echo ""
-echo "  🌐 Frontend:    https://${DOMAIN}"
-echo "  🔌 API:         https://${API_DOMAIN}"
-echo "  🗄️  phpMyAdmin:  https://${DOMAIN}:8080"
-echo "  📧 Mailpit:     https://${DOMAIN}:8025"
-echo "  📦 MinIO:       https://${DOMAIN}:9001 (console)"
-echo ""
 echo "  Database: omnify / omnify / secret"
 echo "  Testing DB: omnify_testing"
 echo "  SMTP: mailpit:1025 (no auth)"
 echo "  S3: minio:9000 (minioadmin/minioadmin)"
 echo ""
-echo "---------------------------------------------"
-echo "Run 'npm run dev' to start frontend server"
-echo "---------------------------------------------"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🚀 Run 'npm run dev' to start with tunnel!"
+echo "   URLs will be displayed after startup."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

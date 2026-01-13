@@ -38,18 +38,22 @@ NEXT_PUBLIC_SSO_SERVICE_SLUG=boilerplate
 ```bash
 cd backend
 
-# Install package
+# Install package (auto-configures everything)
 composer update
 
-# Publish config
-php artisan vendor:publish --tag=sso-client-config
-
-# Run migrations
+# Run migrations (package migrations run automatically from vendor)
 php artisan migrate
 
 # Seed default roles
 php artisan db:seed --class=\\Omnify\\SsoClient\\Database\\Seeders\\SsoRolesSeeder
 ```
+
+> **Note:** The `omnify/sso-client` package is zero-config:
+> - ServiceProvider auto-discovers (no manual registration needed)
+> - Routes auto-register (`api/sso/*`)
+> - Migrations run from package (no publishing needed)
+> - CSRF bypass for callback is auto-configured
+> - Optional: run `php artisan sso:install` for customization
 
 ### Frontend
 

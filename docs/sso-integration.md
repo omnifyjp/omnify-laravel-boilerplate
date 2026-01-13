@@ -329,23 +329,27 @@ packages/omnify-sso-client/
 
 #### SsoClientServiceProvider
 
-Service provider đăng ký tất cả services, middleware, routes và commands của package.
+Service provider auto-discovered - đăng ký tất cả services, middleware, routes và commands.
 
+**Auto-configured (zero-config):**
 - Đăng ký bindings cho các services (JwksService, JwtVerifier, etc.)
 - Đăng ký middleware aliases: `sso.auth`, `sso.org`, `sso.role`, `sso.permission`
-- Load routes từ `routes/sso.php`
-- Đăng ký command `sso:install`
-- Publish config file `sso-client.php`
+- Load routes từ `routes/sso.php` (callback route bypasses CSRF automatically)
+- Load migrations từ package (không cần publish)
+- Đăng ký command `sso:install` (optional, cho customization)
+- Publish config file `sso-client.php` (optional)
 
-#### SsoInstallCommand (`php artisan sso:install`)
+#### SsoInstallCommand (`php artisan sso:install`) - Optional
 
-Command tự động cài đặt SSO vào project:
+Command để customize SSO setup (package works zero-config without this):
 
-1. **Detect Omnify schemas folder**: Đọc `omnify.config.ts` để tìm `schemasDir`, fallback sang `.omnify/schemas/`
-2. **Tìm User.yaml**: Tìm file `**/User.yaml` trong schemas folder
-3. **Merge SSO fields**: Kiểm tra từng property SSO (console_user_id, console_access_token, etc.), nếu chưa có thì thêm vào cuối `properties` section
+1. **Publish config**: Optional - config cho customization
+2. **Publish migrations**: Optional - migrations run từ package automatically
+3. **Detect Omnify schemas**: Tìm `omnify.config.ts` và schemas folder
 4. **Hỏi chạy omnify generate**: Prompt user có muốn chạy `npx omnify generate` không
 5. **Output hướng dẫn**: Hiển thị các bước tiếp theo (add trait vào User model, config .env)
+
+> **Zero-Config:** Package hoạt động ngay sau `composer require` - migrations chạy từ vendor, routes tự động register, CSRF bypass đã configure.
 
 #### JwksService
 

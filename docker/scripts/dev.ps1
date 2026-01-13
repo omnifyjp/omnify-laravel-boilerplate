@@ -178,6 +178,22 @@ type = "http"
 localIP = "minio"
 localPort = 9001
 customDomains = ["minio.$ProjectName.$DevName.dev.omnify.jp"]
+
+# Laravel Reverb (WebSocket)
+[[proxies]]
+name = "$ProjectName-$DevName-ws"
+type = "http"
+localIP = "reverb"
+localPort = 8080
+customDomains = ["ws.$ProjectName.$DevName.dev.omnify.jp"]
+
+# Laravel Horizon
+[[proxies]]
+name = "$ProjectName-$DevName-horizon"
+type = "http"
+localIP = "backend"
+localPort = 8000
+customDomains = ["horizon.$ProjectName.$DevName.dev.omnify.jp"]
 "@
     
     $config | Set-Content "./docker/frpc/frpc.toml" -Encoding UTF8
@@ -240,7 +256,7 @@ Write-Host "   ✅ docker-compose.yml" -ForegroundColor Green
 # =============================================================================
 Write-Host ""
 Write-Host "🐳 Starting Docker services..." -ForegroundColor Yellow
-docker compose up -d mysql phpmyadmin mailpit minio backend frpc
+docker compose up -d mysql redis phpmyadmin mailpit minio backend reverb horizon frpc
 
 # frpcの接続を待つ
 Write-Host "⏳ Waiting for tunnel connection..." -ForegroundColor Yellow
@@ -266,6 +282,10 @@ Write-Host "━━━━━━━━━━━━━━━━━━━━━━�
 Write-Host ""
 Write-Host "  🌐 Frontend:    https://$DOMAIN" -ForegroundColor Cyan
 Write-Host "  🔌 API:         https://$API_DOMAIN" -ForegroundColor Cyan
+Write-Host "  📊 Horizon:     https://horizon.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
+Write-Host "  🔭 Telescope:   https://$API_DOMAIN/telescope" -ForegroundColor Cyan
+Write-Host "  💓 Pulse:       https://$API_DOMAIN/pulse" -ForegroundColor Cyan
+Write-Host "  🔌 WebSocket:   wss://ws.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
 Write-Host "  🗄️  phpMyAdmin:  https://pma.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
 Write-Host "  📧 Mailpit:     https://mail.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
 Write-Host "  📦 MinIO:       https://minio.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan

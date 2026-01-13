@@ -141,31 +141,7 @@ if [ ! -f "${CERTS_DIR}/${DOMAIN}.pem" ]; then
 fi
 
 # =============================================================================
-# Step 2: Setup DNS via /etc/hosts → unique IP per project
-# =============================================================================
-echo ""
-echo "🌐 Setting up /etc/hosts... (IP: ${PROJECT_IP})"
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS: Create loopback alias (needed for Docker to bind)
-    if ! ifconfig lo0 | grep -q "${PROJECT_IP}"; then
-        echo "   Creating loopback alias ${PROJECT_IP}..."
-        sudo ifconfig lo0 alias ${PROJECT_IP}
-    fi
-fi
-
-# Update /etc/hosts (remove old entry, add new)
-HOSTS_ENTRY="${PROJECT_IP} ${DOMAIN} ${API_DOMAIN}"
-if grep -q "${DOMAIN}" /etc/hosts 2>/dev/null; then
-    # Remove existing entry
-    sudo sed -i '' "/${DOMAIN}/d" /etc/hosts
-fi
-# Add new entry
-echo "${HOSTS_ENTRY}" | sudo tee -a /etc/hosts > /dev/null
-echo "   ✅ Updated /etc/hosts: ${HOSTS_ENTRY}"
-
-# =============================================================================
-# Step 3: Setup backend (create Laravel if not exists)
+# Step 2: Setup backend (create Laravel if not exists)
 # =============================================================================
 if [ ! -d "./backend" ]; then
     echo ""

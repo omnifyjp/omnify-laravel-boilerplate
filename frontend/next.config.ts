@@ -7,14 +7,13 @@ const nextConfig: NextConfig = {
   // Allow HMR WebSocket connections from tunnel domains
   allowedDevOrigins: ["*.app", "*.dev.omnify.jp"],
 
-  // Transpile linked packages
+  // Transpile linked packages (required for Turbopack with symlinked packages)
   transpilePackages: ["@omnify/sso-react"],
 
-  // Note: Turbopack has issues with symlinked packages
-  // Use webpack for local development with linked packages
-  // turbopack: {
-  //   root: process.cwd(),
-  // },
+  // Turbopack configuration
+  turbopack: {
+    root: process.cwd(),
+  },
 
   // Environment variables exposed to the browser
   env: {

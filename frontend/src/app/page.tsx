@@ -52,8 +52,8 @@ export default function Home() {
                 <Avatar size={64} icon={<UserOutlined />} />
                 <Text strong>{user.name}</Text>
                 <Text type="secondary">{user.email}</Text>
-                <Button 
-                  type="default" 
+                <Button
+                  type="default"
                   icon={<LogoutOutlined />}
                   onClick={logout}
                   danger
@@ -62,8 +62,8 @@ export default function Home() {
                 </Button>
               </Space>
             ) : (
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 size="large"
                 icon={<LoginOutlined />}
                 onClick={() => login()}

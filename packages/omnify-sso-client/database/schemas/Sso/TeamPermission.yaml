@@ -18,7 +18,7 @@ properties:
     description:
       ja: Console側のチームID
       en: Team ID from Console
-  
+
   console_org_id:
     type: UnsignedBigInteger
     index: true
@@ -28,7 +28,7 @@ properties:
     description:
       ja: Console側の組織ID（スコーピング用）
       en: Organization ID from Console (for scoping)
-  
+
   permission_id:
     type: UnsignedBigInteger
     displayName:
@@ -39,7 +39,7 @@ indexes:
   team_permission_unique:
     columns: [console_team_id, permission_id]
     unique: true
-  
+
   deleted_at_index:
     columns: [deleted_at]
 

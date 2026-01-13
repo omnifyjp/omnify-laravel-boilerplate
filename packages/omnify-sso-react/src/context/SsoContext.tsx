@@ -13,11 +13,11 @@ export const SsoContext = createContext<SsoContextValue | null>(null);
  * @throws Error if used outside SsoProvider
  */
 export function useSsoContext(): SsoContextValue {
-  const context = useContext(SsoContext);
+    const context = useContext(SsoContext);
 
-  if (!context) {
-    throw new Error('useSsoContext must be used within a SsoProvider');
-  }
+    if (!context) {
+        throw new Error('useSsoContext must be used within a SsoProvider');
+    }
 
-  return context;
+    return context;
 }

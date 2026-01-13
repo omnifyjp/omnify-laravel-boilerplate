@@ -132,37 +132,37 @@ $teams = SsoClient::getUserTeams($accessToken, $orgSlug);
 
 ### Auth Routes (prefix: `/api/sso`)
 
-| Method | URI | Description |
-|--------|-----|-------------|
-| POST | `/callback` | SSO callback handler |
-| POST | `/logout` | Logout user |
-| GET | `/user` | Get current user |
-| GET | `/tokens` | List API tokens (mobile) |
-| DELETE | `/tokens/{id}` | Revoke token |
+| Method | URI            | Description              |
+| ------ | -------------- | ------------------------ |
+| POST   | `/callback`    | SSO callback handler     |
+| POST   | `/logout`      | Logout user              |
+| GET    | `/user`        | Get current user         |
+| GET    | `/tokens`      | List API tokens (mobile) |
+| DELETE | `/tokens/{id}` | Revoke token             |
 
 ### Admin Routes (prefix: `/api/admin/sso`)
 
 Requires `sso.role:admin` middleware.
 
-| Method | URI | Description |
-|--------|-----|-------------|
-| GET | `/roles` | List roles |
-| POST | `/roles` | Create role |
-| GET | `/roles/{id}` | Get role |
-| PUT | `/roles/{id}` | Update role |
-| DELETE | `/roles/{id}` | Delete role |
-| GET | `/roles/{id}/permissions` | Get role permissions |
-| PUT | `/roles/{id}/permissions` | Sync role permissions |
-| GET | `/permissions` | List permissions |
-| POST | `/permissions` | Create permission |
-| GET | `/permissions/{id}` | Get permission |
-| PUT | `/permissions/{id}` | Update permission |
-| DELETE | `/permissions/{id}` | Delete permission |
-| GET | `/permission-matrix` | Get permission matrix |
-| GET | `/teams/permissions` | List team permissions |
-| PUT | `/teams/{id}/permissions` | Sync team permissions |
-| GET | `/teams/orphaned` | List orphaned teams |
-| DELETE | `/teams/orphaned` | Cleanup orphaned |
+| Method | URI                       | Description           |
+| ------ | ------------------------- | --------------------- |
+| GET    | `/roles`                  | List roles            |
+| POST   | `/roles`                  | Create role           |
+| GET    | `/roles/{id}`             | Get role              |
+| PUT    | `/roles/{id}`             | Update role           |
+| DELETE | `/roles/{id}`             | Delete role           |
+| GET    | `/roles/{id}/permissions` | Get role permissions  |
+| PUT    | `/roles/{id}/permissions` | Sync role permissions |
+| GET    | `/permissions`            | List permissions      |
+| POST   | `/permissions`            | Create permission     |
+| GET    | `/permissions/{id}`       | Get permission        |
+| PUT    | `/permissions/{id}`       | Update permission     |
+| DELETE | `/permissions/{id}`       | Delete permission     |
+| GET    | `/permission-matrix`      | Get permission matrix |
+| GET    | `/teams/permissions`      | List team permissions |
+| PUT    | `/teams/{id}/permissions` | Sync team permissions |
+| GET    | `/teams/orphaned`         | List orphaned teams   |
+| DELETE | `/teams/orphaned`         | Cleanup orphaned      |
 
 ## Commands
 

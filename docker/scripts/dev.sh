@@ -108,5 +108,11 @@ echo "🖥️  Starting frontend dev server..."
 echo "---------------------------------------------"
 echo ""
 
+# Cleanup: Kill any existing Next.js dev server and remove lock file
+echo "🧹 Cleaning up..."
+pkill -f "next dev" 2>/dev/null || true
+rm -f ./frontend/.next/dev/lock 2>/dev/null || true
+sleep 1
+
 # Start frontend dev server (foreground)
 cd frontend && npm run dev -- -p ${FRONTEND_PORT}

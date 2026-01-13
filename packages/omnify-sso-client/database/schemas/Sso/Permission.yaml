@@ -19,7 +19,7 @@ properties:
     description:
       ja: 権限識別子（projects.create, reports.view等）
       en: Permission identifier (projects.create, reports.view, etc.)
-  
+
   display_name:
     type: String
     length: 100
@@ -29,7 +29,7 @@ properties:
     description:
       ja: UI表示用の名前
       en: Name for UI display
-  
+
   group:
     type: String
     length: 50
@@ -41,7 +41,7 @@ properties:
     description:
       ja: 権限のグループ分類（projects, reports, settings等）
       en: Permission group classification (projects, reports, settings, etc.)
-  
+
   description:
     type: Text
     nullable: true

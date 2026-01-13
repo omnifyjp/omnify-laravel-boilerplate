@@ -13,7 +13,7 @@ properties:
     displayName:
       ja: ロールID
       en: Role ID
-  
+
   permission_id:
     type: UnsignedBigInteger
     displayName:
@@ -32,7 +32,7 @@ relationships:
     displayName:
       ja: ロール
       en: Role
-  
+
   permission:
     type: BelongsTo
     model: Permission

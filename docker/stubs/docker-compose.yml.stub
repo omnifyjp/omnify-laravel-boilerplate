@@ -23,10 +23,11 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: ../docker/backend/Dockerfile
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
     volumes:
       - ./backend:/var/www/html
+      - ./packages:/var/www/packages:ro
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -48,6 +49,8 @@ services:
       - AWS_BUCKET=local
       - AWS_ENDPOINT=http://minio:9000
       - AWS_USE_PATH_STYLE_ENDPOINT=true
+      - SSO_CONSOLE_URL=http://host.docker.internal
+      - SSO_SERVICE_SLUG=boilerplate
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000"]
       interval: 5s

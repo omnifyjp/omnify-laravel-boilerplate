@@ -19,7 +19,7 @@ properties:
     description:
       ja: ロール識別子（admin, manager, member等）
       en: Role identifier (admin, manager, member, etc.)
-  
+
   display_name:
     type: String
     length: 100
@@ -29,7 +29,7 @@ properties:
     description:
       ja: UI表示用の名前
       en: Name for UI display
-  
+
   level:
     type: Integer
     default: 0
@@ -39,7 +39,7 @@ properties:
     description:
       ja: ロールの権限レベル（高いほど権限が強い）
       en: Role permission level (higher = more permissions)
-  
+
   description:
     type: Text
     nullable: true

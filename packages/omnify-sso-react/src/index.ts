@@ -14,15 +14,15 @@ export { ProtectedRoute } from './components/ProtectedRoute';
 
 // Types
 export type {
-  SsoUser,
-  SsoOrganization,
-  SsoConfig,
-  SsoContextValue,
-  SsoCallbackResponse,
-  SsoProviderProps,
-  SsoCallbackProps,
-  OrganizationSwitcherProps,
-  ProtectedRouteProps,
+    SsoUser,
+    SsoOrganization,
+    SsoConfig,
+    SsoContextValue,
+    SsoCallbackResponse,
+    SsoProviderProps,
+    SsoCallbackProps,
+    OrganizationSwitcherProps,
+    ProtectedRouteProps,
 } from './types';
 
 // Hook return types

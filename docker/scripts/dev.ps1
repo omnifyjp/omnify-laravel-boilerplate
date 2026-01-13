@@ -98,7 +98,12 @@ Write-Host "🖥️  Starting frontend dev server..." -ForegroundColor Yellow
 Write-Host "---------------------------------------------" -ForegroundColor DarkGray
 Write-Host ""
 
+# Cleanup: Remove lock file (Next.js will handle process cleanup)
+Write-Host "🧹 Cleaning up..." -ForegroundColor Yellow
+Remove-Item -Path ".\frontend\.next\dev\lock" -Force -ErrorAction SilentlyContinue
+
 # Start frontend dev server
+Write-Host "🖥️  Starting frontend dev server..." -ForegroundColor Cyan
 Push-Location .\frontend
 npm run dev -- -p $FRONTEND_PORT
 Pop-Location

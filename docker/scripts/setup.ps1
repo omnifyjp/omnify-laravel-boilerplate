@@ -9,7 +9,7 @@ $ErrorActionPreference = "Stop"
 # =============================================================================
 # Check required tools
 # =============================================================================
-Write-Host "🔍 Checking required tools..." -ForegroundColor Yellow
+Write-Host " Checking required tools..." -ForegroundColor Yellow
 
 # Check Docker
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {

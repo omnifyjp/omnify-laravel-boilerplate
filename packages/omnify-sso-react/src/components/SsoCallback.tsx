@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSsoContext } from '../context/SsoContext';
 import type { SsoCallbackProps, SsoCallbackResponse, SsoOrganization, SsoUser } from '../types';
 
@@ -96,8 +96,16 @@ export function SsoCallback({
     const { config, refreshUser } = useSsoContext();
     const [error, setError] = useState<Error | null>(null);
     const [isProcessing, setIsProcessing] = useState(true);
+    // 二重呼び出し防止フラグ（React Strict Mode対応）
+    const isProcessingRef = useRef(false);
 
     useEffect(() => {
+        // 既に処理中の場合はスキップ
+        if (isProcessingRef.current) {
+            return;
+        }
+        isProcessingRef.current = true;
+
         const processCallback = async () => {
             try {
                 // Get code from URL
@@ -143,13 +151,16 @@ export function SsoCallback({
                 const error = err instanceof Error ? err : new Error('Authentication failed');
                 setError(error);
                 onError?.(error);
+                // エラー時はフラグをリセットして再試行可能に
+                isProcessingRef.current = false;
             } finally {
                 setIsProcessing(false);
             }
         };
 
         processCallback();
-    }, [config.apiUrl, onSuccess, onError, redirectTo, refreshUser]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     if (error) {
         if (errorComponent) {

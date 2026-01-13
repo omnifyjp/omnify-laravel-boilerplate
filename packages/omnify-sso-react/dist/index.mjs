@@ -301,7 +301,7 @@ function useSso() {
 }
 
 // src/components/SsoCallback.tsx
-import { useEffect as useEffect2, useState as useState2 } from "react";
+import { useEffect as useEffect2, useRef, useState as useState2 } from "react";
 import { Fragment, jsx as jsx2, jsxs } from "react/jsx-runtime";
 function transformUser2(data) {
   return {
@@ -351,7 +351,12 @@ function SsoCallback({
   const { config, refreshUser } = useSsoContext();
   const [error, setError] = useState2(null);
   const [isProcessing, setIsProcessing] = useState2(true);
+  const isProcessingRef = useRef(false);
   useEffect2(() => {
+    if (isProcessingRef.current) {
+      return;
+    }
+    isProcessingRef.current = true;
     const processCallback = async () => {
       try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -383,12 +388,13 @@ function SsoCallback({
         const error2 = err instanceof Error ? err : new Error("Authentication failed");
         setError(error2);
         onError?.(error2);
+        isProcessingRef.current = false;
       } finally {
         setIsProcessing(false);
       }
     };
     processCallback();
-  }, [config.apiUrl, onSuccess, onError, redirectTo, refreshUser]);
+  }, []);
   if (error) {
     if (errorComponent) {
       return /* @__PURE__ */ jsx2(Fragment, { children: errorComponent(error) });
@@ -405,7 +411,7 @@ function SsoCallback({
 }
 
 // src/components/OrganizationSwitcher.tsx
-import { useCallback as useCallback4, useRef, useState as useState3, useEffect as useEffect3 } from "react";
+import { useCallback as useCallback4, useRef as useRef2, useState as useState3, useEffect as useEffect3 } from "react";
 import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
 function DefaultTrigger({
   currentOrg,
@@ -468,7 +474,7 @@ function OrganizationSwitcher({
 }) {
   const { organizations, currentOrg, hasMultipleOrgs, switchOrg } = useOrganization();
   const [isOpen, setIsOpen] = useState3(false);
-  const containerRef = useRef(null);
+  const containerRef = useRef2(null);
   useEffect3(() => {
     const handleClickOutside = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {

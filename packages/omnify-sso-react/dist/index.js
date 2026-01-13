@@ -384,7 +384,12 @@ function SsoCallback({
   const { config, refreshUser } = useSsoContext();
   const [error, setError] = (0, import_react6.useState)(null);
   const [isProcessing, setIsProcessing] = (0, import_react6.useState)(true);
+  const isProcessingRef = (0, import_react6.useRef)(false);
   (0, import_react6.useEffect)(() => {
+    if (isProcessingRef.current) {
+      return;
+    }
+    isProcessingRef.current = true;
     const processCallback = async () => {
       try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -416,12 +421,13 @@ function SsoCallback({
         const error2 = err instanceof Error ? err : new Error("Authentication failed");
         setError(error2);
         onError?.(error2);
+        isProcessingRef.current = false;
       } finally {
         setIsProcessing(false);
       }
     };
     processCallback();
-  }, [config.apiUrl, onSuccess, onError, redirectTo, refreshUser]);
+  }, []);
   if (error) {
     if (errorComponent) {
       return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_jsx_runtime2.Fragment, { children: errorComponent(error) });

@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["*.app"],
+  // Allow HMR WebSocket connections from tunnel domains
+  allowedDevOrigins: ["*.app", "*.dev.omnify.jp"],
   turbopack: {
     root: process.cwd(),
   },
@@ -13,6 +14,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "**.app",
+      },
+      {
+        protocol: "https",
+        hostname: "**.dev.omnify.jp",
       },
     ],
   },

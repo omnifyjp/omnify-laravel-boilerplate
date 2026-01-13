@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Omnify\SsoClient\Services;
 
+use Illuminate\Support\Facades\Log;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -35,7 +36,7 @@ class JwtVerifier
     /**
      * JWTトークンを検証してパースする
      *
-     * @return array{sub: int, email: string, name: string, aud: string}|null
+     * @return array{sub: int, email: string, name: string, aud: string|array|null}|null
      */
     public function verify(string $token): ?array
     {
@@ -44,40 +45,59 @@ class JwtVerifier
             $parsedToken = $this->parser->parse($token);
 
             if (! $parsedToken instanceof Plain) {
+                Log::warning('[SSO] Token is not a Plain token');
                 return null;
             }
 
             // ヘッダーからkey IDを取得
             $kid = $parsedToken->headers()->get('kid');
             if (! $kid) {
+                Log::warning('[SSO] Token missing key ID (kid) header');
                 throw new ConsoleAuthException('Token missing key ID');
             }
 
             // 公開鍵を取得
             $publicKey = $this->jwksService->getPublicKey($kid);
             if (! $publicKey) {
+                Log::warning('[SSO] Public key not found for kid: ' . $kid);
                 throw new ConsoleAuthException('Public key not found for kid: '.$kid);
             }
 
-            // トークンを検証
+            // トークンを検証（署名と有効期限）
             $constraints = [
                 new SignedWith(new Sha256(), InMemory::plainText($publicKey)),
                 new StrictValidAt(SystemClock::fromSystemTimezone()),
             ];
 
             if (! $this->validator->validate($parsedToken, ...$constraints)) {
+                // 具体的な検証エラーを確認
+                foreach ($constraints as $constraint) {
+                    try {
+                        $this->validator->assert($parsedToken, $constraint);
+                    } catch (\Throwable $e) {
+                        Log::warning('[SSO] Token validation failed: ' . $e->getMessage());
+                    }
+                }
                 return null;
             }
 
             // クレームを抽出
+            $claims = $parsedToken->claims();
+            
             return [
-                'sub' => (int) $parsedToken->claims()->get('sub'),
-                'email' => $parsedToken->claims()->get('email'),
-                'name' => $parsedToken->claims()->get('name'),
-                'aud' => $parsedToken->claims()->get('aud'),
+                'sub' => (int) $claims->get('sub'),
+                'email' => $claims->get('email'),
+                'name' => $claims->get('name'),
+                'aud' => $claims->get('aud'),
             ];
+        } catch (ConsoleAuthException $e) {
+            Log::warning('[SSO] Auth exception: ' . $e->getMessage());
+            throw $e;
         } catch (\Throwable $e) {
-            report($e);
+            Log::error('[SSO] JWT verification failed: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return null;
         }

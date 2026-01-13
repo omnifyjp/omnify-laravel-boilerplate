@@ -268,6 +268,7 @@ NEXT_PUBLIC_REVERB_APP_KEY=omnify-reverb-key
 # SSO Configuration (dev.console.omnify.jp)
 NEXT_PUBLIC_SSO_CONSOLE_URL=https://dev.console.omnify.jp
 NEXT_PUBLIC_SSO_SERVICE_SLUG=test-service
+NEXT_PUBLIC_SSO_BASE_URL=https://${DOMAIN}
 EOF
 
 # =============================================================================

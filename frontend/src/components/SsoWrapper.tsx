@@ -5,8 +5,9 @@ import type { ReactNode } from 'react';
 
 const ssoConfig = {
     apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-    consoleUrl: process.env.NEXT_PUBLIC_SSO_CONSOLE_URL ?? 'http://auth.test',
-    serviceSlug: process.env.NEXT_PUBLIC_SSO_SERVICE_SLUG ?? 'boilerplate',
+    consoleUrl: process.env.NEXT_PUBLIC_SSO_CONSOLE_URL ?? 'https://dev.console.omnify.jp',
+    serviceSlug: process.env.NEXT_PUBLIC_SSO_SERVICE_SLUG ?? 'test-service',
+    baseUrl: process.env.NEXT_PUBLIC_SSO_BASE_URL ?? (typeof window !== 'undefined' ? window.location.origin : ''),
     storage: 'localStorage' as const,
     storageKey: 'sso_selected_org',
 };

@@ -31,17 +31,17 @@ get_dev_name() {
     
     # ユーザーに入力を求める
     echo "" >&2
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    echo "🔑 Developer name required" >&2
+    echo "" >&2
+    echo " Developer name required" >&2
     echo "   This will be saved to .omnify-dev" >&2
     echo "   Example: satoshi, tanaka, yamada" >&2
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo "" >&2
     echo -n "   Enter your dev name: " >&2
     read dev_name
     
     # 入力検証
     if [ -z "$dev_name" ]; then
-        echo "❌ Dev name cannot be empty" >&2
+        echo " Dev name cannot be empty" >&2
         exit 1
     fi
     
@@ -50,7 +50,7 @@ get_dev_name() {
     
     # ファイルに保存
     echo "$dev_name" > "$config_file"
-    echo "   ✅ Saved to .omnify-dev" >&2
+    echo "    Saved to .omnify-dev" >&2
     echo "" >&2
     
     echo "$dev_name"
@@ -76,11 +76,11 @@ get_project_name() {
     
     # ユーザーに入力を求める
     echo "" >&2
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    echo "📁 Project name required" >&2
+    echo "" >&2
+    echo " Project name required" >&2
     echo "   This will be saved to .env file." >&2
     echo "   Press Enter to use default: $default_name" >&2
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo "" >&2
     echo -n "   Enter project name [$default_name]: " >&2
     read project_name
     
@@ -104,7 +104,7 @@ get_project_name() {
     else
         echo "OMNIFY_PROJECT_NAME=$project_name" > "$env_file"
     fi
-    echo "   ✅ Saved to .env" >&2
+    echo "    Saved to .env" >&2
     echo "" >&2
     
     echo "$project_name"
@@ -206,21 +206,21 @@ find_available_port() {
 
 # セットアップ確認
 if [ ! -d "./backend" ] || [ ! -f "./frontend/package.json" ]; then
-    echo "❌ Setup required. Run 'npm run setup' first."
+    echo " Setup required. Run 'npm run setup' first."
     exit 1
 fi
 
 echo ""
-echo "🚀 Omnify Tunnel Development Environment"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo " Omnify Tunnel Development Environment"
+echo ""
 echo ""
 
 # 開発者名とプロジェクト名を取得
 DEV_NAME=$(get_dev_name)
 PROJECT_NAME=$(get_project_name)
 
-echo "👤 Developer: ${DEV_NAME}"
-echo "📁 Project:   ${PROJECT_NAME}"
+echo " Developer: ${DEV_NAME}"
+echo " Project:   ${PROJECT_NAME}"
 echo ""
 
 # フロントエンド用の空きポートを見つける
@@ -229,26 +229,26 @@ FRONTEND_PORT=$(find_available_port 3000)
 # =============================================================================
 # Step 1: frpc設定ファイル生成
 # =============================================================================
-echo "⚙️  Generating frpc config..."
+echo "  Generating frpc config..."
 generate_frpc_config "$DEV_NAME" "$PROJECT_NAME" "$FRONTEND_PORT"
-echo "   ✅ docker/frpc/frpc.toml"
+echo "    docker/frpc/frpc.toml"
 
 # =============================================================================
 # Step 2: docker-compose.ymlをコピー
 # =============================================================================
-echo "⚙️  Generating docker-compose.yml..."
+echo "  Generating docker-compose.yml..."
 cp ./docker/stubs/docker-compose.yml.stub ./docker-compose.yml
-echo "   ✅ docker-compose.yml"
+echo "    docker-compose.yml"
 
 # =============================================================================
 # Step 3: Dockerサービスを起動
 # =============================================================================
 echo ""
-echo "🐳 Starting Docker services..."
+echo " Starting Docker services..."
 docker compose up -d mysql redis phpmyadmin mailpit minio backend horizon reverb frpc
 
 # frpcの接続を待つ
-echo "⏳ Waiting for tunnel connection..."
+echo " Waiting for tunnel connection..."
 sleep 3
 
 # =============================================================================
@@ -275,21 +275,21 @@ EOF
 # 準備完了!
 # =============================================================================
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "✅ Tunnel Development Environment Ready!"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "  🌐 Frontend:    https://${DOMAIN}"
-echo "  🔌 API:         https://${API_DOMAIN}"
-echo "  📡 WebSocket:   wss://${WS_DOMAIN}"
-echo "  📊 Horizon:     https://${API_DOMAIN}/horizon"
-echo "  🗄️  phpMyAdmin:  https://pma.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
-echo "  📧 Mailpit:     https://mail.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
-echo "  📦 MinIO:       https://minio.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+echo " Tunnel Development Environment Ready!"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🖥️  Starting frontend dev server..."
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "   Frontend:    https://${DOMAIN}"
+echo "   API:         https://${API_DOMAIN}"
+echo "   WebSocket:   wss://${WS_DOMAIN}"
+echo "   Horizon:     https://${API_DOMAIN}/horizon"
+echo "    phpMyAdmin:  https://pma.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+echo "   Mailpit:     https://mail.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+echo "   MinIO:       https://minio.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+echo ""
+echo ""
+echo "  Starting frontend dev server..."
+echo ""
 echo ""
 
 # クリーンアップ: 既存のNext.js devサーバーを停止

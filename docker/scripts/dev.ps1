@@ -28,16 +28,16 @@ function Get-DevName {
     
     # ユーザーに入力を求める
     Write-Host ""
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-    Write-Host "🔑 Developer name required" -ForegroundColor Yellow
+    Write-Host "" -ForegroundColor Cyan
+    Write-Host " Developer name required" -ForegroundColor Yellow
     Write-Host "   This will be saved to .omnify-dev"
     Write-Host "   Example: satoshi, tanaka, yamada"
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "" -ForegroundColor Cyan
     $devName = Read-Host "   Enter your dev name"
     
     # 入力検証
     if ([string]::IsNullOrWhiteSpace($devName)) {
-        Write-Host "❌ Dev name cannot be empty" -ForegroundColor Red
+        Write-Host " Dev name cannot be empty" -ForegroundColor Red
         exit 1
     }
     
@@ -46,7 +46,7 @@ function Get-DevName {
     
     # ファイルに保存
     $devName | Set-Content $configFile -NoNewline
-    Write-Host "   ✅ Saved to .omnify-dev" -ForegroundColor Green
+    Write-Host "    Saved to .omnify-dev" -ForegroundColor Green
     Write-Host ""
     
     return $devName
@@ -74,11 +74,11 @@ function Get-ProjectName {
     
     # ユーザーに入力を求める
     Write-Host ""
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-    Write-Host "📁 Project name required" -ForegroundColor Yellow
+    Write-Host "" -ForegroundColor Cyan
+    Write-Host " Project name required" -ForegroundColor Yellow
     Write-Host "   This will be saved to .env file."
     Write-Host "   Press Enter to use default: $defaultName"
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "" -ForegroundColor Cyan
     $projectName = Read-Host "   Enter project name [$defaultName]"
     
     # デフォルト値を使用
@@ -101,7 +101,7 @@ function Get-ProjectName {
     } else {
         "OMNIFY_PROJECT_NAME=$projectName" | Set-Content $envFile
     }
-    Write-Host "   ✅ Saved to .env" -ForegroundColor Green
+    Write-Host "    Saved to .env" -ForegroundColor Green
     Write-Host ""
     
     return $projectName
@@ -217,21 +217,21 @@ function Find-AvailablePort {
 
 # セットアップ確認
 if (-not (Test-Path ".\backend") -or -not (Test-Path ".\frontend\package.json")) {
-    Write-Host "❌ Setup required. Run 'npm run setup' first." -ForegroundColor Red
+    Write-Host " Setup required. Run 'npm run setup' first." -ForegroundColor Red
     exit 1
 }
 
 Write-Host ""
-Write-Host "🚀 Omnify Tunnel Development Environment" -ForegroundColor Cyan
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host " Omnify Tunnel Development Environment" -ForegroundColor Cyan
+Write-Host "" -ForegroundColor DarkGray
 Write-Host ""
 
 # 開発者名とプロジェクト名を取得
 $DEV_NAME = Get-DevName
 $PROJECT_NAME = Get-ProjectName
 
-Write-Host "👤 Developer: $DEV_NAME" -ForegroundColor White
-Write-Host "📁 Project:   $PROJECT_NAME" -ForegroundColor White
+Write-Host " Developer: $DEV_NAME" -ForegroundColor White
+Write-Host " Project:   $PROJECT_NAME" -ForegroundColor White
 Write-Host ""
 
 # フロントエンド用の空きポートを見つける
@@ -240,26 +240,26 @@ $FRONTEND_PORT = Find-AvailablePort -StartPort 3000
 # =============================================================================
 # Step 1: frpc設定ファイル生成
 # =============================================================================
-Write-Host "⚙️  Generating frpc config..." -ForegroundColor Yellow
+Write-Host "  Generating frpc config..." -ForegroundColor Yellow
 New-FrpcConfig -DevName $DEV_NAME -ProjectName $PROJECT_NAME -FrontendPort $FRONTEND_PORT
-Write-Host "   ✅ docker/frpc/frpc.toml" -ForegroundColor Green
+Write-Host "    docker/frpc/frpc.toml" -ForegroundColor Green
 
 # =============================================================================
 # Step 2: docker-compose.ymlをコピー
 # =============================================================================
-Write-Host "⚙️  Generating docker-compose.yml..." -ForegroundColor Yellow
+Write-Host "  Generating docker-compose.yml..." -ForegroundColor Yellow
 Copy-Item ".\docker\stubs\docker-compose.yml.stub" ".\docker-compose.yml" -Force
-Write-Host "   ✅ docker-compose.yml" -ForegroundColor Green
+Write-Host "    docker-compose.yml" -ForegroundColor Green
 
 # =============================================================================
 # Step 3: Dockerサービスを起動
 # =============================================================================
 Write-Host ""
-Write-Host "🐳 Starting Docker services..." -ForegroundColor Yellow
+Write-Host " Starting Docker services..." -ForegroundColor Yellow
 docker compose up -d mysql redis phpmyadmin mailpit minio backend reverb horizon frpc
 
 # frpcの接続を待つ
-Write-Host "⏳ Waiting for tunnel connection..." -ForegroundColor Yellow
+Write-Host " Waiting for tunnel connection..." -ForegroundColor Yellow
 Start-Sleep -Seconds 3
 
 # =============================================================================
@@ -286,23 +286,23 @@ NEXT_PUBLIC_SSO_BASE_URL=https://$DOMAIN
 # 準備完了!
 # =============================================================================
 Write-Host ""
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Green
-Write-Host "✅ Tunnel Development Environment Ready!" -ForegroundColor Green
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Green
+Write-Host "" -ForegroundColor Green
+Write-Host " Tunnel Development Environment Ready!" -ForegroundColor Green
+Write-Host "" -ForegroundColor Green
 Write-Host ""
-Write-Host "  🌐 Frontend:    https://$DOMAIN" -ForegroundColor Cyan
-Write-Host "  🔌 API:         https://$API_DOMAIN" -ForegroundColor Cyan
-Write-Host "  📊 Horizon:     https://horizon.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
-Write-Host "  🔭 Telescope:   https://$API_DOMAIN/telescope" -ForegroundColor Cyan
-Write-Host "  💓 Pulse:       https://$API_DOMAIN/pulse" -ForegroundColor Cyan
-Write-Host "  🔌 WebSocket:   wss://ws.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
-Write-Host "  🗄️  phpMyAdmin:  https://pma.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
-Write-Host "  📧 Mailpit:     https://mail.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
-Write-Host "  📦 MinIO:       https://minio.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
+Write-Host "   Frontend:    https://$DOMAIN" -ForegroundColor Cyan
+Write-Host "   API:         https://$API_DOMAIN" -ForegroundColor Cyan
+Write-Host "   Horizon:     https://horizon.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
+Write-Host "   Telescope:   https://$API_DOMAIN/telescope" -ForegroundColor Cyan
+Write-Host "   Pulse:       https://$API_DOMAIN/pulse" -ForegroundColor Cyan
+Write-Host "   WebSocket:   wss://ws.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
+Write-Host "    phpMyAdmin:  https://pma.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
+Write-Host "   Mailpit:     https://mail.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
+Write-Host "   MinIO:       https://minio.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
-Write-Host "🖥️  Starting frontend dev server..." -ForegroundColor Yellow
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "" -ForegroundColor DarkGray
+Write-Host "  Starting frontend dev server..." -ForegroundColor Yellow
+Write-Host "" -ForegroundColor DarkGray
 Write-Host ""
 
 # クリーンアップ: lockファイル削除

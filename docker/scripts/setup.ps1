@@ -154,7 +154,7 @@ Write-Host " Waiting for services..." -ForegroundColor Yellow
 
 # Wait for backend to be healthy (MySQL + composer install can take 3-5 minutes on first run)
 Write-Host "   Waiting for backend to be ready (this may take a few minutes on first run)..." -ForegroundColor Gray
-$MAX_RETRIES = 150
+$MAX_RETRIES = 300
 $RETRY_COUNT = 0
 
 while ($RETRY_COUNT -lt $MAX_RETRIES) {

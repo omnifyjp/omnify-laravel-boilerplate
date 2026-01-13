@@ -209,7 +209,7 @@ echo " Waiting for services..."
 
 # Wait for backend to be healthy (MySQL + composer install can take 3-5 minutes on first run)
 echo "   Waiting for backend to be ready (this may take a few minutes on first run)..."
-MAX_RETRIES=150
+MAX_RETRIES=300
 RETRY_COUNT=0
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
     BACKEND_STATUS=$(docker compose ps backend --format "{{.Health}}" 2>/dev/null)

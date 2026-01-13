@@ -4,6 +4,11 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // Set Turbopack root to frontend directory to avoid multiple lockfile warning
+  turbopack: {
+    root: import.meta.dirname,
+  },
+
   // Allow HMR WebSocket connections from tunnel domains
   // Use multiple patterns to cover different subdomain levels
   allowedDevOrigins: [

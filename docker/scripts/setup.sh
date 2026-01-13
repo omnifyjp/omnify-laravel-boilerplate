@@ -203,9 +203,9 @@ docker compose up -d mysql redis phpmyadmin mailpit minio backend
 echo ""
 echo " Waiting for services..."
 
-# Wait for backend to be healthy (MySQL healthcheck can take up to 50s, then backend needs time to start)
-echo "   Waiting for backend to be ready..."
-MAX_RETRIES=60
+# Wait for backend to be healthy (MySQL + composer install can take 3-5 minutes on first run)
+echo "   Waiting for backend to be ready (this may take a few minutes on first run)..."
+MAX_RETRIES=150
 RETRY_COUNT=0
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
     BACKEND_STATUS=$(docker compose ps backend --format "{{.Health}}" 2>/dev/null)

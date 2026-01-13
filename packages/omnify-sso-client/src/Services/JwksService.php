@@ -89,6 +89,8 @@ class JwksService
 
     /**
      * Convert JWK to PEM format.
+     * 
+     * JWKからPEM形式の公開鍵に変換する
      *
      * @param array<string, mixed> $jwk
      */
@@ -101,35 +103,20 @@ class JwksService
         $n = $this->base64UrlDecode($jwk['n']);
         $e = $this->base64UrlDecode($jwk['e']);
 
-        // Build RSA public key
-        $modulus = pack('Ca*a*', 0x02, $this->encodeLength(strlen($n)).$n);
-        $exponent = pack('Ca*a*', 0x02, $this->encodeLength(strlen($e)).$e);
+        // Build RSA public key - ASN.1 DER encoding
+        $modulus = chr(0x02).$this->encodeLength(strlen($n)).$n;
+        $exponent = chr(0x02).$this->encodeLength(strlen($e)).$e;
 
-        $rsaPublicKey = pack(
-            'Ca*a*',
-            0x30,
-            $this->encodeLength(strlen($modulus.$exponent)),
-            $modulus.$exponent
-        );
+        $rsaPublicKey = chr(0x30).$this->encodeLength(strlen($modulus.$exponent)).$modulus.$exponent;
 
         // Build the bit string
         $rsaPublicKey = "\x00".$rsaPublicKey;
-        $rsaPublicKey = pack(
-            'Ca*a*',
-            0x03,
-            $this->encodeLength(strlen($rsaPublicKey)),
-            $rsaPublicKey
-        );
+        $rsaPublicKey = chr(0x03).$this->encodeLength(strlen($rsaPublicKey)).$rsaPublicKey;
 
-        // Add algorithm identifier
-        $algorithmIdentifier = pack('H*', '300d06092a864886f70d0101010500');
+        // Add algorithm identifier (RSA encryption OID)
+        $algorithmIdentifier = hex2bin('300d06092a864886f70d0101010500');
 
-        $rsaPublicKey = pack(
-            'Ca*a*',
-            0x30,
-            $this->encodeLength(strlen($algorithmIdentifier.$rsaPublicKey)),
-            $algorithmIdentifier.$rsaPublicKey
-        );
+        $rsaPublicKey = chr(0x30).$this->encodeLength(strlen($algorithmIdentifier.$rsaPublicKey)).$algorithmIdentifier.$rsaPublicKey;
 
         return "-----BEGIN PUBLIC KEY-----\n".
             chunk_split(base64_encode($rsaPublicKey), 64, "\n").

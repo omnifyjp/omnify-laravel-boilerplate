@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { Layout, Menu, theme, Button } from "antd";
+import { useState, useEffect } from "react";
+import { Layout, Menu, theme, Button, Spin, Dropdown } from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   DashboardOutlined,
   UserOutlined,
   SettingOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import { useSso } from "@omnify/sso-react";
 
 const { Header, Sider, Content } = Layout;
 
@@ -33,10 +35,32 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const { user, isLoading, isAuthenticated, login, logout } = useSso();
 
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  // 認証チェック - 未認証の場合はログインへリダイレクト
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      login("/dashboard");
+    }
+  }, [isLoading, isAuthenticated, login]);
+
+  // ローディング中または未認証の場合はスピナーを表示
+  if (isLoading || !isAuthenticated) {
+    return (
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh"
+      }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   const menuItems = [
     {
@@ -105,7 +129,26 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             onClick={() => setCollapsed(!collapsed)}
             style={{ fontSize: 14, width: 32, height: 32 }}
           />
-          <LocaleSwitcher />
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <LocaleSwitcher />
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: "logout",
+                    icon: <LogoutOutlined />,
+                    label: t("auth.logout"),
+                    onClick: () => logout(),
+                  },
+                ],
+              }}
+              placement="bottomRight"
+            >
+              <Button type="text" icon={<UserOutlined />}>
+                {user?.name || user?.email}
+              </Button>
+            </Dropdown>
+          </div>
         </Header>
         <Content
           style={{

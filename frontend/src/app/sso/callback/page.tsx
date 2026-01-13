@@ -44,7 +44,7 @@ function ErrorComponent(error: Error) {
 export default function SsoCallbackPage() {
     return (
         <SsoCallback
-            redirectTo="/"
+            redirectTo="/dashboard"
             loadingComponent={<LoadingComponent />}
             errorComponent={ErrorComponent}
             onSuccess={(user, orgs) => {

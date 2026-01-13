@@ -117,11 +117,24 @@ export function SsoCallback({
                     throw new Error('No authorization code received');
                 }
 
-                // Exchange code for tokens
+                // Get CSRF cookie first (required for Sanctum SPA auth)
+                await fetch(`${config.apiUrl}/sanctum/csrf-cookie`, {
+                    credentials: 'include',
+                });
+
+                // Get XSRF token from cookie
+                const xsrfToken = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('XSRF-TOKEN='))
+                    ?.split('=')[1];
+
+                // Exchange code for session
                 const response = await fetch(`${config.apiUrl}/api/sso/callback`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        ...(xsrfToken ? { 'X-XSRF-TOKEN': decodeURIComponent(xsrfToken) } : {}),
                     },
                     credentials: 'include',
                     body: JSON.stringify({ code }),

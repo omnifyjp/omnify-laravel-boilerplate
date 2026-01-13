@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Omnify\SsoClient\Services\ConsoleApiService;
 use Omnify\SsoClient\Services\ConsoleTokenService;
 use Omnify\SsoClient\Services\JwtVerifier;
@@ -58,15 +60,20 @@ class SsoCallbackController extends Controller
         $user = $userModel::where('console_user_id', $claims['sub'])->first();
 
         if (! $user) {
-            // Create new user
+            // Create new user (SSOユーザーにはランダムパスワードを設定)
             $user = new $userModel();
             $user->console_user_id = $claims['sub'];
             $user->email = $claims['email'];
             $user->name = $claims['name'];
+            $user->password = bcrypt(\Illuminate\Support\Str::random(32));
         } else {
             // Update existing user
             $user->email = $claims['email'];
             $user->name = $claims['name'];
+            // パスワードがNULLの場合はランダムパスワードを設定
+            if (empty($user->password)) {
+                $user->password = bcrypt(\Illuminate\Support\Str::random(32));
+            }
         }
 
         // Store Console tokens
@@ -75,7 +82,7 @@ class SsoCallbackController extends Controller
         // Get organizations
         $organizations = $this->orgAccessService->getOrganizations($user);
 
-        // Create authentication
+        // Create authentication response
         $response = [
             'user' => [
                 'id' => $user->id,
@@ -91,7 +98,7 @@ class SsoCallbackController extends Controller
             $token = $user->createToken($validated['device_name']);
             $response['token'] = $token->plainTextToken;
         } else {
-            // Web: Create session
+            // Web SPA: Create session (cookie-based auth)
             Auth::login($user);
         }
 

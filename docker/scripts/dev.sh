@@ -252,12 +252,46 @@ echo " Waiting for tunnel connection..."
 sleep 3
 
 # =============================================================================
-# Step 4: frontend .env.localを更新
+# Step 4: 環境変数を設定
 # =============================================================================
 DOMAIN="${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
 API_DOMAIN="api.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
 WS_DOMAIN="ws.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
 
+# Backend .env - セッションとSanctumの設定を更新
+if [ -f ./backend/.env ]; then
+    # SESSION_DOMAINを更新（cross-domain cookie用）
+    if grep -q "^SESSION_DOMAIN=" ./backend/.env; then
+        sed -i '' "s|^SESSION_DOMAIN=.*|SESSION_DOMAIN=.${DEV_NAME}.dev.omnify.jp|" ./backend/.env
+    else
+        echo "SESSION_DOMAIN=.${DEV_NAME}.dev.omnify.jp" >> ./backend/.env
+    fi
+    
+    # SANCTUM_STATEFUL_DOMAINSを更新
+    if grep -q "^SANCTUM_STATEFUL_DOMAINS=" ./backend/.env; then
+        sed -i '' "s|^SANCTUM_STATEFUL_DOMAINS=.*|SANCTUM_STATEFUL_DOMAINS=${DOMAIN},${API_DOMAIN}|" ./backend/.env
+    else
+        echo "SANCTUM_STATEFUL_DOMAINS=${DOMAIN},${API_DOMAIN}" >> ./backend/.env
+    fi
+    
+    # SESSION_SECURE_COOKIEを有効化（HTTPS用）
+    if grep -q "^SESSION_SECURE_COOKIE=" ./backend/.env; then
+        sed -i '' "s|^SESSION_SECURE_COOKIE=.*|SESSION_SECURE_COOKIE=true|" ./backend/.env
+    else
+        echo "SESSION_SECURE_COOKIE=true" >> ./backend/.env
+    fi
+    
+    # SESSION_SAME_SITEをnoneに設定（cross-domain用）
+    if grep -q "^SESSION_SAME_SITE=" ./backend/.env; then
+        sed -i '' "s|^SESSION_SAME_SITE=.*|SESSION_SAME_SITE=none|" ./backend/.env
+    else
+        echo "SESSION_SAME_SITE=none" >> ./backend/.env
+    fi
+    
+    echo "    Updated backend/.env for tunnel domain"
+fi
+
+# Frontend .env.local
 cat > ./frontend/.env.local << EOF
 NEXT_PUBLIC_API_URL=https://${API_DOMAIN}
 NEXT_PUBLIC_REVERB_HOST=${WS_DOMAIN}

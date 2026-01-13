@@ -46,6 +46,17 @@ function getStorage(type: 'localStorage' | 'sessionStorage'): Storage | null {
 }
 
 /**
+ * Get XSRF token from cookie (for Sanctum CSRF protection)
+ */
+function getXsrfToken(): string | undefined {
+    if (typeof document === 'undefined') return undefined;
+    return document.cookie
+        .split('; ')
+        .find(row => row.startsWith('XSRF-TOKEN='))
+        ?.split('=')[1];
+}
+
+/**
  * SSO Provider component
  */
 export function SsoProvider({ children, config, onAuthChange }: SsoProviderProps) {
@@ -93,11 +104,20 @@ export function SsoProvider({ children, config, onAuthChange }: SsoProviderProps
     );
 
     /**
-     * Fetch current user from backend
+     * Fetch current user from backend (Sanctum cookie-based auth)
      */
     const fetchUser = useCallback(async () => {
         try {
+            const xsrfToken = getXsrfToken();
+            const headers: Record<string, string> = {
+                'Accept': 'application/json',
+            };
+            if (xsrfToken) {
+                headers['X-XSRF-TOKEN'] = decodeURIComponent(xsrfToken);
+            }
+
             const response = await fetch(`${config.apiUrl}/api/sso/user`, {
+                headers,
                 credentials: 'include',
             });
 
@@ -173,12 +193,19 @@ export function SsoProvider({ children, config, onAuthChange }: SsoProviderProps
     );
 
     /**
-     * Logout from service
+     * Logout from service (Sanctum cookie-based)
      */
     const logout = useCallback(async () => {
         try {
+            const xsrfToken = getXsrfToken();
+            const headers: Record<string, string> = {};
+            if (xsrfToken) {
+                headers['X-XSRF-TOKEN'] = decodeURIComponent(xsrfToken);
+            }
+
             await fetch(`${config.apiUrl}/api/sso/logout`, {
                 method: 'POST',
+                headers,
                 credentials: 'include',
             });
         } catch {

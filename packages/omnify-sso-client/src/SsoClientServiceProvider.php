@@ -84,11 +84,14 @@ class SsoClientServiceProvider extends ServiceProvider
 
     /**
      * Register the package migrations.
-     * マイグレーションは自動的に読み込まれる（publishも可能）
+     * マイグレーションは自動ロードしない（publishが必要）
+     * これにより、ユーザーがマイグレーションの順序を制御できる
      */
     protected function registerMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        // マイグレーションは自動ロードしない
+        // ユーザーはsso:installコマンドまたは手動でpublishする必要がある
+        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     /**

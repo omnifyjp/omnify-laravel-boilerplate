@@ -100,15 +100,7 @@ if (-not (Test-Path ".\backend")) {
     
     # Register OmnifyServiceProvider
     Write-Host " Registering OmnifyServiceProvider..." -ForegroundColor Yellow
-    # 単一引用符のhere-stringを使用してPHPコードを正しく処理する
-    @'
-<?php
-
-return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\OmnifyServiceProvider::class,
-];
-'@ | Out-File -FilePath ".\backend\bootstrap\providers.php" -Encoding UTF8
+    Copy-Item ".\docker\stubs\providers.php.stub" ".\backend\bootstrap\providers.php" -Force
     Write-Host "    OmnifyServiceProvider registered" -ForegroundColor Green
     
     Write-Host "    Laravel API project created" -ForegroundColor Green
@@ -120,61 +112,12 @@ return [
 # =============================================================================
 if (-not (Test-Path ".\backend\.env")) {
     Write-Host " Generating backend/.env..." -ForegroundColor Yellow
-    # .envファイルの内容を生成する（変数展開用に文字列連結を使用）
-    $envContent = @"
-APP_NAME=$PROJECT_NAME
-APP_KEY=
-APP_ENV=local
-APP_DEBUG=true
-APP_TIMEZONE=UTC
-APP_URL=https://$API_DOMAIN
-FRONTEND_URL=https://$DOMAIN
-
-LOG_CHANNEL=stack
-LOG_LEVEL=debug
-
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=omnify
-DB_USERNAME=omnify
-DB_PASSWORD=secret
-
-SESSION_DRIVER=cookie
-SESSION_DOMAIN=.$DOMAIN
-CACHE_DRIVER=file
-QUEUE_CONNECTION=sync
-
-SANCTUM_STATEFUL_DOMAINS=${DOMAIN},${API_DOMAIN}
-CORS_ALLOWED_ORIGINS=https://$DOMAIN
-
-MAIL_MAILER=smtp
-MAIL_HOST=mailpit
-MAIL_PORT=1025
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS="hello@example.com"
-MAIL_FROM_NAME="`${APP_NAME}"
-
-FILESYSTEM_DISK=s3
-AWS_ACCESS_KEY_ID=minioadmin
-AWS_SECRET_ACCESS_KEY=minioadmin
-AWS_DEFAULT_REGION=us-east-1
-AWS_BUCKET=local
-AWS_ENDPOINT=http://minio:9000
-AWS_USE_PATH_STYLE_ENDPOINT=true
-
-# Redis
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-# SSO Configuration (dev.console.omnify.jp)
-SSO_CONSOLE_URL=https://dev.console.omnify.jp
-SSO_SERVICE_SLUG=test-service
-SSO_SERVICE_SECRET=test_secret_2026_dev_only_do_not_use_in_prod
-"@
-    $envContent | Out-File -FilePath ".\backend\.env" -Encoding UTF8
+    # Copy stub and replace placeholders
+    $envContent = Get-Content ".\docker\stubs\backend.env.stub" -Raw
+    $envContent = $envContent -replace "__PROJECT_NAME__", $PROJECT_NAME
+    $envContent = $envContent -replace "__DOMAIN__", $DOMAIN
+    $envContent = $envContent -replace "__API_DOMAIN__", $API_DOMAIN
+    $envContent | Out-File -FilePath ".\backend\.env" -Encoding UTF8 -NoNewline
     Write-Host "    backend/.env created" -ForegroundColor Green
     $GENERATE_KEY = $true
 }
@@ -283,30 +226,7 @@ if (-not (Test-Path ".\frontend\package.json")) {
     
     Write-Host ""
     Write-Host "  Configuring Next.js..." -ForegroundColor Yellow
-    # 単一引用符のhere-stringを使用してJavaScriptコードを正しく処理する
-    @'
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  allowedDevOrigins: ["*.app"],
-  turbopack: {
-    root: process.cwd(),
-  },
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**.app",
-      },
-    ],
-  },
-};
-
-export default nextConfig;
-'@ | Out-File -FilePath ".\frontend\next.config.ts" -Encoding UTF8
+    Copy-Item ".\docker\stubs\next.config.ts.stub" ".\frontend\next.config.ts" -Force
 
     # Install Ant Design
     Write-Host "    Installing Ant Design..." -ForegroundColor Yellow
@@ -315,11 +235,11 @@ export default nextConfig;
     Pop-Location
     Write-Host "    Ant Design installed" -ForegroundColor Green
 
-    # フロントエンド環境変数ファイルを生成
+    # Create frontend .env.local
     "NEXT_PUBLIC_API_URL=https://$API_DOMAIN" | Out-File -FilePath ".\frontend\.env.local" -Encoding UTF8
     Write-Host "    Next.js project created" -ForegroundColor Green
 } else {
-    # フロントエンド環境変数ファイルを更新
+    # Update frontend .env.local
     "NEXT_PUBLIC_API_URL=https://$API_DOMAIN" | Out-File -FilePath ".\frontend\.env.local" -Encoding UTF8
     
     if (-not (Test-Path ".\frontend\node_modules")) {

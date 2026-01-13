@@ -162,6 +162,15 @@ AWS_DEFAULT_REGION=us-east-1
 AWS_BUCKET=local
 AWS_ENDPOINT=http://minio:9000
 AWS_USE_PATH_STYLE_ENDPOINT=true
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# SSO Configuration (dev.console.omnify.jp)
+SSO_CONSOLE_URL=https://dev.console.omnify.jp
+SSO_SERVICE_SLUG=test-service
+SSO_SERVICE_SECRET=test_secret_2026_dev_only_do_not_use_in_prod
 "@ | Out-File -FilePath ".\backend\.env" -Encoding UTF8
     Write-Host "   ✅ backend/.env created" -ForegroundColor Green
     $GENERATE_KEY = $true

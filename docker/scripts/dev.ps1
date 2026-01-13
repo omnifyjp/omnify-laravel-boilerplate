@@ -267,9 +267,18 @@ Start-Sleep -Seconds 3
 # =============================================================================
 $DOMAIN = "$PROJECT_NAME.$DEV_NAME.dev.omnify.jp"
 $API_DOMAIN = "api.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp"
+$WS_DOMAIN = "ws.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp"
 
 @"
 NEXT_PUBLIC_API_URL=https://$API_DOMAIN
+NEXT_PUBLIC_REVERB_HOST=$WS_DOMAIN
+NEXT_PUBLIC_REVERB_PORT=443
+NEXT_PUBLIC_REVERB_SCHEME=https
+NEXT_PUBLIC_REVERB_APP_KEY=omnify-reverb-key
+
+# SSO Configuration (dev.console.omnify.jp)
+NEXT_PUBLIC_SSO_CONSOLE_URL=https://dev.console.omnify.jp
+NEXT_PUBLIC_SSO_SERVICE_SLUG=test-service
 "@ | Set-Content ".\frontend\.env.local" -Encoding UTF8
 
 # =============================================================================

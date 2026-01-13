@@ -1,0 +1,35 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Shell scripts must always use LF line endings (for Docker containers)
+*.sh text eol=lf
+
+# Docker files
+Dockerfile text eol=lf
+docker-entrypoint.sh text eol=lf
+
+# Other Unix scripts
+*.bash text eol=lf
+*.zsh text eol=lf
+
+# Windows scripts can use CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Config files - use LF for consistency
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+# PHP files
+*.php text eol=lf
+
+# JavaScript/TypeScript
+*.js text eol=lf
+*.ts text eol=lf
+*.jsx text eol=lf
+*.tsx text eol=lf
+*.mjs text eol=lf
+*.mts text eol=lf

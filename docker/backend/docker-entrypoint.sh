@@ -23,6 +23,17 @@ composer install --no-interaction --prefer-dist --optimize-autoloader || true
 echo "Generating autoloader..."
 composer dump-autoload --optimize || true
 
+# Generate APP_KEY if not set
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "" ]; then
+    echo "Generating application key..."
+    php artisan key:generate --force || true
+fi
+
+# Clear and cache config
+echo "Optimizing application..."
+php artisan config:clear || true
+php artisan cache:clear || true
+
 # Run migrations if needed
 if [ "$RUN_MIGRATIONS" = "true" ]; then
     echo "Running migrations..."

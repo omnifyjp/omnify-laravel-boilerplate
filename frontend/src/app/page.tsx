@@ -32,7 +32,7 @@ export default function Home() {
         }}
         extra={<LocaleSwitcher />}
       >
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Space orientation="vertical" size="large" style={{ width: "100%" }}>
           <RocketOutlined style={{ fontSize: 64, color: "#1677ff" }} />
 
           <Title level={2} style={{ margin: 0 }}>
@@ -48,7 +48,7 @@ export default function Home() {
             {isLoading ? (
               <Text type="secondary">Loading...</Text>
             ) : isAuthenticated && user ? (
-              <Space direction="vertical" size="small">
+              <Space orientation="vertical" size="small">
                 <Avatar size={64} icon={<UserOutlined />} />
                 <Text strong>{user.name}</Text>
                 <Text type="secondary">{user.email}</Text>

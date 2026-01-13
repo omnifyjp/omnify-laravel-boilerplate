@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
     return (
         <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <Space orientation="vertical" size="large" style={{ width: '100%' }}>
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Title level={2} style={{ margin: 0 }}>Dashboard</Title>
@@ -98,7 +98,7 @@ export default function DashboardPage() {
                 {/* Organizations */}
                 <Card title="Your Organizations">
                     {organizations.length > 0 ? (
-                        <Space direction="vertical" style={{ width: '100%' }}>
+                        <Space orientation="vertical" style={{ width: '100%' }}>
                             {organizations.map((org) => (
                                 <Card
                                     key={org.id}

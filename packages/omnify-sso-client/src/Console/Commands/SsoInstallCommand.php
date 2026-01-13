@@ -18,11 +18,13 @@ class SsoInstallCommand extends Command
     {
         $this->info('Installing SSO Client...');
 
-        // 1. Publish config
+        // 1. Publish config (optional but recommended for customization)
         $this->publishConfig();
 
-        // 2. Publish migrations
-        $this->publishMigrations();
+        // 2. Optionally publish migrations (they run automatically from package)
+        if ($this->confirm('Publish migrations for customization? (Migrations run automatically from package)', false)) {
+            $this->publishMigrations();
+        }
 
         // 3. Check for Omnify and handle schemas
         $this->handleOmnifySchemas();
@@ -31,7 +33,7 @@ class SsoInstallCommand extends Command
         $this->showNextSteps();
 
         $this->newLine();
-        $this->info('✅ SSO Client installed successfully!');
+        $this->info('SSO Client installed successfully!');
 
         return self::SUCCESS;
     }
@@ -136,13 +138,13 @@ class SsoInstallCommand extends Command
         $this->line('   SSO_SERVICE_SLUG=your-service-slug');
         $this->newLine();
 
-        $this->line('3. Run migrations:');
+        $this->line('3. Run migrations (package migrations run automatically):');
         $this->newLine();
         $this->line('   php artisan migrate');
         $this->newLine();
 
         $this->line('4. Seed default roles and permissions:');
         $this->newLine();
-        $this->line('   php artisan db:seed --class=SsoRolesSeeder');
+        $this->line('   php artisan db:seed --class=\\Omnify\\SsoClient\\Database\\Seeders\\SsoRolesSeeder');
     }
 }

@@ -12,16 +12,18 @@ The package will automatically register its service provider.
 
 ## Setup
 
-### 1. Run Install Command
+### 1. Run Install Command (Optional)
 
 ```bash
 php artisan sso:install
 ```
 
 This will:
-- Publish the config file
-- Publish migrations
+- Publish the config file for customization
+- Optionally publish migrations for customization
 - Guide you through setup
+
+> **Note:** The package works automatically after `composer require`. Migrations run from the package, routes are registered, middleware is available. The install command is for customization.
 
 ### 2. Add Traits to User Model
 

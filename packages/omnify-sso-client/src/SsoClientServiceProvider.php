@@ -75,10 +75,20 @@ class SsoClientServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPublishing();
+        $this->registerMigrations();
         $this->registerRoutes();
         $this->registerMiddleware();
         $this->registerCommands();
         $this->registerOmnifySchemas();
+    }
+
+    /**
+     * Register the package migrations.
+     * マイグレーションは自動的に読み込まれる（publishも可能）
+     */
+    protected function registerMigrations(): void
+    {
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     /**

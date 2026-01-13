@@ -1,25 +1,197 @@
 #!/bin/bash
 
 # =============================================================================
-# Dev Script
-# Starts Docker services and frontend dev server
+# Dev Script - Omnify Tunnel Version
+# Tunnel経由でlocalhostをインターネットに公開する
 # =============================================================================
 
 set -e
 
-# Project name = folder name
-PROJECT_NAME=$(basename "$(pwd)")
+# =============================================================================
+# Tunnel Server設定
+# =============================================================================
+TUNNEL_SERVER="dev.omnify.jp"
+TUNNEL_PORT=7000
+FRP_TOKEN="65565cab2397330948c3374416a829dc1d0c25ad25055dd8d712b6d6555c9f36"
 
-# Generate unique IP based on project name (127.0.0.2 - 127.0.0.254)
-generate_project_ip() {
-    local name=$1
-    local hash=$(echo -n "$name" | md5sum | cut -c1-4)
-    local num=$((16#$hash % 253 + 2))
-    echo "127.0.0.$num"
+# =============================================================================
+# 開発者名を取得/保存する関数
+# =============================================================================
+get_dev_name() {
+    local config_file=".omnify-dev"
+    
+    # ファイルから取得を試みる
+    if [ -f "$config_file" ]; then
+        local saved_name=$(cat "$config_file" 2>/dev/null | tr -d '\n')
+        if [ -n "$saved_name" ]; then
+            echo "$saved_name"
+            return
+        fi
+    fi
+    
+    # ユーザーに入力を求める
+    echo "" >&2
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo "🔑 Developer name required" >&2
+    echo "   This will be saved to .omnify-dev" >&2
+    echo "   Example: satoshi, tanaka, yamada" >&2
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo -n "   Enter your dev name: " >&2
+    read dev_name
+    
+    # 入力検証
+    if [ -z "$dev_name" ]; then
+        echo "❌ Dev name cannot be empty" >&2
+        exit 1
+    fi
+    
+    # 小文字に変換してスペースを削除
+    dev_name=$(echo "$dev_name" | tr '[:upper:]' '[:lower:]' | tr -d ' ')
+    
+    # ファイルに保存
+    echo "$dev_name" > "$config_file"
+    echo "   ✅ Saved to .omnify-dev" >&2
+    echo "" >&2
+    
+    echo "$dev_name"
 }
-PROJECT_IP=$(generate_project_ip "$PROJECT_NAME")
 
-# Function to find available port
+# =============================================================================
+# プロジェクト名を取得/保存する関数
+# =============================================================================
+get_project_name() {
+    local env_file=".env"
+    
+    # .envファイルから取得を試みる
+    if [ -f "$env_file" ]; then
+        local saved_name=$(grep "^OMNIFY_PROJECT_NAME=" "$env_file" 2>/dev/null | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+        if [ -n "$saved_name" ]; then
+            echo "$saved_name"
+            return
+        fi
+    fi
+    
+    # デフォルトはフォルダ名
+    local default_name=$(basename "$(pwd)")
+    
+    # ユーザーに入力を求める
+    echo "" >&2
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo "📁 Project name required" >&2
+    echo "   This will be saved to .env file." >&2
+    echo "   Press Enter to use default: $default_name" >&2
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo -n "   Enter project name [$default_name]: " >&2
+    read project_name
+    
+    # デフォルト値を使用
+    if [ -z "$project_name" ]; then
+        project_name="$default_name"
+    fi
+    
+    # 小文字に変換してスペースを削除
+    project_name=$(echo "$project_name" | tr '[:upper:]' '[:lower:]' | tr -d ' ')
+    
+    # .envファイルに保存
+    if [ -f "$env_file" ]; then
+        # OMNIFY_PROJECT_NAME行が存在する場合は更新、なければ追加
+        if grep -q "^OMNIFY_PROJECT_NAME=" "$env_file"; then
+            sed -i.bak "s/^OMNIFY_PROJECT_NAME=.*/OMNIFY_PROJECT_NAME=$project_name/" "$env_file"
+            rm -f "$env_file.bak"
+        else
+            echo "OMNIFY_PROJECT_NAME=$project_name" >> "$env_file"
+        fi
+    else
+        echo "OMNIFY_PROJECT_NAME=$project_name" > "$env_file"
+    fi
+    echo "   ✅ Saved to .env" >&2
+    echo "" >&2
+    
+    echo "$project_name"
+}
+
+# =============================================================================
+# frpc設定ファイル生成関数
+# =============================================================================
+generate_frpc_config() {
+    local dev_name=$1
+    local project_name=$2
+    local frontend_port=$3
+    
+    mkdir -p ./docker/frpc
+    
+    # customDomainsを使用してフルドメインを指定
+    cat > ./docker/frpc/frpc.toml << EOF
+# Omnify Tunnel Client設定
+# Auto-generated by dev.sh
+
+serverAddr = "${TUNNEL_SERVER}"
+serverPort = ${TUNNEL_PORT}
+
+auth.method = "token"
+auth.token = "${FRP_TOKEN}"
+
+# Frontend
+[[proxies]]
+name = "${project_name}-${dev_name}-frontend"
+type = "http"
+localIP = "host.docker.internal"
+localPort = ${frontend_port}
+customDomains = ["${project_name}.${dev_name}.dev.omnify.jp"]
+
+# Backend API (includes Horizon dashboard at /horizon)
+[[proxies]]
+name = "${project_name}-${dev_name}-api"
+type = "http"
+localIP = "backend"
+localPort = 8000
+customDomains = ["api.${project_name}.${dev_name}.dev.omnify.jp"]
+
+# Laravel Reverb WebSocket
+[[proxies]]
+name = "${project_name}-${dev_name}-ws"
+type = "http"
+localIP = "reverb"
+localPort = 8080
+customDomains = ["ws.${project_name}.${dev_name}.dev.omnify.jp"]
+
+# phpMyAdmin
+[[proxies]]
+name = "${project_name}-${dev_name}-phpmyadmin"
+type = "http"
+localIP = "phpmyadmin"
+localPort = 80
+customDomains = ["pma.${project_name}.${dev_name}.dev.omnify.jp"]
+
+# Mailpit
+[[proxies]]
+name = "${project_name}-${dev_name}-mailpit"
+type = "http"
+localIP = "mailpit"
+localPort = 8025
+customDomains = ["mail.${project_name}.${dev_name}.dev.omnify.jp"]
+
+# MinIO S3 API
+[[proxies]]
+name = "${project_name}-${dev_name}-minio"
+type = "http"
+localIP = "minio"
+localPort = 9000
+customDomains = ["s3.${project_name}.${dev_name}.dev.omnify.jp"]
+
+# MinIO Console
+[[proxies]]
+name = "${project_name}-${dev_name}-minio-console"
+type = "http"
+localIP = "minio"
+localPort = 9001
+customDomains = ["minio.${project_name}.${dev_name}.dev.omnify.jp"]
+EOF
+}
+
+# =============================================================================
+# 空きポートを見つける関数
+# =============================================================================
 find_available_port() {
     local port=$1
     while lsof -i:$port >/dev/null 2>&1; do
@@ -28,91 +200,97 @@ find_available_port() {
     echo $port
 }
 
-# Find available port for frontend
-FRONTEND_PORT=$(find_available_port 3000)
+# =============================================================================
+# メイン処理
+# =============================================================================
 
-# Set domains (based on folder name)
-DOMAIN="${PROJECT_NAME}.app"
-API_DOMAIN="api.${PROJECT_NAME}.app"
-
-# Check if setup is needed
+# セットアップ確認
 if [ ! -d "./backend" ] || [ ! -f "./frontend/package.json" ]; then
     echo "❌ Setup required. Run 'npm run setup' first."
     exit 1
 fi
 
-echo "🚀 Starting development environment for: ${PROJECT_NAME}"
+echo ""
+echo "🚀 Omnify Tunnel Development Environment"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# =============================================================================
-# Step 1: Generate config files
-# =============================================================================
-echo "⚙️  Generating config files..."
-export DOMAIN API_DOMAIN FRONTEND_PORT PROJECT_IP
+# 開発者名とプロジェクト名を取得
+DEV_NAME=$(get_dev_name)
+PROJECT_NAME=$(get_project_name)
 
-# Generate docker-compose.yml
-envsubst '${PROJECT_IP}' \
-    < ./docker/stubs/docker-compose.yml.stub \
-    > ./docker-compose.yml
-echo "   ✅ docker-compose.yml (IP: ${PROJECT_IP})"
+echo "👤 Developer: ${DEV_NAME}"
+echo "📁 Project:   ${PROJECT_NAME}"
+echo ""
 
-# Generate nginx.conf
-envsubst '${DOMAIN} ${API_DOMAIN} ${FRONTEND_PORT}' \
-    < ./docker/stubs/nginx.conf.stub \
-    > ./docker/nginx/nginx.conf
-echo "   ✅ nginx.conf (port: ${FRONTEND_PORT})"
+# フロントエンド用の空きポートを見つける
+FRONTEND_PORT=$(find_available_port 3000)
 
 # =============================================================================
-# Step 2: macOS loopback alias (required for Docker)
+# Step 1: frpc設定ファイル生成
 # =============================================================================
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    if ! ifconfig lo0 | grep -q "${PROJECT_IP}"; then
-        echo "🔧 Creating loopback alias ${PROJECT_IP}..."
-        sudo ifconfig lo0 alias ${PROJECT_IP}
-    fi
-fi
+echo "⚙️  Generating frpc config..."
+generate_frpc_config "$DEV_NAME" "$PROJECT_NAME" "$FRONTEND_PORT"
+echo "   ✅ docker/frpc/frpc.toml"
 
 # =============================================================================
-# Step 3: Start Docker services
+# Step 2: docker-compose.ymlをコピー
+# =============================================================================
+echo "⚙️  Generating docker-compose.yml..."
+cp ./docker/stubs/docker-compose.yml.stub ./docker-compose.yml
+echo "   ✅ docker-compose.yml"
+
+# =============================================================================
+# Step 3: Dockerサービスを起動
 # =============================================================================
 echo ""
 echo "🐳 Starting Docker services..."
-docker compose up -d mysql phpmyadmin mailpit minio backend nginx
+docker compose up -d mysql redis phpmyadmin mailpit minio backend horizon reverb frpc
 
-# Restart nginx to pick up new config (port may have changed)
-docker compose restart nginx >/dev/null 2>&1 || true
+# frpcの接続を待つ
+echo "⏳ Waiting for tunnel connection..."
+sleep 3
 
 # =============================================================================
-# Step 4: Update frontend .env.local
+# Step 4: frontend .env.localを更新
 # =============================================================================
+DOMAIN="${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+API_DOMAIN="api.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+WS_DOMAIN="ws.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+
 cat > ./frontend/.env.local << EOF
 NEXT_PUBLIC_API_URL=https://${API_DOMAIN}
+NEXT_PUBLIC_REVERB_HOST=${WS_DOMAIN}
+NEXT_PUBLIC_REVERB_PORT=443
+NEXT_PUBLIC_REVERB_SCHEME=https
+NEXT_PUBLIC_REVERB_APP_KEY=omnify-reverb-key
 EOF
 
 # =============================================================================
-# Ready!
+# 準備完了!
 # =============================================================================
 echo ""
-echo "============================================="
-echo "✅ Development environment ready!"
-echo "============================================="
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Tunnel Development Environment Ready!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "  🌐 Frontend:    https://${DOMAIN}"
 echo "  🔌 API:         https://${API_DOMAIN}"
-echo "  🗄️  phpMyAdmin:  https://${DOMAIN}:8080"
-echo "  📧 Mailpit:     https://${DOMAIN}:8025"
-echo "  📦 MinIO:       https://${DOMAIN}:9001 (console)"
+echo "  📡 WebSocket:   wss://${WS_DOMAIN}"
+echo "  📊 Horizon:     https://${API_DOMAIN}/horizon"
+echo "  🗄️  phpMyAdmin:  https://pma.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+echo "  📧 Mailpit:     https://mail.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
+echo "  📦 MinIO:       https://minio.${PROJECT_NAME}.${DEV_NAME}.dev.omnify.jp"
 echo ""
-echo "---------------------------------------------"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🖥️  Starting frontend dev server..."
-echo "---------------------------------------------"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Cleanup: Kill any existing Next.js dev server and remove lock file
-echo "🧹 Cleaning up..."
+# クリーンアップ: 既存のNext.js devサーバーを停止
 pkill -f "next dev" 2>/dev/null || true
 rm -f ./frontend/.next/dev/lock 2>/dev/null || true
 sleep 1
 
-# Start frontend dev server (foreground)
+# フロントエンドdevサーバーを起動
 cd frontend && npm run dev -- -p ${FRONTEND_PORT}

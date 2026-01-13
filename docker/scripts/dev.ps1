@@ -1,23 +1,191 @@
 # =============================================================================
-# Dev Script for Windows (PowerShell)
-# Starts Docker services and frontend dev server
+# Dev Script for Windows (PowerShell) - Omnify Tunnel Version
+# Tunnel経由でlocalhostをインターネットに公開する
 # =============================================================================
 
 $ErrorActionPreference = "Stop"
 
-# Project name = folder name
-$PROJECT_NAME = Split-Path -Leaf (Get-Location)
+# =============================================================================
+# Tunnel Server設定
+# =============================================================================
+$TUNNEL_SERVER = "dev.omnify.jp"
+$TUNNEL_PORT = 7000
+$FRP_TOKEN = "65565cab2397330948c3374416a829dc1d0c25ad25055dd8d712b6d6555c9f36"
 
-# Generate unique IP based on project name (127.0.0.2 - 127.0.0.254)
-function Get-ProjectIP {
-    param([string]$Name)
-    $hash = [System.BitConverter]::ToString([System.Security.Cryptography.MD5]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($Name))).Replace("-","").Substring(0,4)
-    $num = [Convert]::ToInt32($hash, 16) % 253 + 2
-    return "127.0.0.$num"
+# =============================================================================
+# 開発者名を取得/保存する関数
+# =============================================================================
+function Get-DevName {
+    $configFile = ".omnify-dev"
+    
+    # ファイルから取得を試みる
+    if (Test-Path $configFile) {
+        $savedName = (Get-Content $configFile -Raw).Trim()
+        if ($savedName) {
+            return $savedName
+        }
+    }
+    
+    # ユーザーに入力を求める
+    Write-Host ""
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "🔑 Developer name required" -ForegroundColor Yellow
+    Write-Host "   This will be saved to .omnify-dev"
+    Write-Host "   Example: satoshi, tanaka, yamada"
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    $devName = Read-Host "   Enter your dev name"
+    
+    # 入力検証
+    if ([string]::IsNullOrWhiteSpace($devName)) {
+        Write-Host "❌ Dev name cannot be empty" -ForegroundColor Red
+        exit 1
+    }
+    
+    # 小文字に変換してスペースを削除
+    $devName = $devName.ToLower().Replace(" ", "")
+    
+    # ファイルに保存
+    $devName | Set-Content $configFile -NoNewline
+    Write-Host "   ✅ Saved to .omnify-dev" -ForegroundColor Green
+    Write-Host ""
+    
+    return $devName
 }
-$PROJECT_IP = Get-ProjectIP -Name $PROJECT_NAME
 
-# Function to find available port
+# =============================================================================
+# プロジェクト名を取得/保存する関数
+# =============================================================================
+function Get-ProjectName {
+    $envFile = ".env"
+    
+    # .envファイルから取得を試みる
+    if (Test-Path $envFile) {
+        $content = Get-Content $envFile -Raw
+        if ($content -match "OMNIFY_PROJECT_NAME=(.+)") {
+            $savedName = $matches[1].Trim().Trim('"').Trim("'")
+            if ($savedName) {
+                return $savedName
+            }
+        }
+    }
+    
+    # デフォルトはフォルダ名
+    $defaultName = Split-Path -Leaf (Get-Location)
+    
+    # ユーザーに入力を求める
+    Write-Host ""
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "📁 Project name required" -ForegroundColor Yellow
+    Write-Host "   This will be saved to .env file."
+    Write-Host "   Press Enter to use default: $defaultName"
+    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    $projectName = Read-Host "   Enter project name [$defaultName]"
+    
+    # デフォルト値を使用
+    if ([string]::IsNullOrWhiteSpace($projectName)) {
+        $projectName = $defaultName
+    }
+    
+    # 小文字に変換してスペースを削除
+    $projectName = $projectName.ToLower().Replace(" ", "")
+    
+    # .envファイルに保存
+    if (Test-Path $envFile) {
+        $content = Get-Content $envFile -Raw
+        if ($content -match "OMNIFY_PROJECT_NAME=") {
+            $content = $content -replace "OMNIFY_PROJECT_NAME=.+", "OMNIFY_PROJECT_NAME=$projectName"
+            $content | Set-Content $envFile -NoNewline
+        } else {
+            Add-Content $envFile "OMNIFY_PROJECT_NAME=$projectName"
+        }
+    } else {
+        "OMNIFY_PROJECT_NAME=$projectName" | Set-Content $envFile
+    }
+    Write-Host "   ✅ Saved to .env" -ForegroundColor Green
+    Write-Host ""
+    
+    return $projectName
+}
+
+# =============================================================================
+# frpc設定ファイル生成関数
+# =============================================================================
+function New-FrpcConfig {
+    param(
+        [string]$DevName,
+        [string]$ProjectName,
+        [int]$FrontendPort
+    )
+    
+    # ディレクトリ作成
+    New-Item -ItemType Directory -Force -Path "./docker/frpc" | Out-Null
+    
+    # customDomainsを使用してフルドメインを指定（subdomainはドットをサポートしない）
+    $config = @"
+# Omnify Tunnel Client設定
+# Auto-generated by dev.ps1
+
+serverAddr = "$TUNNEL_SERVER"
+serverPort = $TUNNEL_PORT
+
+auth.method = "token"
+auth.token = "$FRP_TOKEN"
+
+# Frontend
+[[proxies]]
+name = "$ProjectName-$DevName-frontend"
+type = "http"
+localIP = "host.docker.internal"
+localPort = $FrontendPort
+customDomains = ["$ProjectName.$DevName.dev.omnify.jp"]
+
+# Backend API
+[[proxies]]
+name = "$ProjectName-$DevName-api"
+type = "http"
+localIP = "backend"
+localPort = 8000
+customDomains = ["api.$ProjectName.$DevName.dev.omnify.jp"]
+
+# phpMyAdmin
+[[proxies]]
+name = "$ProjectName-$DevName-phpmyadmin"
+type = "http"
+localIP = "phpmyadmin"
+localPort = 80
+customDomains = ["pma.$ProjectName.$DevName.dev.omnify.jp"]
+
+# Mailpit
+[[proxies]]
+name = "$ProjectName-$DevName-mailpit"
+type = "http"
+localIP = "mailpit"
+localPort = 8025
+customDomains = ["mail.$ProjectName.$DevName.dev.omnify.jp"]
+
+# MinIO S3 API
+[[proxies]]
+name = "$ProjectName-$DevName-minio"
+type = "http"
+localIP = "minio"
+localPort = 9000
+customDomains = ["s3.$ProjectName.$DevName.dev.omnify.jp"]
+
+# MinIO Console
+[[proxies]]
+name = "$ProjectName-$DevName-minio-console"
+type = "http"
+localIP = "minio"
+localPort = 9001
+customDomains = ["minio.$ProjectName.$DevName.dev.omnify.jp"]
+"@
+    
+    $config | Set-Content "./docker/frpc/frpc.toml" -Encoding UTF8
+}
+
+# =============================================================================
+# 空きポートを見つける関数
+# =============================================================================
 function Find-AvailablePort {
     param([int]$StartPort)
     $port = $StartPort
@@ -27,83 +195,90 @@ function Find-AvailablePort {
     return $port
 }
 
-# Find available port for frontend
-$FRONTEND_PORT = Find-AvailablePort -StartPort 3000
+# =============================================================================
+# メイン処理
+# =============================================================================
 
-# Set domains (based on folder name)
-$DOMAIN = "$PROJECT_NAME.app"
-$API_DOMAIN = "api.$PROJECT_NAME.app"
-
-# Check if setup is needed
+# セットアップ確認
 if (-not (Test-Path ".\backend") -or -not (Test-Path ".\frontend\package.json")) {
     Write-Host "❌ Setup required. Run 'npm run setup' first." -ForegroundColor Red
     exit 1
 }
 
-Write-Host "🚀 Starting development environment for: $PROJECT_NAME" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "🚀 Omnify Tunnel Development Environment" -ForegroundColor Cyan
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
 Write-Host ""
 
-# =============================================================================
-# Step 1: Generate nginx.conf with current port
-# =============================================================================
-Write-Host "⚙️  Generating config files..." -ForegroundColor Yellow
+# 開発者名とプロジェクト名を取得
+$DEV_NAME = Get-DevName
+$PROJECT_NAME = Get-ProjectName
 
-# Generate docker-compose.yml
-$dcTemplate = Get-Content ".\docker\stubs\docker-compose.yml.stub" -Raw
-$dcTemplate = $dcTemplate -replace '\$\{PROJECT_IP\}', $PROJECT_IP
-$dcTemplate | Out-File -FilePath ".\docker-compose.yml" -Encoding UTF8
-Write-Host "   ✅ docker-compose.yml (IP: $PROJECT_IP)" -ForegroundColor Green
+Write-Host "👤 Developer: $DEV_NAME" -ForegroundColor White
+Write-Host "📁 Project:   $PROJECT_NAME" -ForegroundColor White
+Write-Host ""
 
-# Generate nginx.conf
-$template = Get-Content ".\docker\stubs\nginx.conf.stub" -Raw
-$template = $template -replace '\$\{DOMAIN\}', $DOMAIN
-$template = $template -replace '\$\{API_DOMAIN\}', $API_DOMAIN
-$template = $template -replace '\$\{FRONTEND_PORT\}', $FRONTEND_PORT
-$template | Out-File -FilePath ".\docker\nginx\nginx.conf" -Encoding UTF8
-Write-Host "   ✅ nginx.conf (port: $FRONTEND_PORT)" -ForegroundColor Green
+# フロントエンド用の空きポートを見つける
+$FRONTEND_PORT = Find-AvailablePort -StartPort 3000
 
 # =============================================================================
-# Step 2: Start Docker services
+# Step 1: frpc設定ファイル生成
+# =============================================================================
+Write-Host "⚙️  Generating frpc config..." -ForegroundColor Yellow
+New-FrpcConfig -DevName $DEV_NAME -ProjectName $PROJECT_NAME -FrontendPort $FRONTEND_PORT
+Write-Host "   ✅ docker/frpc/frpc.toml" -ForegroundColor Green
+
+# =============================================================================
+# Step 2: docker-compose.ymlをコピー
+# =============================================================================
+Write-Host "⚙️  Generating docker-compose.yml..." -ForegroundColor Yellow
+Copy-Item ".\docker\stubs\docker-compose.yml.stub" ".\docker-compose.yml" -Force
+Write-Host "   ✅ docker-compose.yml" -ForegroundColor Green
+
+# =============================================================================
+# Step 3: Dockerサービスを起動
 # =============================================================================
 Write-Host ""
 Write-Host "🐳 Starting Docker services..." -ForegroundColor Yellow
-docker compose up -d mysql phpmyadmin mailpit minio backend nginx
+docker compose up -d mysql phpmyadmin mailpit minio backend frpc
 
-# Restart nginx to pick up new config (port may have changed)
-docker compose restart nginx 2>$null
+# frpcの接続を待つ
+Write-Host "⏳ Waiting for tunnel connection..." -ForegroundColor Yellow
+Start-Sleep -Seconds 3
 
 # =============================================================================
-# Step 3: Update frontend .env.local
+# Step 4: frontend .env.localを更新
 # =============================================================================
+$DOMAIN = "$PROJECT_NAME.$DEV_NAME.dev.omnify.jp"
+$API_DOMAIN = "api.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp"
+
 @"
 NEXT_PUBLIC_API_URL=https://$API_DOMAIN
-"@ | Out-File -FilePath ".\frontend\.env.local" -Encoding UTF8
+"@ | Set-Content ".\frontend\.env.local" -Encoding UTF8
 
 # =============================================================================
-# Ready!
+# 準備完了!
 # =============================================================================
 Write-Host ""
-Write-Host "=============================================" -ForegroundColor Green
-Write-Host "✅ Development environment ready!" -ForegroundColor Green
-Write-Host "=============================================" -ForegroundColor Green
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Green
+Write-Host "✅ Tunnel Development Environment Ready!" -ForegroundColor Green
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Green
 Write-Host ""
 Write-Host "  🌐 Frontend:    https://$DOMAIN" -ForegroundColor Cyan
 Write-Host "  🔌 API:         https://$API_DOMAIN" -ForegroundColor Cyan
-Write-Host "  🗄️  phpMyAdmin:  https://${DOMAIN}:8080" -ForegroundColor Cyan
-Write-Host "  📧 Mailpit:     https://${DOMAIN}:8025" -ForegroundColor Cyan
-Write-Host "  📦 MinIO:       https://${DOMAIN}:9001 (console)" -ForegroundColor Cyan
+Write-Host "  🗄️  phpMyAdmin:  https://pma.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
+Write-Host "  📧 Mailpit:     https://mail.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
+Write-Host "  📦 MinIO:       https://minio.$PROJECT_NAME.$DEV_NAME.dev.omnify.jp" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "---------------------------------------------" -ForegroundColor DarkGray
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
 Write-Host "🖥️  Starting frontend dev server..." -ForegroundColor Yellow
-Write-Host "---------------------------------------------" -ForegroundColor DarkGray
+Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
 Write-Host ""
 
-# Cleanup: Remove lock file (Next.js will handle process cleanup)
-Write-Host "🧹 Cleaning up..." -ForegroundColor Yellow
+# クリーンアップ: lockファイル削除
 Remove-Item -Path ".\frontend\.next\dev\lock" -Force -ErrorAction SilentlyContinue
 
-# Start frontend dev server
-Write-Host "🖥️  Starting frontend dev server..." -ForegroundColor Cyan
+# フロントエンドdevサーバーを起動
 Push-Location .\frontend
 npm run dev -- -p $FRONTEND_PORT
 Pop-Location

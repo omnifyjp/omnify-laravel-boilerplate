@@ -29,6 +29,11 @@ if [ "$RUN_MIGRATIONS" = "true" ]; then
     php artisan migrate --force || true
 fi
 
-# Start PHP server
-echo "🚀 Starting PHP server..."
-exec php artisan serve --host=0.0.0.0 --port=8000
+# カスタムコマンドが渡された場合はそれを実行、なければデフォルトのserveを実行
+if [ "$#" -gt 0 ]; then
+    echo "🚀 Running custom command: $@"
+    exec "$@"
+else
+    echo "🚀 Starting PHP server..."
+    exec php artisan serve --host=0.0.0.0 --port=8000
+fi

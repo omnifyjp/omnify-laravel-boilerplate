@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   // Allow HMR WebSocket connections from tunnel domains
   allowedDevOrigins: ["*.app", "*.dev.omnify.jp"],
   turbopack: {
-    root: process.cwd(),
+    root: __dirname,
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,

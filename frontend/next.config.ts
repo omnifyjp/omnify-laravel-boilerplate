@@ -10,9 +10,9 @@ const nextConfig: NextConfig = {
   // Transpile linked packages (required for Turbopack with symlinked packages)
   transpilePackages: ["@omnify/sso-react"],
 
-  // Turbopack configuration
+  // Turbopack configuration - use __dirname to get correct frontend root
   turbopack: {
-    root: process.cwd(),
+    root: __dirname,
   },
 
   // Environment variables exposed to the browser

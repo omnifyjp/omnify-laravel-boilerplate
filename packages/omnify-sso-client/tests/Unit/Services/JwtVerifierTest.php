@@ -42,7 +42,7 @@ test('JwtVerifier returns null for invalid token format', function () {
     expect($result)->toBeNull();
 });
 
-test('JwtVerifier returns null for token without kid header', function () {
+test('JwtVerifier throws exception for token without kid header', function () {
     $jwksService = Mockery::mock(JwksService::class);
     $verifier = new JwtVerifier($jwksService);
     
@@ -55,12 +55,10 @@ test('JwtVerifier returns null for token without kid header', function () {
         ->withClaim('email', 'test@example.com')
         ->getToken(new Sha256(), InMemory::plainText($this->privateKey));
     
-    $result = $verifier->verify($token->toString());
-    
-    expect($result)->toBeNull();
-});
+    $verifier->verify($token->toString());
+})->throws(\Omnify\SsoClient\Exceptions\ConsoleAuthException::class, 'Token missing key ID');
 
-test('JwtVerifier returns null when public key not found', function () {
+test('JwtVerifier throws exception when public key not found', function () {
     $jwksService = Mockery::mock(JwksService::class);
     $jwksService->shouldReceive('getPublicKey')
         ->with('test-kid')
@@ -78,10 +76,8 @@ test('JwtVerifier returns null when public key not found', function () {
         ->withClaim('email', 'test@example.com')
         ->getToken(new Sha256(), InMemory::plainText($this->privateKey));
     
-    $result = $verifier->verify($token->toString());
-    
-    expect($result)->toBeNull();
-});
+    $verifier->verify($token->toString());
+})->throws(\Omnify\SsoClient\Exceptions\ConsoleAuthException::class);
 
 test('JwtVerifier successfully verifies valid token', function () {
     // 完全なトークン検証は実際のSSO Consoleを使ったintegrationテストで確認

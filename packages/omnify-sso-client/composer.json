@@ -26,6 +26,8 @@
         "guzzlehttp/guzzle": "^7.0"
     },
     "require-dev": {
+        "laravel/sanctum": "^4.0",
+        "mockery/mockery": "^1.6",
         "orchestra/testbench": "^9.0",
         "pestphp/pest": "^3.0",
         "phpstan/phpstan": "^1.10"

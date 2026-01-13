@@ -5,7 +5,13 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   // Allow HMR WebSocket connections from tunnel domains
-  allowedDevOrigins: ["*.app", "*.dev.omnify.jp"],
+  // Use multiple patterns to cover different subdomain levels
+  allowedDevOrigins: [
+    "*.app",
+    "*.dev.omnify.jp",
+    "*.*.dev.omnify.jp",        // project.dev.dev.omnify.jp
+    "*.*.*.dev.omnify.jp",      // extra level
+  ],
 
   // Transpile linked packages (required for Turbopack with symlinked packages)
   transpilePackages: ["@omnify/sso-react"],

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Omnify\SsoClient\Services;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use Illuminate\Support\Facades\Log;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
@@ -12,9 +14,9 @@ use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Validator;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
-use Lcobucci\Clock\SystemClock;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Omnify\SsoClient\Exceptions\ConsoleAuthException;
+use Psr\Clock\ClockInterface;
 
 /**
  * JWT Token検証サービス
@@ -64,9 +66,20 @@ class JwtVerifier
             }
 
             // トークンを検証（署名と有効期限）
+            // PSR-20 Clock実装を使用（クロックスキュー対策として5分の許容を追加）
+            $clock = new class implements ClockInterface {
+                public function now(): DateTimeImmutable
+                {
+                    return new DateTimeImmutable('now', new DateTimeZone('UTC'));
+                }
+            };
+            
+            // 5分の許容時間を設定（サーバー間の時刻ずれ対策）
+            $leeway = new \DateInterval('PT5M');
+            
             $constraints = [
                 new SignedWith(new Sha256(), InMemory::plainText($publicKey)),
-                new StrictValidAt(SystemClock::fromSystemTimezone()),
+                new LooseValidAt($clock, $leeway),
             ];
 
             if (! $this->validator->validate($parsedToken, ...$constraints)) {

@@ -4,73 +4,72 @@ declare(strict_types=1);
 
 namespace Omnify\SsoClient\Services;
 
-use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Validation\Validator;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use Lcobucci\Clock\SystemClock;
 use Omnify\SsoClient\Exceptions\ConsoleAuthException;
 
+/**
+ * JWT Token検証サービス
+ * 
+ * lcobucci/jwt v5.x対応
+ */
 class JwtVerifier
 {
+    private Parser $parser;
+    private Validator $validator;
+
     public function __construct(
         private readonly JwksService $jwksService
-    ) {}
+    ) {
+        $this->parser = new Parser(new JoseEncoder());
+        $this->validator = new Validator();
+    }
 
     /**
-     * Verify and parse a JWT token.
+     * JWTトークンを検証してパースする
      *
      * @return array{sub: int, email: string, name: string, aud: string}|null
      */
     public function verify(string $token): ?array
     {
         try {
-            // Parse token to get header (kid)
-            $config = Configuration::forUnsecuredSigner();
-            $parsedToken = $config->parser()->parse($token);
+            // トークンをパースしてヘッダー(kid)を取得
+            $parsedToken = $this->parser->parse($token);
 
             if (! $parsedToken instanceof Plain) {
                 return null;
             }
 
-            // Get key ID from header
+            // ヘッダーからkey IDを取得
             $kid = $parsedToken->headers()->get('kid');
             if (! $kid) {
                 throw new ConsoleAuthException('Token missing key ID');
             }
 
-            // Get public key
+            // 公開鍵を取得
             $publicKey = $this->jwksService->getPublicKey($kid);
             if (! $publicKey) {
                 throw new ConsoleAuthException('Public key not found for kid: '.$kid);
             }
 
-            // Create configuration with proper key
-            $config = Configuration::forSymmetricSigner(
-                new Sha256(),
-                InMemory::plainText($publicKey)
-            );
-
-            // Re-parse with proper config
-            $parsedToken = $config->parser()->parse($token);
-
-            if (! $parsedToken instanceof Plain) {
-                return null;
-            }
-
-            // Validate token
+            // トークンを検証
             $constraints = [
                 new SignedWith(new Sha256(), InMemory::plainText($publicKey)),
                 new StrictValidAt(SystemClock::fromSystemTimezone()),
             ];
 
-            if (! $config->validator()->validate($parsedToken, ...$constraints)) {
+            if (! $this->validator->validate($parsedToken, ...$constraints)) {
                 return null;
             }
 
-            // Extract claims
+            // クレームを抽出
             return [
                 'sub' => (int) $parsedToken->claims()->get('sub'),
                 'email' => $parsedToken->claims()->get('email'),
@@ -85,16 +84,15 @@ class JwtVerifier
     }
 
     /**
-     * Get claims from a token without verification.
-     * Use only when token has already been verified.
+     * 検証なしでトークンからクレームを取得
+     * 既に検証済みのトークンにのみ使用
      *
      * @return array<string, mixed>|null
      */
     public function getClaims(string $token): ?array
     {
         try {
-            $config = Configuration::forUnsecuredSigner();
-            $parsedToken = $config->parser()->parse($token);
+            $parsedToken = $this->parser->parse($token);
 
             if (! $parsedToken instanceof Plain) {
                 return null;

@@ -43,10 +43,14 @@ if [ ! -d "./backend" ]; then
     echo "    Composer"
 fi
 
-# Install/update packages
-echo " Installing packages..."
-npm install
-echo "    Packages installed"
+# Install/update packages (skip if already installed by pnpm or npm)
+if [ ! -d "node_modules" ]; then
+    echo " Installing packages..."
+    npm install
+    echo "    Packages installed"
+else
+    echo " Packages already installed, skipping..."
+fi
 
 # Run Omnify postinstall (generate .claude docs)
 echo " Generating Omnify docs..."

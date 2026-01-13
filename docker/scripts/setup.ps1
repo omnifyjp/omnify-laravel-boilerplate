@@ -42,10 +42,14 @@ if (-not (Test-Path ".\backend")) {
     Write-Host "    Composer" -ForegroundColor Green
 }
 
-# Install/update packages
-Write-Host " Installing packages..." -ForegroundColor Yellow
-npm install
-Write-Host "    Packages installed" -ForegroundColor Green
+# Install/update packages (skip if already installed by pnpm or npm)
+if (-not (Test-Path "node_modules")) {
+    Write-Host " Installing packages..." -ForegroundColor Yellow
+    npm install
+    Write-Host "    Packages installed" -ForegroundColor Green
+} else {
+    Write-Host " Packages already installed, skipping..." -ForegroundColor Green
+}
 
 # Run Omnify postinstall (generate .claude docs)
 Write-Host " Generating Omnify docs..." -ForegroundColor Yellow

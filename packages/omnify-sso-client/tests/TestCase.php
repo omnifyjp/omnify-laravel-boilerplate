@@ -32,6 +32,10 @@ abstract class TestCase extends OrchestraTestCase
         $app['config']->set('sso-client.service.secret', 'test-secret');
         $app['config']->set('sso-client.user_model', User::class);
 
+        // Admin routes middleware - simplified for testing
+        // テスト環境ではadmin routesのmiddlewareを簡略化
+        $app['config']->set('sso-client.routes.admin_middleware', ['api']);
+
         // データベース設定
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [

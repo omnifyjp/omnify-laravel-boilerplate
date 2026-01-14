@@ -32,7 +32,7 @@
     },
     "devDependencies": {
         "@famgia/omnify": "latest",
-        "@famgia/omnify-laravel": "^0.0.93",
+        "@famgia/omnify-laravel": "latest",
         "@types/node": "^25.0.6"
     },
     "dependencies": {

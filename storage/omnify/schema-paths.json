@@ -1,0 +1,8 @@
+{
+    "paths": [
+        {
+            "path": "./packages/omnify-sso-client/database/schemas",
+            "namespace": "Sso"
+        }
+    ]
+}

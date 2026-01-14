@@ -6,8 +6,10 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Omnify\SsoClient\Models\Role;
 use Omnify\SsoClient\Models\Traits\HasConsoleSso;
 use Omnify\SsoClient\Models\Traits\HasTeamPermissions;
 
@@ -32,6 +34,7 @@ class User extends Model implements AuthenticatableContract
         'console_access_token',
         'console_refresh_token',
         'console_token_expires_at',
+        'role_id',
     ];
 
     protected $hidden = [
@@ -46,6 +49,26 @@ class User extends Model implements AuthenticatableContract
             'password' => 'hashed',
             'console_token_expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * ロールとの関連
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * パーミッションを持っているかチェック
+     */
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->role) {
+            return $this->role->hasPermission($permission);
+        }
+
+        return false;
     }
 
     /**

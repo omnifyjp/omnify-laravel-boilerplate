@@ -23,15 +23,8 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = fake('ja_JP');
-
         return [
-            // JapaneseName fields
-            'name_lastname' => $faker->lastName(),
-            'name_firstname' => $faker->firstName(),
-            'name_kana_lastname' => $faker->lastKanaName(),
-            'name_kana_firstname' => $faker->firstKanaName(),
-
+            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

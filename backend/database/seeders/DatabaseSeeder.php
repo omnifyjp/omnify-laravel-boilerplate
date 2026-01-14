@@ -17,10 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // Create admin user
         User::factory()->create([
-            'name_lastname' => '管理',
-            'name_firstname' => '者',
-            'name_kana_lastname' => 'カンリ',
-            'name_kana_firstname' => 'シャ',
+            'name' => 'Admin User',
             'email' => 'admin@example.com',
         ]);
 

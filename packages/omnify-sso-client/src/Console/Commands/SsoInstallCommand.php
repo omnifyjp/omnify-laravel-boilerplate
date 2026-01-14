@@ -29,13 +29,27 @@ class SsoInstallCommand extends Command
         // 3. Check for Omnify and handle schemas
         $this->handleOmnifySchemas();
 
-        // 4. Show next steps
+        // 4. Sync admin permissions
+        $this->syncPermissions();
+
+        // 5. Show next steps
         $this->showNextSteps();
 
         $this->newLine();
         $this->info('SSO Client installed successfully!');
 
         return self::SUCCESS;
+    }
+
+    protected function syncPermissions(): void
+    {
+        $this->newLine();
+
+        if ($this->confirm('Sync admin permissions to database?', true)) {
+            $this->call('sso:sync-permissions');
+        } else {
+            $this->line('Skipped. You can run "php artisan sso:sync-permissions" later.');
+        }
     }
 
     protected function publishConfig(): void
@@ -143,8 +157,13 @@ class SsoInstallCommand extends Command
         $this->line('   php artisan migrate');
         $this->newLine();
 
-        $this->line('4. Seed default roles and permissions:');
+        $this->line('4. Sync admin permissions (if not done during install):');
         $this->newLine();
-        $this->line('   php artisan db:seed --class=\\Omnify\\SsoClient\\Database\\Seeders\\SsoRolesSeeder');
+        $this->line('   php artisan sso:sync-permissions');
+        $this->newLine();
+
+        $this->line('5. To update permissions after package update:');
+        $this->newLine();
+        $this->line('   php artisan sso:sync-permissions --force');
     }
 }

@@ -14,7 +14,9 @@ use Omnify\SsoClient\Services\ConsoleApiService;
 use Omnify\SsoClient\Services\ConsoleTokenService;
 use Omnify\SsoClient\Services\JwtVerifier;
 use Omnify\SsoClient\Services\OrgAccessService;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'SSO Auth', description: 'SSO authentication endpoints')]
 class SsoCallbackController extends Controller
 {
     public function __construct(
@@ -28,6 +30,36 @@ class SsoCallbackController extends Controller
      * Handle SSO callback.
      * Exchange code for tokens, create/update user, return auth response.
      */
+    #[OA\Post(
+        path: '/api/sso/callback',
+        summary: 'SSO callback',
+        description: 'Exchange authorization code for tokens and authenticate user',
+        tags: ['SSO Auth'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['code'],
+                properties: [
+                    new OA\Property(property: 'code', type: 'string', description: 'Authorization code from Console SSO'),
+                    new OA\Property(property: 'device_name', type: 'string', maxLength: 255, nullable: true, description: 'Device name for mobile apps (returns API token)'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authentication successful',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'user', ref: '#/components/schemas/SsoUser'),
+                        new OA\Property(property: 'organizations', type: 'array', items: new OA\Items(ref: '#/components/schemas/Organization')),
+                        new OA\Property(property: 'token', type: 'string', nullable: true, description: 'API token (only for mobile apps)'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Invalid code or token'),
+        ]
+    )]
     public function callback(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -108,6 +140,20 @@ class SsoCallbackController extends Controller
     /**
      * Logout user.
      */
+    #[OA\Post(
+        path: '/api/sso/logout',
+        summary: 'Logout',
+        description: 'Logout current user and revoke tokens',
+        tags: ['SSO Auth'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Logged out successfully',
+                content: new OA\JsonContent(properties: [new OA\Property(property: 'message', type: 'string')])
+            ),
+        ]
+    )]
     public function logout(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -133,6 +179,26 @@ class SsoCallbackController extends Controller
     /**
      * Get current authenticated user.
      */
+    #[OA\Get(
+        path: '/api/sso/user',
+        summary: 'Get current user',
+        description: 'Get authenticated user info with organizations',
+        tags: ['SSO Auth'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'User info',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'user', ref: '#/components/schemas/SsoUser'),
+                        new OA\Property(property: 'organizations', type: 'array', items: new OA\Items(ref: '#/components/schemas/Organization')),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
     public function user(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -161,6 +227,23 @@ class SsoCallbackController extends Controller
     /**
      * Get global logout URL for Console.
      */
+    #[OA\Get(
+        path: '/api/sso/global-logout-url',
+        summary: 'Get global logout URL',
+        description: 'Get Console SSO global logout URL for single sign-out',
+        tags: ['SSO Auth'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'redirect_uri', in: 'query', schema: new OA\Schema(type: 'string'), description: 'Redirect URL after logout'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Logout URL',
+                content: new OA\JsonContent(properties: [new OA\Property(property: 'logout_url', type: 'string', format: 'uri')])
+            ),
+        ]
+    )]
     public function globalLogoutUrl(Request $request): JsonResponse
     {
         $redirectUri = $request->query('redirect_uri', url('/'));

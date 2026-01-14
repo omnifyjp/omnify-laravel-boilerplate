@@ -28,6 +28,26 @@ class UserLocales
      * @var array<string, array<string, string>>
      */
     public const PROPERTY_DISPLAY_NAMES = [
+        'console_user_id' => [
+            'ja' => 'Console User ID',
+            'en' => 'Console User ID',
+        ],
+        'console_access_token' => [
+            'ja' => 'Console Access Token',
+            'en' => 'Console Access Token',
+        ],
+        'console_refresh_token' => [
+            'ja' => 'Console Refresh Token',
+            'en' => 'Console Refresh Token',
+        ],
+        'console_token_expires_at' => [
+            'ja' => 'Console Token有効期限',
+            'en' => 'Console Token Expiry',
+        ],
+        'role' => [
+            'ja' => 'ロール',
+            'en' => 'Role',
+        ],
         'name' => [
             'ja' => '名前',
             'en' => 'Name',

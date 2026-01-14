@@ -21,6 +21,9 @@ abstract class BaseModel extends Model
      * Model class map for polymorphic relations.
      */
     protected static array $modelMap = [
+        'Permission' => \App\Models\Permission::class,
+        'Role' => \App\Models\Role::class,
+        'Team' => \App\Models\Team::class,
         'PasswordResetToken' => \App\Models\PasswordResetToken::class,
         'PersonalAccessToken' => \App\Models\PersonalAccessToken::class,
         'User' => \App\Models\User::class,

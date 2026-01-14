@@ -11,7 +11,9 @@ use Omnify\SsoClient\Cache\TeamPermissionCache;
 use Omnify\SsoClient\Models\Permission;
 use Omnify\SsoClient\Models\TeamPermission;
 use Omnify\SsoClient\Services\OrgAccessService;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'SSO Team Permissions', description: 'Team permission management endpoints')]
 class TeamPermissionAdminController extends Controller
 {
     public function __construct(
@@ -21,6 +23,24 @@ class TeamPermissionAdminController extends Controller
     /**
      * List all teams with their permissions.
      */
+    #[OA\Get(
+        path: '/api/admin/sso/teams/permissions',
+        summary: 'List team permissions',
+        description: 'List all teams with their assigned permissions',
+        tags: ['SSO Team Permissions'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Teams with permissions',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'teams', type: 'array', items: new OA\Items(type: 'object')),
+                    ]
+                )
+            ),
+        ]
+    )]
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -65,6 +85,14 @@ class TeamPermissionAdminController extends Controller
     /**
      * Get permissions for a specific team.
      */
+    #[OA\Get(
+        path: '/api/admin/sso/teams/{teamId}/permissions',
+        summary: 'Get team permissions',
+        tags: ['SSO Team Permissions'],
+        security: [['sanctum' => []]],
+        parameters: [new OA\Parameter(name: 'teamId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        responses: [new OA\Response(response: 200, description: 'Team permissions')]
+    )]
     public function show(Request $request, int $teamId): JsonResponse
     {
         $orgId = $request->attributes->get('orgId');
@@ -89,6 +117,15 @@ class TeamPermissionAdminController extends Controller
     /**
      * Sync permissions for a team.
      */
+    #[OA\Put(
+        path: '/api/admin/sso/teams/{teamId}/permissions',
+        summary: 'Sync team permissions',
+        tags: ['SSO Team Permissions'],
+        security: [['sanctum' => []]],
+        parameters: [new OA\Parameter(name: 'teamId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(required: ['permissions'], properties: [new OA\Property(property: 'permissions', type: 'array', items: new OA\Items(oneOf: [new OA\Schema(type: 'integer'), new OA\Schema(type: 'string')]))])),
+        responses: [new OA\Response(response: 200, description: 'Permissions synced')]
+    )]
     public function sync(Request $request, int $teamId): JsonResponse
     {
         $orgId = $request->attributes->get('orgId');
@@ -154,6 +191,14 @@ class TeamPermissionAdminController extends Controller
     /**
      * Remove all permissions for a team (soft delete).
      */
+    #[OA\Delete(
+        path: '/api/admin/sso/teams/{teamId}/permissions',
+        summary: 'Remove team permissions',
+        tags: ['SSO Team Permissions'],
+        security: [['sanctum' => []]],
+        parameters: [new OA\Parameter(name: 'teamId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        responses: [new OA\Response(response: 204, description: 'Permissions removed')]
+    )]
     public function destroy(Request $request, int $teamId): JsonResponse
     {
         $orgId = $request->attributes->get('orgId');
@@ -171,6 +216,13 @@ class TeamPermissionAdminController extends Controller
     /**
      * List orphaned team permissions.
      */
+    #[OA\Get(
+        path: '/api/admin/sso/teams/orphaned',
+        summary: 'List orphaned permissions',
+        tags: ['SSO Team Permissions'],
+        security: [['sanctum' => []]],
+        responses: [new OA\Response(response: 200, description: 'Orphaned team permissions')]
+    )]
     public function orphaned(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -219,6 +271,14 @@ class TeamPermissionAdminController extends Controller
     /**
      * Restore orphaned team permissions.
      */
+    #[OA\Post(
+        path: '/api/admin/sso/teams/orphaned/{teamId}/restore',
+        summary: 'Restore orphaned permissions',
+        tags: ['SSO Team Permissions'],
+        security: [['sanctum' => []]],
+        parameters: [new OA\Parameter(name: 'teamId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        responses: [new OA\Response(response: 200, description: 'Permissions restored')]
+    )]
     public function restore(Request $request, int $teamId): JsonResponse
     {
         $orgId = $request->attributes->get('orgId');
@@ -240,6 +300,14 @@ class TeamPermissionAdminController extends Controller
     /**
      * Hard delete orphaned team permissions.
      */
+    #[OA\Delete(
+        path: '/api/admin/sso/teams/orphaned',
+        summary: 'Cleanup orphaned permissions',
+        tags: ['SSO Team Permissions'],
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(content: new OA\JsonContent(properties: [new OA\Property(property: 'console_team_id', type: 'integer', nullable: true), new OA\Property(property: 'older_than_days', type: 'integer', minimum: 1, nullable: true)])),
+        responses: [new OA\Response(response: 200, description: 'Orphaned permissions deleted')]
+    )]
     public function cleanupOrphaned(Request $request): JsonResponse
     {
         $orgId = $request->attributes->get('orgId');

@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../../../../../node_modules/.omnify/combined-schema.json
 # Permission schema for SSO Client
 # Global permissions that can be assigned to roles or teams
 
@@ -7,6 +8,9 @@ displayName:
 
 options:
   timestamps: true
+  hidden: true
+  indexes:
+    - columns: [group]
 
 properties:
   slug:
@@ -34,7 +38,6 @@ properties:
     type: String
     length: 50
     nullable: true
-    index: true
     displayName:
       ja: グループ
       en: Group
@@ -49,11 +52,22 @@ properties:
       ja: 説明
       en: Description
 
-relationships:
   roles:
-    type: BelongsToMany
-    model: Role
-    pivot: role_permissions
+    type: Association
+    relation: ManyToMany
+    target: Role
+    joinTable: role_permissions
+    mappedBy: permissions
     displayName:
       ja: ロール
       en: Roles
+
+  teams:
+    type: Association
+    relation: ManyToMany
+    target: Team
+    joinTable: team_permissions
+    mappedBy: permissions
+    displayName:
+      ja: チーム
+      en: Teams

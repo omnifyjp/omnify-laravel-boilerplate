@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Omnify\SsoClient;
 
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Omnify\SsoClient\Console\Commands\SsoCleanupOrphanTeamsCommand;
 use Omnify\SsoClient\Console\Commands\SsoInstallCommand;
+use Omnify\SsoClient\Console\Commands\SsoSyncPermissionsCommand;
 use Omnify\SsoClient\Http\Middleware\SsoAuthenticate;
 use Omnify\SsoClient\Http\Middleware\SsoOrganizationAccess;
 use Omnify\SsoClient\Http\Middleware\SsoPermissionCheck;
@@ -79,6 +81,7 @@ class SsoClientServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->registerMiddleware();
         $this->registerCommands();
+        $this->registerGates();
         $this->registerOmnifySchemas();
     }
 
@@ -149,8 +152,44 @@ class SsoClientServiceProvider extends ServiceProvider
             $this->commands([
                 SsoInstallCommand::class,
                 SsoCleanupOrphanTeamsCommand::class,
+                SsoSyncPermissionsCommand::class,
             ]);
         }
+    }
+
+    /**
+     * Register permission gates.
+     */
+    protected function registerGates(): void
+    {
+        // Define gates based on permissions from database
+        Gate::before(function ($user, $ability) {
+            // Super admin bypass (optional)
+            if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
+                return true;
+            }
+
+            // Check role-based permissions
+            if (method_exists($user, 'hasPermission')) {
+                return $user->hasPermission($ability) ?: null;
+            }
+
+            return null;
+        });
+
+        // Dynamic permission gates from database
+        $this->app->booted(function () {
+            try {
+                $permissions = \Omnify\SsoClient\Models\Permission::all();
+                foreach ($permissions as $permission) {
+                    Gate::define($permission->slug, function ($user) use ($permission) {
+                        return $user->hasPermission($permission->slug);
+                    });
+                }
+            } catch (\Exception $e) {
+                // Database might not be ready yet (migrations not run)
+            }
+        });
     }
 
     /**

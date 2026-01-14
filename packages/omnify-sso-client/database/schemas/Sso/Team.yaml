@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=../../../../../node_modules/.omnify/combined-schema.json
+# Team schema - synced from Console
+# Stores team information from Console SSO
+
+displayName:
+  ja: チーム
+  en: Team
+
+options:
+  timestamps: true
+  softDelete: true
+  hidden: true
+  indexes:
+    - columns: [console_org_id]
+
+properties:
+  console_team_id:
+    type: BigInt
+    unsigned: true
+    unique: true
+    displayName:
+      ja: Console Team ID
+      en: Console Team ID
+    description:
+      ja: Console側のチームID
+      en: Team ID from Console
+
+  console_org_id:
+    type: BigInt
+    unsigned: true
+    displayName:
+      ja: Console Organization ID
+      en: Console Organization ID
+    description:
+      ja: Console側の組織ID
+      en: Organization ID from Console
+
+  name:
+    type: String
+    length: 100
+    displayName:
+      ja: チーム名
+      en: Team Name
+
+  permissions:
+    type: Association
+    relation: ManyToMany
+    target: Permission
+    joinTable: team_permissions
+    displayName:
+      ja: 権限
+      en: Permissions

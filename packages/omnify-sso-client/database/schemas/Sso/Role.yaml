@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../../../../../node_modules/.omnify/combined-schema.json
 # Role schema for SSO Client
 # Global roles that map to Console service_role
 
@@ -7,6 +8,7 @@ displayName:
 
 options:
   timestamps: true
+  hidden: true
 
 properties:
   slug:
@@ -31,7 +33,7 @@ properties:
       en: Name for UI display
 
   level:
-    type: Integer
+    type: Int
     default: 0
     displayName:
       ja: レベル
@@ -47,11 +49,12 @@ properties:
       ja: 説明
       en: Description
 
-relationships:
   permissions:
-    type: BelongsToMany
-    model: Permission
-    pivot: role_permissions
+    type: Association
+    relation: ManyToMany
+    target: Permission
+    joinTable: role_permissions
+    owning: true
     displayName:
       ja: 権限
       en: Permissions

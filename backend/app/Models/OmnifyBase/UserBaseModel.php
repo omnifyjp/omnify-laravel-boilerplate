@@ -20,15 +20,18 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use App\Models\OmnifyBase\Traits\HasLocalizedDisplayName;
 use App\Models\OmnifyBase\Locales\UserLocales;
-
+use App\Models\Role;
 
 /**
  * UserBaseModel
  *
- * @property string $name_lastname
- * @property string $name_firstname
- * @property string $name_kana_lastname
- * @property string $name_kana_firstname
+ * @property int|null $console_user_id
+ * @property string|null $console_access_token
+ * @property string|null $console_refresh_token
+ * @property \Carbon\Carbon|null $console_token_expires_at
+ * @property Role|null $role
+ * @property int|null $role_id
+ * @property string $name
  * @property string $email
  * @property \Carbon\Carbon|null $email_verified_at
  * @property string $password
@@ -73,10 +76,12 @@ class UserBaseModel extends BaseModel
      * The attributes that are mass assignable.
      */
     protected $fillable = [
-        'name_lastname',
-        'name_firstname',
-        'name_kana_lastname',
-        'name_kana_firstname',
+        'console_user_id',
+        'console_access_token',
+        'console_refresh_token',
+        'console_token_expires_at',
+        'role_id',
+        'name',
         'email',
         'email_verified_at',
         'password',
@@ -94,8 +99,7 @@ class UserBaseModel extends BaseModel
      * The accessors to append to the model's array form.
      */
     protected $appends = [
-        'name_full_name',
-        'name_full_name_kana',
+
     ];
 
     /**
@@ -104,25 +108,17 @@ class UserBaseModel extends BaseModel
     protected function casts(): array
     {
         return [
+            'console_user_id' => 'integer',
+            'console_token_expires_at' => 'datetime',
             'email_verified_at' => 'datetime',
         ];
     }
 
     /**
-     * Get the full name attribute.
+     * Get the role that owns this model.
      */
-    public function getNameFullNameAttribute(): ?string
+    public function role(): BelongsTo
     {
-        $parts = array_filter([$this->name_lastname, $this->name_firstname], fn($v) => $v !== null && $v !== '');
-        return count($parts) > 0 ? implode(' ', $parts) : null;
-    }
-
-    /**
-     * Get the full name kana attribute.
-     */
-    public function getNameFullNameKanaAttribute(): ?string
-    {
-        $parts = array_filter([$this->name_kana_lastname, $this->name_kana_firstname], fn($v) => $v !== null && $v !== '');
-        return count($parts) > 0 ? implode(' ', $parts) : null;
+        return $this->belongsTo(Role::class, 'role_id');
     }
 }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('console_access_token')->nullable();
             $table->text('console_refresh_token')->nullable();
             $table->timestamp('console_token_expires_at')->nullable();
+            $table->unsignedBigInteger('role_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

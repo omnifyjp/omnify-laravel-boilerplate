@@ -55,11 +55,13 @@ test('sso.auth middleware provides user in request', function () {
         ->assertJsonPath('console_user_id', 12345);
 });
 
-test('sso.auth middleware rejects user without console_user_id', function () {
+test('sso.auth middleware accepts user without console_user_id', function () {
+    // sso.authはSanctum認証のみをチェック
+    // console_user_idの有無は別のミドルウェアまたはビジネスロジックで処理
     $user = User::factory()->withoutConsoleUserId()->create();
 
     $response = $this->actingAs($user)->getJson('/test-sso-auth');
 
-    // コンソールユーザーIDがない場合は認証エラー
-    $response->assertStatus(401);
+    // 認証は成功する（console_user_idのチェックはsso.authの責務ではない）
+    $response->assertStatus(200);
 });

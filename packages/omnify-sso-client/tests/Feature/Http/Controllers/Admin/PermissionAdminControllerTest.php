@@ -19,9 +19,9 @@ beforeEach(function () {
 // =============================================================================
 
 test('index returns all permissions', function () {
-    Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts', 'group' => 'posts']);
-    Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts', 'group' => 'posts']);
-    Permission::create(['slug' => 'users.view', 'display_name' => 'View Users', 'group' => 'users']);
+    Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts', 'group' => 'posts']);
+    Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts', 'group' => 'posts']);
+    Permission::create(['slug' => 'users.view', 'name' => 'View Users', 'group' => 'users']);
 
     $user = User::factory()->create();
 
@@ -30,15 +30,15 @@ test('index returns all permissions', function () {
     $response->assertStatus(200)
         ->assertJsonCount(3, 'data')
         ->assertJsonStructure([
-            'data' => [['id', 'slug', 'display_name', 'group']],
+            'data' => [['id', 'slug', 'name', 'group']],
             'groups',
         ]);
 });
 
 test('index filters by group', function () {
-    Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts', 'group' => 'posts']);
-    Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts', 'group' => 'posts']);
-    Permission::create(['slug' => 'users.view', 'display_name' => 'View Users', 'group' => 'users']);
+    Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts', 'group' => 'posts']);
+    Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts', 'group' => 'posts']);
+    Permission::create(['slug' => 'users.view', 'name' => 'View Users', 'group' => 'users']);
 
     $user = User::factory()->create();
 
@@ -48,10 +48,10 @@ test('index filters by group', function () {
         ->assertJsonCount(2, 'data');
 });
 
-test('index searches by slug and display_name', function () {
-    Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts', 'group' => 'posts']);
-    Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts', 'group' => 'posts']);
-    Permission::create(['slug' => 'users.view', 'display_name' => 'View Users', 'group' => 'users']);
+test('index searches by slug and name', function () {
+    Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts', 'group' => 'posts']);
+    Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts', 'group' => 'posts']);
+    Permission::create(['slug' => 'users.view', 'name' => 'View Users', 'group' => 'users']);
 
     $user = User::factory()->create();
 
@@ -63,9 +63,9 @@ test('index searches by slug and display_name', function () {
 });
 
 test('index returns grouped permissions when requested', function () {
-    Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts', 'group' => 'posts']);
-    Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts', 'group' => 'posts']);
-    Permission::create(['slug' => 'users.view', 'display_name' => 'View Users', 'group' => 'users']);
+    Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts', 'group' => 'posts']);
+    Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts', 'group' => 'posts']);
+    Permission::create(['slug' => 'users.view', 'name' => 'View Users', 'group' => 'users']);
 
     $user = User::factory()->create();
 
@@ -79,9 +79,9 @@ test('index returns grouped permissions when requested', function () {
 });
 
 test('index includes roles_count', function () {
-    $permission = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    $role1 = Role::create(['slug' => 'admin', 'display_name' => 'Admin', 'level' => 100]);
-    $role2 = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 50]);
+    $permission = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    $role1 = Role::create(['slug' => 'admin', 'name' => 'Admin', 'level' => 100]);
+    $role2 = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 50]);
     $permission->roles()->attach([$role1->id, $role2->id]);
 
     $user = User::factory()->create();
@@ -101,14 +101,14 @@ test('store creates a new permission', function () {
 
     $response = $this->actingAs($user)->postJson('/api/admin/sso/permissions', [
         'slug' => 'reports.export',
-        'display_name' => 'Export Reports',
+        'name' => 'Export Reports',
         'group' => 'reports',
         'description' => 'Can export reports',
     ]);
 
     $response->assertStatus(201)
         ->assertJsonPath('data.slug', 'reports.export')
-        ->assertJsonPath('data.display_name', 'Export Reports')
+        ->assertJsonPath('data.name', 'Export Reports')
         ->assertJsonPath('data.group', 'reports');
 
     $this->assertDatabaseHas('permissions', [
@@ -122,16 +122,16 @@ test('store validates required fields', function () {
     $response = $this->actingAs($user)->postJson('/api/admin/sso/permissions', []);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors(['slug', 'display_name']);
+        ->assertJsonValidationErrors(['slug', 'name']);
 });
 
 test('store validates unique slug', function () {
-    Permission::create(['slug' => 'existing', 'display_name' => 'Existing']);
+    Permission::create(['slug' => 'existing', 'name' => 'Existing']);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->postJson('/api/admin/sso/permissions', [
         'slug' => 'existing',
-        'display_name' => 'Another',
+        'name' => 'Another',
     ]);
 
     $response->assertStatus(422)
@@ -143,8 +143,8 @@ test('store validates unique slug', function () {
 // =============================================================================
 
 test('show returns permission with roles', function () {
-    $permission = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 50]);
+    $permission = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 50]);
     $permission->roles()->attach($role->id);
 
     $user = User::factory()->create();
@@ -169,33 +169,33 @@ test('show returns 404 for non-existent permission', function () {
 // =============================================================================
 
 test('update modifies permission', function () {
-    $permission = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts', 'group' => 'posts']);
+    $permission = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts', 'group' => 'posts']);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->putJson("/api/admin/sso/permissions/{$permission->id}", [
-        'display_name' => 'Create New Posts',
+        'name' => 'Create New Posts',
         'group' => 'content',
         'description' => 'Updated description',
     ]);
 
     $response->assertStatus(200)
-        ->assertJsonPath('data.display_name', 'Create New Posts')
+        ->assertJsonPath('data.name', 'Create New Posts')
         ->assertJsonPath('data.group', 'content');
 
     $this->assertDatabaseHas('permissions', [
         'id' => $permission->id,
-        'display_name' => 'Create New Posts',
+        'name' => 'Create New Posts',
         'group' => 'content',
     ]);
 });
 
 test('update does not change slug', function () {
-    $permission = Permission::create(['slug' => 'original', 'display_name' => 'Original']);
+    $permission = Permission::create(['slug' => 'original', 'name' => 'Original']);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->putJson("/api/admin/sso/permissions/{$permission->id}", [
         'slug' => 'changed',
-        'display_name' => 'Changed',
+        'name' => 'Changed',
     ]);
 
     $response->assertStatus(200);
@@ -211,7 +211,7 @@ test('update does not change slug', function () {
 // =============================================================================
 
 test('destroy deletes permission', function () {
-    $permission = Permission::create(['slug' => 'deletable', 'display_name' => 'Deletable']);
+    $permission = Permission::create(['slug' => 'deletable', 'name' => 'Deletable']);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->deleteJson("/api/admin/sso/permissions/{$permission->id}");
@@ -222,8 +222,8 @@ test('destroy deletes permission', function () {
 });
 
 test('destroy detaches permission from roles', function () {
-    $permission = Permission::create(['slug' => 'deletable', 'display_name' => 'Deletable']);
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 50]);
+    $permission = Permission::create(['slug' => 'deletable', 'name' => 'Deletable']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 50]);
     $role->permissions()->attach($permission->id);
 
     expect($role->permissions()->count())->toBe(1);
@@ -242,12 +242,12 @@ test('destroy detaches permission from roles', function () {
 // =============================================================================
 
 test('matrix returns roles and permissions matrix', function () {
-    $admin = Role::create(['slug' => 'admin', 'display_name' => 'Admin', 'level' => 100]);
-    $editor = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 50]);
+    $admin = Role::create(['slug' => 'admin', 'name' => 'Admin', 'level' => 100]);
+    $editor = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 50]);
 
-    $permission1 = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts', 'group' => 'posts']);
-    $permission2 = Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts', 'group' => 'posts']);
-    $permission3 = Permission::create(['slug' => 'users.view', 'display_name' => 'View Users', 'group' => 'users']);
+    $permission1 = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts', 'group' => 'posts']);
+    $permission2 = Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts', 'group' => 'posts']);
+    $permission3 = Permission::create(['slug' => 'users.view', 'name' => 'View Users', 'group' => 'users']);
 
     $admin->permissions()->attach([$permission1->id, $permission2->id, $permission3->id]);
     $editor->permissions()->attach([$permission1->id, $permission2->id]);

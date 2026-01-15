@@ -19,16 +19,6 @@ import type { Role } from './Role';
 export interface User {
   /** Primary key */
   id: number;
-  /** Console User ID */
-  console_user_id?: number;
-  /** Console Access Token */
-  console_access_token?: string;
-  /** Console Refresh Token */
-  console_refresh_token?: string;
-  /** Console Token有効期限 */
-  console_token_expires_at?: DateTimeString;
-  /** ロール */
-  role?: Role;
   /** 名前 */
   name: string;
   /** メールアドレス */
@@ -39,6 +29,16 @@ export interface User {
   password: string;
   /** リメンバートークン */
   remember_token?: string;
+  /** Console User ID */
+  console_user_id?: number;
+  /** Console Access Token */
+  console_access_token?: string;
+  /** Console Refresh Token */
+  console_refresh_token?: string;
+  /** Console Token有効期限 */
+  console_token_expires_at?: DateTimeString;
+  /** ロール */
+  role?: Role;
   /** Creation timestamp */
   created_at?: DateTimeString;
   /** Last update timestamp */
@@ -55,9 +55,24 @@ export interface User {
  */
 export const userI18n = {
   /** Model display name */
-  label: {"ja":"ユーザー","en":"User","vi":"User"},
+  label: {"ja":"ユーザー","en":"User","vi":"Người dùng"},
   /** Field labels and placeholders */
   fields: {
+    name: {
+      label: {"ja":"名前","en":"Name","vi":"Tên"},
+    },
+    email: {
+      label: {"ja":"メールアドレス","en":"Email","vi":"Email"},
+    },
+    email_verified_at: {
+      label: {"ja":"メール確認日時","en":"Email Verified At","vi":"Ngày xác thực email"},
+    },
+    password: {
+      label: {"ja":"パスワード","en":"Password","vi":"Mật khẩu"},
+    },
+    remember_token: {
+      label: {"ja":"リメンバートークン","en":"Remember Token","vi":"Token ghi nhớ"},
+    },
     console_user_id: {
       label: {"ja":"Console User ID","en":"Console User ID","vi":"Console User ID"},
     },
@@ -68,25 +83,10 @@ export const userI18n = {
       label: {"ja":"Console Refresh Token","en":"Console Refresh Token","vi":"Console Refresh Token"},
     },
     console_token_expires_at: {
-      label: {"ja":"Console Token有効期限","en":"Console Token Expiry","vi":"Console Token Expiry"},
+      label: {"ja":"Console Token有効期限","en":"Console Token Expiry","vi":"Hạn Token Console"},
     },
     role: {
-      label: {"ja":"ロール","en":"Role","vi":"Role"},
-    },
-    name: {
-      label: {"ja":"名前","en":"Name","vi":"Name"},
-    },
-    email: {
-      label: {"ja":"メールアドレス","en":"Email","vi":"Email"},
-    },
-    email_verified_at: {
-      label: {"ja":"メール確認日時","en":"Email Verified At","vi":"Email Verified At"},
-    },
-    password: {
-      label: {"ja":"パスワード","en":"Password","vi":"Password"},
-    },
-    remember_token: {
-      label: {"ja":"リメンバートークン","en":"Remember Token","vi":"Remember Token"},
+      label: {"ja":"ロール","en":"Role","vi":"Vai trò"},
     },
   },
 } as const;
@@ -97,27 +97,27 @@ export const userI18n = {
 
 /** Field schemas for User */
 export const baseUserSchemas = {
-  console_user_id: z.number().int().optional().nullable(),
-  console_access_token: z.string().optional().nullable(),
-  console_refresh_token: z.string().optional().nullable(),
-  console_token_expires_at: z.string().datetime({ offset: true }).optional().nullable(),
   name: z.string().min(1),
   email: z.string().min(1),
   email_verified_at: z.string().datetime({ offset: true }).optional().nullable(),
   password: z.string().min(1),
   remember_token: z.string().max(100).optional().nullable(),
+  console_user_id: z.number().int().optional().nullable(),
+  console_access_token: z.string().optional().nullable(),
+  console_refresh_token: z.string().optional().nullable(),
+  console_token_expires_at: z.string().datetime({ offset: true }).optional().nullable(),
 } as const;
 
 /** Create schema for User (POST requests) */
 export const baseUserCreateSchema = z.object({
-  console_user_id: baseUserSchemas.console_user_id,
-  console_access_token: baseUserSchemas.console_access_token,
-  console_refresh_token: baseUserSchemas.console_refresh_token,
-  console_token_expires_at: baseUserSchemas.console_token_expires_at,
   name: baseUserSchemas.name,
   email: baseUserSchemas.email,
   password: baseUserSchemas.password,
   remember_token: baseUserSchemas.remember_token,
+  console_user_id: baseUserSchemas.console_user_id,
+  console_access_token: baseUserSchemas.console_access_token,
+  console_refresh_token: baseUserSchemas.console_refresh_token,
+  console_token_expires_at: baseUserSchemas.console_token_expires_at,
 });
 
 /** Update schema for User (PUT/PATCH requests) */

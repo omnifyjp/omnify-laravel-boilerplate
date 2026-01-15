@@ -76,25 +76,38 @@ class SsoClientServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->registerMorphMap();
         $this->registerPublishing();
         $this->registerMigrations();
         $this->registerRoutes();
         $this->registerMiddleware();
         $this->registerCommands();
         $this->registerGates();
-        $this->registerOmnifySchemas();
+    }
+
+    /**
+     * Register morph map for polymorphic relationships.
+     * Uses morphMap (not enforceMorphMap) for flexibility in testing.
+     */
+    protected function registerMorphMap(): void
+    {
+        \Illuminate\Database\Eloquent\Relations\Relation::morphMap([
+            'User' => \Omnify\SsoClient\Models\User::class,
+            'Permission' => \Omnify\SsoClient\Models\Permission::class,
+            'Role' => \Omnify\SsoClient\Models\Role::class,
+            'RolePermission' => \Omnify\SsoClient\Models\RolePermission::class,
+            'Team' => \Omnify\SsoClient\Models\Team::class,
+            'TeamPermission' => \Omnify\SsoClient\Models\TeamPermission::class,
+        ]);
     }
 
     /**
      * Register the package migrations.
-     * マイグレーションは自動ロードしない（publishが必要）
-     * これにより、ユーザーがマイグレーションの順序を制御できる
+     * パッケージのマイグレーションを自動ロード
      */
     protected function registerMigrations(): void
     {
-        // マイグレーションは自動ロードしない
-        // ユーザーはsso:installコマンドまたは手動でpublishする必要がある
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     /**
@@ -192,14 +205,4 @@ class SsoClientServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     * Register Omnify schema paths if Omnify is available.
-     */
-    protected function registerOmnifySchemas(): void
-    {
-        // Check if Omnify is available and register schema path
-        if (class_exists(\Omnify\Omnify::class)) {
-            \Omnify\Omnify::addSchemaPath(__DIR__.'/../database/schemas');
-        }
-    }
 }

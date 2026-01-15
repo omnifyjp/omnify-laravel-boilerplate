@@ -105,7 +105,7 @@ class TeamPermissionAdminController extends Controller
             ->map(fn ($tp) => [
                 'id' => $tp->permission->id,
                 'slug' => $tp->permission->slug,
-                'display_name' => $tp->permission->display_name,
+                'name' => $tp->permission->name,
             ]);
 
         return response()->json([

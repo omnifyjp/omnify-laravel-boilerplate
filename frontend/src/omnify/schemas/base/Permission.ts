@@ -12,7 +12,6 @@
 import { z } from 'zod';
 import type { DateTimeString } from '../common';
 import type { Role } from './Role';
-import type { Team } from './Team';
 
 /**
  * 権限
@@ -20,18 +19,14 @@ import type { Team } from './Team';
 export interface Permission {
   /** Primary key */
   id: number;
+  /** 権限名 */
+  name: string;
   /** スラッグ */
   slug: string;
-  /** 表示名 */
-  display_name: string;
   /** グループ */
   group?: string;
-  /** 説明 */
-  description?: string;
   /** ロール */
   roles: Role[];
-  /** チーム */
-  teams: Team[];
   /** Creation timestamp */
   created_at?: DateTimeString;
   /** Last update timestamp */
@@ -48,26 +43,20 @@ export interface Permission {
  */
 export const permissionI18n = {
   /** Model display name */
-  label: {"ja":"権限","en":"Permission","vi":"Permission"},
+  label: {"ja":"権限","en":"Permission","vi":"Quyền hạn"},
   /** Field labels and placeholders */
   fields: {
+    name: {
+      label: {"ja":"権限名","en":"Permission Name","vi":"Tên quyền"},
+    },
     slug: {
       label: {"ja":"スラッグ","en":"Slug","vi":"Slug"},
     },
-    display_name: {
-      label: {"ja":"表示名","en":"Display Name","vi":"Display Name"},
-    },
     group: {
-      label: {"ja":"グループ","en":"Group","vi":"Group"},
-    },
-    description: {
-      label: {"ja":"説明","en":"Description","vi":"Description"},
+      label: {"ja":"グループ","en":"Group","vi":"Nhóm"},
     },
     roles: {
-      label: {"ja":"ロール","en":"Roles","vi":"Roles"},
-    },
-    teams: {
-      label: {"ja":"チーム","en":"Teams","vi":"Teams"},
+      label: {"ja":"ロール","en":"Roles","vi":"Vai trò"},
     },
   },
 } as const;
@@ -78,18 +67,16 @@ export const permissionI18n = {
 
 /** Field schemas for Permission */
 export const basePermissionSchemas = {
+  name: z.string().min(1).max(100),
   slug: z.string().min(1).max(100),
-  display_name: z.string().min(1).max(100),
   group: z.string().max(50).optional().nullable(),
-  description: z.string().optional().nullable(),
 } as const;
 
 /** Create schema for Permission (POST requests) */
 export const basePermissionCreateSchema = z.object({
+  name: basePermissionSchemas.name,
   slug: basePermissionSchemas.slug,
-  display_name: basePermissionSchemas.display_name,
   group: basePermissionSchemas.group,
-  description: basePermissionSchemas.description,
 });
 
 /** Update schema for Permission (PUT/PATCH requests) */

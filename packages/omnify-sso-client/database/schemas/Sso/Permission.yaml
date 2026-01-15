@@ -1,18 +1,28 @@
 # yaml-language-server: $schema=../../../../../node_modules/.omnify/combined-schema.json
-# Permission schema for SSO Client
-# Global permissions that can be assigned to roles or teams
+# SSO Permission Schema
+# Can be used standalone or merged with main Permission.yaml if exists
+
+kind: partial
+target: Permission
 
 displayName:
   ja: 権限
   en: Permission
+  vi: Quyền hạn
 
 options:
   timestamps: true
-  hidden: true
-  indexes:
-    - columns: [group]
 
 properties:
+  name:
+    type: String
+    length: 100
+    unique: true
+    displayName:
+      ja: 権限名
+      en: Permission Name
+      vi: Tên quyền
+
   slug:
     type: String
     length: 100
@@ -20,19 +30,7 @@ properties:
     displayName:
       ja: スラッグ
       en: Slug
-    description:
-      ja: 権限識別子（projects.create, reports.view等）
-      en: Permission identifier (projects.create, reports.view, etc.)
-
-  display_name:
-    type: String
-    length: 100
-    displayName:
-      ja: 表示名
-      en: Display Name
-    description:
-      ja: UI表示用の名前
-      en: Name for UI display
+      vi: Slug
 
   group:
     type: String
@@ -41,33 +39,14 @@ properties:
     displayName:
       ja: グループ
       en: Group
-    description:
-      ja: 権限のグループ分類（projects, reports, settings等）
-      en: Permission group classification (projects, reports, settings, etc.)
-
-  description:
-    type: Text
-    nullable: true
-    displayName:
-      ja: 説明
-      en: Description
+      vi: Nhóm
 
   roles:
     type: Association
     relation: ManyToMany
     target: Role
     joinTable: role_permissions
-    mappedBy: permissions
     displayName:
       ja: ロール
       en: Roles
-
-  teams:
-    type: Association
-    relation: ManyToMany
-    target: Team
-    joinTable: team_permissions
-    mappedBy: permissions
-    displayName:
-      ja: チーム
-      en: Teams
+      vi: Vai trò

@@ -22,21 +22,21 @@ abstract class UserStoreRequestBase extends FormRequest
     /**
      * Validation rules generated from Omnify schema.
      *
-     * Generated fields: console_user_id, console_access_token, console_refresh_token, console_token_expires_at, role_id, name, email, password
+     * Generated fields: name, email, password, console_user_id, console_access_token, console_refresh_token, console_token_expires_at, role_id
      *
      * @return array<string, array<int, mixed>>
      */
     protected function schemaRules(): array
     {
         return [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'max:255'],
             'console_user_id' => ['nullable', 'integer', 'unique:users'],
             'console_access_token' => ['nullable', 'string'],
             'console_refresh_token' => ['nullable', 'string'],
             'console_token_expires_at' => ['nullable', 'date'],
             'role_id' => ['nullable', 'integer', 'exists:roles,id'],
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -48,14 +48,14 @@ abstract class UserStoreRequestBase extends FormRequest
     protected function schemaAttributes(): array
     {
         return [
+            'name' => 'Name',
+            'email' => 'Email',
+            'password' => 'Password',
             'console_user_id' => 'Console User ID',
             'console_access_token' => 'Console Access Token',
             'console_refresh_token' => 'Console Refresh Token',
             'console_token_expires_at' => 'Console Token Expiry',
             'role_id' => 'Role',
-            'name' => 'Name',
-            'email' => 'Email',
-            'password' => 'Password',
         ];
     }
 }

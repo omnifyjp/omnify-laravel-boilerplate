@@ -1,35 +1,42 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Omnify\SsoClient\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Omnify\SsoClient\Models\OmnifyBase\TeamBaseModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Team extends Model
+/**
+ * Team Model
+ *
+ * This file is generated once and can be customized.
+ * Add your custom methods and logic here.
+ */
+class Team extends TeamBaseModel
 {
-    use SoftDeletes;
-
-    protected $fillable = [
-        'console_team_id',
-        'console_org_id',
-        'name',
-    ];
-
-    protected $casts = [
-        'console_team_id' => 'integer',
-        'console_org_id' => 'integer',
-    ];
+    use HasFactory;
 
     /**
-     * Get permissions for this team.
+     * Create a new model instance.
      */
-    public function permissions(): BelongsToMany
+    public function __construct(array $attributes = [])
     {
-        return $this->belongsToMany(Permission::class, 'team_permissions')
-            ->withTimestamps();
+        parent::__construct($attributes);
+    }
+
+    /**
+     * Get permissions for this team via TeamPermission model.
+     * Uses console_team_id for Console integration.
+     */
+    public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(
+            Permission::class,
+            'team_permissions',
+            'console_team_id',  // Foreign key on team_permissions
+            'permission_id',    // Related key on team_permissions
+            'console_team_id',  // Local key on teams
+            'id'                // Owner key on permissions
+        )->withTimestamps();
     }
 
     /**

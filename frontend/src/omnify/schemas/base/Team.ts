@@ -11,7 +11,6 @@
 
 import { z } from 'zod';
 import type { DateTimeString } from '../common';
-import type { Permission } from './Permission';
 
 /**
  * チーム
@@ -25,8 +24,6 @@ export interface Team {
   console_org_id: number;
   /** チーム名 */
   name: string;
-  /** 権限 */
-  permissions: Permission[];
   /** Creation timestamp */
   created_at?: DateTimeString;
   /** Last update timestamp */
@@ -45,7 +42,7 @@ export interface Team {
  */
 export const teamI18n = {
   /** Model display name */
-  label: {"ja":"チーム","en":"Team","vi":"Team"},
+  label: {"ja":"チーム","en":"Team","vi":"Nhóm"},
   /** Field labels and placeholders */
   fields: {
     console_team_id: {
@@ -55,10 +52,7 @@ export const teamI18n = {
       label: {"ja":"Console Organization ID","en":"Console Organization ID","vi":"Console Organization ID"},
     },
     name: {
-      label: {"ja":"チーム名","en":"Team Name","vi":"Team Name"},
-    },
-    permissions: {
-      label: {"ja":"権限","en":"Permissions","vi":"Permissions"},
+      label: {"ja":"チーム名","en":"Team Name","vi":"Tên nhóm"},
     },
   },
 } as const;

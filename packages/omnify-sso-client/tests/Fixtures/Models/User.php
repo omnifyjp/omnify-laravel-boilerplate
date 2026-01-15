@@ -2,75 +2,16 @@
 
 namespace Omnify\SsoClient\Tests\Fixtures\Models;
 
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Omnify\SsoClient\Models\Role;
-use Omnify\SsoClient\Models\Traits\HasConsoleSso;
-use Omnify\SsoClient\Models\Traits\HasTeamPermissions;
+use Omnify\SsoClient\Models\User as SsoUser;
 
 /**
  * テスト用Userモデル
  *
  * パッケージのテストで使用するためのモデル
+ * Extends the SSO Client User model for testing.
  */
-class User extends Model implements AuthenticatableContract
+class User extends SsoUser
 {
-    use Authenticatable;
-    use HasApiTokens, HasFactory, Notifiable;
-    use HasConsoleSso, HasTeamPermissions;
-
-    protected $table = 'users';
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'console_user_id',
-        'console_access_token',
-        'console_refresh_token',
-        'console_token_expires_at',
-        'role_id',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'console_token_expires_at' => 'datetime',
-        ];
-    }
-
-    /**
-     * ロールとの関連
-     */
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class);
-    }
-
-    /**
-     * パーミッションを持っているかチェック
-     */
-    public function hasPermission(string $permission): bool
-    {
-        if ($this->role) {
-            return $this->role->hasPermission($permission);
-        }
-
-        return false;
-    }
-
     /**
      * テスト用ファクトリーを返す
      */

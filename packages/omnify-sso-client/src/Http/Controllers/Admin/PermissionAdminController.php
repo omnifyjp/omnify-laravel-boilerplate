@@ -24,7 +24,7 @@ class PermissionAdminController extends Controller
         security: [['sanctum' => []]],
         parameters: [
             new OA\Parameter(name: 'group', in: 'query', schema: new OA\Schema(type: 'string'), description: 'Filter by group'),
-            new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string'), description: 'Search by slug or display_name'),
+            new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string'), description: 'Search by slug or name'),
             new OA\Parameter(name: 'grouped', in: 'query', schema: new OA\Schema(type: 'boolean'), description: 'Return grouped by group'),
         ],
         responses: [
@@ -54,7 +54,7 @@ class PermissionAdminController extends Controller
             $search = $request->query('search');
             $query->where(function ($q) use ($search) {
                 $q->where('slug', 'like', "%{$search}%")
-                    ->orWhere('display_name', 'like', "%{$search}%");
+                    ->orWhere('name', 'like', "%{$search}%");
             });
         }
 
@@ -89,10 +89,10 @@ class PermissionAdminController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['slug', 'display_name'],
+                required: ['slug', 'name'],
                 properties: [
                     new OA\Property(property: 'slug', type: 'string', maxLength: 100, example: 'reports.export'),
-                    new OA\Property(property: 'display_name', type: 'string', maxLength: 100, example: 'Export Reports'),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 100, example: 'Export Reports'),
                     new OA\Property(property: 'group', type: 'string', maxLength: 50, nullable: true, example: 'reports'),
                     new OA\Property(property: 'description', type: 'string', nullable: true),
                 ]
@@ -107,7 +107,7 @@ class PermissionAdminController extends Controller
     {
         $validated = $request->validate([
             'slug' => ['required', 'string', 'max:100', 'unique:permissions,slug'],
-            'display_name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100'],
             'group' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
         ]);
@@ -155,7 +155,7 @@ class PermissionAdminController extends Controller
         requestBody: new OA\RequestBody(
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'display_name', type: 'string', maxLength: 100),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 100),
                     new OA\Property(property: 'group', type: 'string', maxLength: 50, nullable: true),
                     new OA\Property(property: 'description', type: 'string', nullable: true),
                 ]
@@ -171,7 +171,7 @@ class PermissionAdminController extends Controller
         $permission = Permission::findOrFail($id);
 
         $validated = $request->validate([
-            'display_name' => ['sometimes', 'string', 'max:100'],
+            'name' => ['sometimes', 'string', 'max:100'],
             'group' => ['nullable', 'string', 'max:50'],
             'description' => ['nullable', 'string'],
         ]);
@@ -236,7 +236,7 @@ class PermissionAdminController extends Controller
     )]
     public function matrix(): JsonResponse
     {
-        $roles = Role::orderBy('level', 'desc')->get(['id', 'slug', 'display_name']);
+        $roles = Role::orderBy('level', 'desc')->get(['id', 'slug', 'name']);
 
         $permissions = Permission::orderBy('group')
             ->orderBy('slug')
@@ -245,7 +245,7 @@ class PermissionAdminController extends Controller
             ->map(fn ($items) => $items->map(fn ($p) => [
                 'id' => $p->id,
                 'slug' => $p->slug,
-                'display_name' => $p->display_name,
+                'name' => $p->name,
             ])->values());
 
         // Build matrix

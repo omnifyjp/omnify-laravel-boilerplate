@@ -83,20 +83,14 @@ return [
         // Route prefix for admin routes
         'admin_prefix' => 'api/admin/sso',
 
-        // Middleware for SSO routes (Sanctum stateful for SPA)
+        // Middleware for SSO routes (Sanctum SPA認証用)
         'middleware' => [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'api',
         ],
 
         // Middleware for admin routes
-        'admin_middleware' => [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            'api',
-            'sso.auth',
-            'sso.org',
-            'sso.role:admin',
-        ],
+        'admin_middleware' => ['api', 'sso.auth', 'sso.org', 'sso.role:admin'],
     ],
 
     /*

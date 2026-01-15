@@ -1,32 +1,26 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Omnify\SsoClient\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Omnify\SsoClient\Models\OmnifyBase\RoleBaseModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Role extends Model
+/**
+ * Role Model
+ *
+ * This file is generated once and can be customized.
+ * Add your custom methods and logic here.
+ */
+class Role extends RoleBaseModel
 {
-    protected $fillable = [
-        'slug',
-        'display_name',
-        'level',
-        'description',
-    ];
-
-    protected $casts = [
-        'level' => 'integer',
-    ];
+    use HasFactory;
 
     /**
-     * Get permissions for this role.
+     * Create a new model instance.
      */
-    public function permissions(): BelongsToMany
+    public function __construct(array $attributes = [])
     {
-        return $this->belongsToMany(Permission::class, 'role_permissions')
-            ->withTimestamps();
+        parent::__construct($attributes);
     }
 
     /**

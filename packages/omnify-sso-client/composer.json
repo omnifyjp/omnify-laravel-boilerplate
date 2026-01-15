@@ -1,36 +1,32 @@
 {
-    "name": "omnify/sso-client",
-    "description": "SSO Client package for Laravel applications connecting to Omnify Console",
+    "name": "famgia/omnify-sso-client",
+    "description": "SSO Client Package for Laravel - Provides Role, Permission and RolePermission models with Omnify schema-driven development",
+    "type": "library",
+    "license": "MIT",
     "keywords": [
         "laravel",
         "sso",
         "authentication",
+        "authorization",
+        "roles",
+        "permissions",
         "omnify"
     ],
-    "license": "MIT",
-    "type": "library",
     "authors": [
         {
             "name": "Omnify Team",
-            "email": "dev@omnify.io"
+            "email": "dev@famgia.com"
         }
     ],
+    "homepage": "https://github.com/ecsol/omnify-sso-client",
     "require": {
         "php": "^8.2",
         "illuminate/support": "^11.0|^12.0",
-        "illuminate/http": "^11.0|^12.0",
-        "illuminate/routing": "^11.0|^12.0",
-        "illuminate/cache": "^11.0|^12.0",
-        "illuminate/database": "^11.0|^12.0",
-        "lcobucci/jwt": "^5.0",
-        "guzzlehttp/guzzle": "^7.0"
+        "illuminate/database": "^11.0|^12.0"
     },
     "require-dev": {
-        "laravel/sanctum": "^4.0",
-        "mockery/mockery": "^1.6",
-        "orchestra/testbench": "^9.0",
-        "pestphp/pest": "^3.0",
-        "phpstan/phpstan": "^1.10"
+        "orchestra/testbench": "^9.0|^10.0",
+        "phpunit/phpunit": "^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -43,21 +39,18 @@
         }
     },
     "extra": {
+        "omnify": {
+            "schemas": "database/schemas"
+        },
         "laravel": {
             "providers": [
                 "Omnify\\SsoClient\\SsoClientServiceProvider"
-            ],
-            "aliases": {
-                "SsoClient": "Omnify\\SsoClient\\Facades\\SsoClient"
-            }
+            ]
         }
     },
     "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
+        "sort-packages": true
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

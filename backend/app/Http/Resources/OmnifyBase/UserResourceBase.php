@@ -30,15 +30,15 @@ class UserResourceBase extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'email_verified_at' => $this->email_verified_at?->toISOString(),
             'console_user_id' => $this->console_user_id,
             'console_access_token' => $this->console_access_token,
             'console_refresh_token' => $this->console_refresh_token,
             'console_token_expires_at' => $this->console_token_expires_at?->toISOString(),
             'role_id' => $this->role_id,
             'role' => $this->whenLoaded('role', fn() => new RoleResource($this->role)),
-            'name' => $this->name,
-            'email' => $this->email,
-            'email_verified_at' => $this->email_verified_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

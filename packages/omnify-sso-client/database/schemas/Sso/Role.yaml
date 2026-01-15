@@ -1,16 +1,28 @@
 # yaml-language-server: $schema=../../../../../node_modules/.omnify/combined-schema.json
-# Role schema for SSO Client
-# Global roles that map to Console service_role
+# SSO Role Schema
+# Can be used standalone or merged with main Role.yaml if exists
+
+kind: partial
+target: Role
 
 displayName:
   ja: ロール
   en: Role
+  vi: Vai trò
 
 options:
   timestamps: true
-  hidden: true
 
 properties:
+  name:
+    type: String
+    length: 100
+    unique: true
+    displayName:
+      ja: ロール名
+      en: Role Name
+      vi: Tên vai trò
+
   slug:
     type: String
     length: 100
@@ -18,29 +30,7 @@ properties:
     displayName:
       ja: スラッグ
       en: Slug
-    description:
-      ja: ロール識別子（admin, manager, member等）
-      en: Role identifier (admin, manager, member, etc.)
-
-  display_name:
-    type: String
-    length: 100
-    displayName:
-      ja: 表示名
-      en: Display Name
-    description:
-      ja: UI表示用の名前
-      en: Name for UI display
-
-  level:
-    type: Int
-    default: 0
-    displayName:
-      ja: レベル
-      en: Level
-    description:
-      ja: ロールの権限レベル（高いほど権限が強い）
-      en: Role permission level (higher = more permissions)
+      vi: Slug
 
   description:
     type: Text
@@ -48,13 +38,26 @@ properties:
     displayName:
       ja: 説明
       en: Description
+      vi: Mô tả
+
+  level:
+    type: Int
+    default: 0
+    displayName:
+      ja: レベル
+      en: Level
+      vi: Cấp độ
+    description:
+      ja: ロールの優先順位（大きいほど上位）
+      en: Role priority (higher = more privileged)
+      vi: Độ ưu tiên vai trò
 
   permissions:
     type: Association
     relation: ManyToMany
     target: Permission
     joinTable: role_permissions
-    owning: true
     displayName:
       ja: 権限
       en: Permissions
+      vi: Quyền hạn

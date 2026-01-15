@@ -21,8 +21,8 @@ beforeEach(function () {
 
 test('gate before hook checks user hasPermission method', function () {
     // Create role with permission
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 50]);
-    $permission = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 50]);
+    $permission = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
     $role->permissions()->attach($permission->id);
 
     // Create user with role
@@ -41,9 +41,9 @@ test('gate before hook checks user hasPermission method', function () {
 
 test('gates are defined for each permission in database', function () {
     // Create permissions
-    Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts']);
-    Permission::create(['slug' => 'users.view', 'display_name' => 'View Users']);
+    Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts']);
+    Permission::create(['slug' => 'users.view', 'name' => 'View Users']);
 
     // Force re-registration of gates
     app()->booted(function () {
@@ -60,11 +60,11 @@ test('gates are defined for each permission in database', function () {
 
 test('user role permission flow works correctly', function () {
     // Setup: Create role with permissions
-    $adminRole = Role::create(['slug' => 'admin', 'display_name' => 'Admin', 'level' => 100]);
-    $editorRole = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 50]);
+    $adminRole = Role::create(['slug' => 'admin', 'name' => 'Admin', 'level' => 100]);
+    $editorRole = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 50]);
 
-    $createPermission = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    $deletePermission = Permission::create(['slug' => 'posts.delete', 'display_name' => 'Delete Posts']);
+    $createPermission = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    $deletePermission = Permission::create(['slug' => 'posts.delete', 'name' => 'Delete Posts']);
 
     // Admin has both permissions
     $adminRole->permissions()->attach([$createPermission->id, $deletePermission->id]);
@@ -81,16 +81,16 @@ test('user role permission flow works correctly', function () {
 
 test('permission inheritance through role levels', function () {
     // Higher level roles should have more permissions
-    $admin = Role::create(['slug' => 'admin', 'display_name' => 'Admin', 'level' => 100]);
-    $manager = Role::create(['slug' => 'manager', 'display_name' => 'Manager', 'level' => 50]);
-    $member = Role::create(['slug' => 'member', 'display_name' => 'Member', 'level' => 10]);
+    $admin = Role::create(['slug' => 'admin', 'name' => 'Admin', 'level' => 100]);
+    $manager = Role::create(['slug' => 'manager', 'name' => 'Manager', 'level' => 50]);
+    $member = Role::create(['slug' => 'member', 'name' => 'Member', 'level' => 10]);
 
     // Create permission hierarchy
     $allPermissions = collect([
-        Permission::create(['slug' => 'posts.view', 'display_name' => 'View Posts']),
-        Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']),
-        Permission::create(['slug' => 'posts.delete', 'display_name' => 'Delete Posts']),
-        Permission::create(['slug' => 'users.manage', 'display_name' => 'Manage Users']),
+        Permission::create(['slug' => 'posts.view', 'name' => 'View Posts']),
+        Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']),
+        Permission::create(['slug' => 'posts.delete', 'name' => 'Delete Posts']),
+        Permission::create(['slug' => 'users.manage', 'name' => 'Manage Users']),
     ]);
 
     // Member: view only

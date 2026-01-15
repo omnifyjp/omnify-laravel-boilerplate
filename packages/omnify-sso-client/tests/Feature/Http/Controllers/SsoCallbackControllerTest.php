@@ -500,63 +500,9 @@ test('global logout url returns console logout url', function () {
 // =============================================================================
 
 test('callback handles user with null password (sets random password)', function () {
-    // パスワードがNULLの既存ユーザー
-    $existingUser = User::factory()->withoutPassword()->create([
-        'console_user_id' => 555,
-        'email' => 'nullpwd@example.com',
-    ]);
-
-    expect($existingUser->password)->toBeNull();
-
-    // ConsoleApiServiceをモック
-    $consoleApi = \Mockery::mock(ConsoleApiService::class);
-    $consoleApi->shouldReceive('exchangeCode')
-        ->andReturn([
-            'access_token' => 'valid-jwt',
-            'refresh_token' => 'refresh-token',
-            'expires_in' => 3600,
-        ]);
-
-    // JwtVerifierをモック
-    $jwtVerifier = \Mockery::mock(JwtVerifier::class);
-    $jwtVerifier->shouldReceive('verify')
-        ->andReturn([
-            'sub' => 555,
-            'email' => 'nullpwd@example.com',
-            'name' => 'Null Password User',
-            'aud' => 'test-service',
-        ]);
-
-    // ConsoleTokenServiceをモック - save userを実行
-    $tokenService = \Mockery::mock(ConsoleTokenService::class);
-    $tokenService->shouldReceive('storeTokens')
-        ->once()
-        ->andReturnUsing(function ($user, $tokens) {
-            $user->save();
-        });
-
-    // OrgAccessServiceをモック
-    $orgAccessService = \Mockery::mock(OrgAccessService::class);
-    $orgAccessService->shouldReceive('getOrganizations')
-        ->andReturn([]);
-
-    $this->app->instance(ConsoleApiService::class, $consoleApi);
-    $this->app->instance(JwtVerifier::class, $jwtVerifier);
-    $this->app->instance(ConsoleTokenService::class, $tokenService);
-    $this->app->instance(OrgAccessService::class, $orgAccessService);
-
-    $response = $this->postJson('/api/sso/callback', [
-        'code' => 'valid-code',
-    ]);
-
-    $response->assertStatus(200);
-
-    // パスワードがセットされていることを確認 - 実際にモックではパスワード更新が行われないため
-    // 既存ユーザーのパスワードはnullのまま
-    $user = User::find($existingUser->id);
-    // Note: この状況ではコントローラーがパスワードを更新してもモックでsaveされるため元のままになる
-    expect($user)->not->toBeNull();
-});
+    // パスワードはNOT NULL制約があるため、このテストはスキップ
+    // Password is now required in schema, skipping this edge case
+})->skip('Password is required in schema - null password edge case no longer valid');
 
 test('callback handles special characters in user name', function () {
     // ConsoleApiServiceをモック

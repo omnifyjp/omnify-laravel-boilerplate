@@ -630,14 +630,19 @@ Route::middleware(['sso.auth', 'sso.org', 'sso.permission:projects.update|projec
 
 ### Package Schema Registration
 
-```php
-// SsoClientServiceProvider.php
-public function boot(): void
-{
-    if (class_exists(\Omnify\Omnify::class)) {
-        \Omnify\Omnify::addSchemaPath(__DIR__.'/../database/schemas');
-    }
-}
+Configure in `omnify.config.ts`:
+
+```typescript
+export default defineConfig({
+  schemasDir: "./.omnify/schemas",
+  additionalSchemaPaths: [
+    // For installed package
+    { path: "./vendor/omnify/sso-client/database/schemas", namespace: "Sso" },
+    // Or for monorepo/local development
+    // { path: "./packages/omnify-sso-client/database/schemas", namespace: "Sso" },
+  ],
+  // ... other config
+});
 ```
 
 ### Package Schemas
@@ -2629,32 +2634,32 @@ NEXT_PUBLIC_SSO_SERVICE_SLUG=boilerplate
 
 ## Decisions Log
 
-| #   | Decision          | Choice                                   | Reason                                          |
-| --- | ----------------- | ---------------------------------------- | ----------------------------------------------- |
-| 1   | Package structure | Laravel + React packages                 | Reusable                                        |
-| 2   | Service auth      | Sanctum (Cookie + Token)                 | Support Web + Mobile                            |
-| 3   | Console tokens    | Lưu trong `users` table                  | Cần refresh                                     |
-| 4   | Org access        | Cache 5 phút                             | Balance performance/consistency                 |
-| 5   | JWT verify        | JWKS cache 60 phút                       | Reduce Console calls                            |
-| 6   | Package naming    | `omnify/sso-client`, `@omnify/sso-react` | Consistent naming                               |
-| 7   | Package location  | `packages/` (monorepo root)              | Dev phase, will extract to separate repos later |
-| 8   | Laravel deps      | `lcobucci/jwt ^5.0`                      | Same as Console                                 |
-| 9   | React deps        | `react ^18.0\|^19.0` (peer)              | React only, framework agnostic                  |
-| 10  | Middleware        | `sso.auth`, `sso.org`, `sso.role`        | Sanctum + org access + role check               |
-| 11  | Cache driver      | Laravel default                          | Use app's cache config                          |
-| 12  | User integration  | `HasConsoleSso` trait                    | Flexible, integrate existing User               |
-| 13  | Schema install    | `sso:install` command                    | Auto-detect omnify, merge User.yaml             |
-| 14  | React state       | React Context + hooks                    | Simple, no extra deps                           |
-| 15  | Org storage       | localStorage                             | Persist selectedOrg across sessions             |
-| 16  | React exports     | Provider + hooks + components            | Flexible usage                                  |
-| 17  | Locale header     | `Accept-Language`                        | Standard HTTP header                            |
-| 18  | Schema location   | Package owns via `Omnify::addSchemaPath` | Omnify standard                                 |
-| 19  | User schema       | Partial (extend User)                    | App owns User, package adds SSO fields          |
-| 20  | Role/Permission   | Global (no org_id)                       | Map 1:1 with Console service_role               |
-| 21  | Team info         | Separate endpoint `/api/sso/teams`       | Separation of concerns, lazy fetch              |
-| 22  | Team storage      | Reference only (console_team_id)         | Console owns teams, Service references          |
-| 23  | Team permissions  | Soft delete                              | Allow restore when Console restores team        |
-| 24  | Orphan cleanup    | Lazy (Admin UI + artisan command)        | Manual control, no scheduled jobs               |
+| #   | Decision          | Choice                                     | Reason                                          |
+| --- | ----------------- | ------------------------------------------ | ----------------------------------------------- |
+| 1   | Package structure | Laravel + React packages                   | Reusable                                        |
+| 2   | Service auth      | Sanctum (Cookie + Token)                   | Support Web + Mobile                            |
+| 3   | Console tokens    | Lưu trong `users` table                    | Cần refresh                                     |
+| 4   | Org access        | Cache 5 phút                               | Balance performance/consistency                 |
+| 5   | JWT verify        | JWKS cache 60 phút                         | Reduce Console calls                            |
+| 6   | Package naming    | `omnify/sso-client`, `@omnify/sso-react`   | Consistent naming                               |
+| 7   | Package location  | `packages/` (monorepo root)                | Dev phase, will extract to separate repos later |
+| 8   | Laravel deps      | `lcobucci/jwt ^5.0`                        | Same as Console                                 |
+| 9   | React deps        | `react ^18.0\|^19.0` (peer)                | React only, framework agnostic                  |
+| 10  | Middleware        | `sso.auth`, `sso.org`, `sso.role`          | Sanctum + org access + role check               |
+| 11  | Cache driver      | Laravel default                            | Use app's cache config                          |
+| 12  | User integration  | `HasConsoleSso` trait                      | Flexible, integrate existing User               |
+| 13  | Schema install    | `sso:install` command                      | Auto-detect omnify, merge User.yaml             |
+| 14  | React state       | React Context + hooks                      | Simple, no extra deps                           |
+| 15  | Org storage       | localStorage                               | Persist selectedOrg across sessions             |
+| 16  | React exports     | Provider + hooks + components              | Flexible usage                                  |
+| 17  | Locale header     | `Accept-Language`                          | Standard HTTP header                            |
+| 18  | Schema location   | `additionalSchemaDirs` in omnify.config.ts | Omnify standard                                 |
+| 19  | User schema       | Partial (extend User)                      | App owns User, package adds SSO fields          |
+| 20  | Role/Permission   | Global (no org_id)                         | Map 1:1 with Console service_role               |
+| 21  | Team info         | Separate endpoint `/api/sso/teams`         | Separation of concerns, lazy fetch              |
+| 22  | Team storage      | Reference only (console_team_id)           | Console owns teams, Service references          |
+| 23  | Team permissions  | Soft delete                                | Allow restore when Console restores team        |
+| 24  | Orphan cleanup    | Lazy (Admin UI + artisan command)          | Manual control, no scheduled jobs               |
 
 ---
 

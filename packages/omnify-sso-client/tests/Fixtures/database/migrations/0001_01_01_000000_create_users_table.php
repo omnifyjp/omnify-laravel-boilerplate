@@ -5,12 +5,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * テスト用usersテーブル
+ * テスト用テーブル (users, sessions)
+ * 
+ * Note: SSO tables (roles, permissions, teams, etc.) are loaded from package migrations.
  */
 return new class extends Migration
 {
     public function up(): void
     {
+        // Users table (test fixture - matches User schema from package)
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
@@ -26,17 +29,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('personal_access_tokens', function (Blueprint $table) {
-            $table->id();
-            $table->morphs('tokenable');
-            $table->string('name');
-            $table->string('token', 64)->unique();
-            $table->text('abilities')->nullable();
-            $table->timestamp('last_used_at')->nullable();
-            $table->timestamp('expires_at')->nullable();
-            $table->timestamps();
-        });
-
+        // Sessions table (for web auth)
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -50,7 +43,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('sessions');
-        Schema::dropIfExists('personal_access_tokens');
         Schema::dropIfExists('users');
     }
 };

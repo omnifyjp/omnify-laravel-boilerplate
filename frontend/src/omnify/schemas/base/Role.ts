@@ -19,14 +19,14 @@ import type { Permission } from './Permission';
 export interface Role {
   /** Primary key */
   id: number;
+  /** ロール名 */
+  name: string;
   /** スラッグ */
   slug: string;
-  /** 表示名 */
-  display_name: string;
-  /** レベル */
-  level: number;
   /** 説明 */
   description?: string;
+  /** レベル */
+  level: number;
   /** 権限 */
   permissions: Permission[];
   /** Creation timestamp */
@@ -45,23 +45,23 @@ export interface Role {
  */
 export const roleI18n = {
   /** Model display name */
-  label: {"ja":"ロール","en":"Role","vi":"Role"},
+  label: {"ja":"ロール","en":"Role","vi":"Vai trò"},
   /** Field labels and placeholders */
   fields: {
+    name: {
+      label: {"ja":"ロール名","en":"Role Name","vi":"Tên vai trò"},
+    },
     slug: {
       label: {"ja":"スラッグ","en":"Slug","vi":"Slug"},
     },
-    display_name: {
-      label: {"ja":"表示名","en":"Display Name","vi":"Display Name"},
+    description: {
+      label: {"ja":"説明","en":"Description","vi":"Mô tả"},
     },
     level: {
-      label: {"ja":"レベル","en":"Level","vi":"Level"},
-    },
-    description: {
-      label: {"ja":"説明","en":"Description","vi":"Description"},
+      label: {"ja":"レベル","en":"Level","vi":"Cấp độ"},
     },
     permissions: {
-      label: {"ja":"権限","en":"Permissions","vi":"Permissions"},
+      label: {"ja":"権限","en":"Permissions","vi":"Quyền hạn"},
     },
   },
 } as const;
@@ -72,18 +72,18 @@ export const roleI18n = {
 
 /** Field schemas for Role */
 export const baseRoleSchemas = {
+  name: z.string().min(1).max(100),
   slug: z.string().min(1).max(100),
-  display_name: z.string().min(1).max(100),
-  level: z.number().int(),
   description: z.string().optional().nullable(),
+  level: z.number().int(),
 } as const;
 
 /** Create schema for Role (POST requests) */
 export const baseRoleCreateSchema = z.object({
+  name: baseRoleSchemas.name,
   slug: baseRoleSchemas.slug,
-  display_name: baseRoleSchemas.display_name,
-  level: baseRoleSchemas.level,
   description: baseRoleSchemas.description,
+  level: baseRoleSchemas.level,
 });
 
 /** Update schema for Role (PUT/PATCH requests) */

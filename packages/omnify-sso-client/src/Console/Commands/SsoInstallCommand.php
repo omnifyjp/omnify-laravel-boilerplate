@@ -21,24 +21,195 @@ class SsoInstallCommand extends Command
         // 1. Publish config (optional but recommended for customization)
         $this->publishConfig();
 
-        // 2. Optionally publish migrations (they run automatically from package)
+        // 2. Setup User model to extend SSO User
+        $this->setupUserModel();
+
+        // 3. Optionally publish migrations (they run automatically from package)
         if ($this->confirm('Publish migrations for customization? (Migrations run automatically from package)', false)) {
             $this->publishMigrations();
         }
 
-        // 3. Check for Omnify and handle schemas
+        // 4. Check for Omnify and handle schemas
         $this->handleOmnifySchemas();
 
-        // 4. Sync admin permissions
+        // 5. Sync admin permissions
         $this->syncPermissions();
 
-        // 5. Show next steps
+        // 6. Show next steps
         $this->showNextSteps();
 
         $this->newLine();
         $this->info('SSO Client installed successfully!');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Setup the User model to extend SSO Client's User model.
+     */
+    protected function setupUserModel(): void
+    {
+        $this->newLine();
+        $this->info('Setting up User model...');
+
+        $userModelPath = app_path('Models/User.php');
+        $force = $this->option('force');
+
+        // Check if User.php exists
+        if (File::exists($userModelPath)) {
+            $content = File::get($userModelPath);
+
+            // Check if already extends SSO User
+            if (str_contains($content, 'extends \\Omnify\\SsoClient\\Models\\User') ||
+                str_contains($content, 'extends SsoUser') ||
+                str_contains($content, 'use Omnify\\SsoClient\\Models\\User as')) {
+                $this->line('User model already extends SSO Client User. Skipping.');
+                return;
+            }
+
+            // Ask to update existing User model
+            if (! $force && ! $this->confirm('User model exists. Update it to extend SSO Client User?', true)) {
+                $this->warn('Skipped. You need to manually update your User model.');
+                $this->showManualUserSetup();
+                return;
+            }
+
+            // Update existing User model
+            $this->updateExistingUserModel($userModelPath, $content);
+        } else {
+            // Create new User model
+            $this->createNewUserModel($userModelPath);
+        }
+    }
+
+    /**
+     * Create a new User model that extends SSO Client User.
+     */
+    protected function createNewUserModel(string $path): void
+    {
+        $stub = <<<'PHP'
+<?php
+
+namespace App\Models;
+
+use Omnify\SsoClient\Models\User as SsoUser;
+
+/**
+ * User Model
+ *
+ * Extends SSO Client User model for authentication.
+ * Add your custom methods and relationships here.
+ */
+class User extends SsoUser
+{
+    // Add your custom methods here
+}
+PHP;
+
+        // Ensure directory exists
+        File::ensureDirectoryExists(dirname($path));
+        File::put($path, $stub);
+
+        $this->info('Created app/Models/User.php extending SSO Client User.');
+    }
+
+    /**
+     * Update existing User model to extend SSO Client User.
+     */
+    protected function updateExistingUserModel(string $path, string $content): void
+    {
+        // Backup original file
+        $backupPath = $path . '.backup.' . date('YmdHis');
+        File::copy($path, $backupPath);
+        $this->line("Backup created: {$backupPath}");
+
+        // Try to intelligently update the file
+        $updated = $content;
+
+        // Add use statement if not present
+        if (! str_contains($updated, 'use Omnify\\SsoClient\\Models\\User')) {
+            // Find the namespace line and add after it
+            $updated = preg_replace(
+                '/^(namespace\s+[^;]+;)/m',
+                "$1\n\nuse Omnify\\SsoClient\\Models\\User as SsoUser;",
+                $updated
+            );
+        }
+
+        // Replace extends clause
+        // Handle common patterns: extends Authenticatable, extends Model, etc.
+        $patterns = [
+            '/class\s+User\s+extends\s+Authenticatable(\s+implements|\s*{|\s*$)/m' => 'class User extends SsoUser$1',
+            '/class\s+User\s+extends\s+\\\\Illuminate\\\\Foundation\\\\Auth\\\\User(\s+implements|\s*{|\s*$)/m' => 'class User extends SsoUser$1',
+            '/class\s+User\s+extends\s+Model(\s+implements|\s*{|\s*$)/m' => 'class User extends SsoUser$1',
+        ];
+
+        $wasReplaced = false;
+        foreach ($patterns as $pattern => $replacement) {
+            $newUpdated = preg_replace($pattern, $replacement, $updated);
+            if ($newUpdated !== $updated) {
+                $updated = $newUpdated;
+                $wasReplaced = true;
+                break;
+            }
+        }
+
+        if (! $wasReplaced) {
+            $this->warn('Could not automatically update User model extends clause.');
+            $this->showManualUserSetup();
+            return;
+        }
+
+        // Remove traits that are now provided by SsoUser
+        $traitsToRemove = [
+            'use HasApiTokens, HasFactory, Notifiable;',
+            'use HasApiTokens;',
+            'use Notifiable;',
+            'use HasFactory;',
+            'use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;',
+        ];
+
+        foreach ($traitsToRemove as $trait) {
+            // Only remove if the line only contains this trait
+            $updated = str_replace("    {$trait}\n", '', $updated);
+        }
+
+        // Remove use statements for traits now provided by parent
+        $useStatementsToRemove = [
+            'use Illuminate\\Foundation\\Auth\\User as Authenticatable;',
+            'use Laravel\\Sanctum\\HasApiTokens;',
+            'use Illuminate\\Notifications\\Notifiable;',
+            'use Illuminate\\Database\\Eloquent\\Factories\\HasFactory;',
+        ];
+
+        foreach ($useStatementsToRemove as $useStatement) {
+            $updated = str_replace($useStatement . "\n", '', $updated);
+        }
+
+        File::put($path, $updated);
+        $this->info('Updated app/Models/User.php to extend SSO Client User.');
+        $this->warn('Please review the changes and remove any redundant code.');
+    }
+
+    /**
+     * Show manual setup instructions for User model.
+     */
+    protected function showManualUserSetup(): void
+    {
+        $this->newLine();
+        $this->line('To manually update your User model:');
+        $this->newLine();
+        $this->line('1. Add the import:');
+        $this->line('   use Omnify\\SsoClient\\Models\\User as SsoUser;');
+        $this->newLine();
+        $this->line('2. Change the extends clause:');
+        $this->line('   class User extends SsoUser');
+        $this->newLine();
+        $this->line('3. Remove redundant traits (already in SsoUser):');
+        $this->line('   - HasApiTokens');
+        $this->line('   - Notifiable');
+        $this->line('   - Authenticatable traits');
+        $this->newLine();
     }
 
     protected function syncPermissions(): void
@@ -134,32 +305,29 @@ class SsoInstallCommand extends Command
         $this->info('Next Steps:');
         $this->newLine();
 
-        $this->line('1. Add the HasConsoleSso trait to your User model:');
-        $this->newLine();
-        $this->line('   use Omnify\SsoClient\Models\Traits\HasConsoleSso;');
-        $this->line('   use Omnify\SsoClient\Models\Traits\HasTeamPermissions;');
-        $this->newLine();
-        $this->line('   class User extends Authenticatable');
-        $this->line('   {');
-        $this->line('       use HasConsoleSso, HasTeamPermissions;');
-        $this->line('       // ...');
-        $this->line('   }');
-        $this->newLine();
-
-        $this->line('2. Add these environment variables to your .env:');
+        $this->line('1. Add these environment variables to your .env:');
         $this->newLine();
         $this->line('   SSO_CONSOLE_URL=http://auth.test');
         $this->line('   SSO_SERVICE_SLUG=your-service-slug');
         $this->newLine();
 
-        $this->line('3. Run migrations (package migrations run automatically):');
+        $this->line('2. Run migrations (package migrations run automatically):');
         $this->newLine();
         $this->line('   php artisan migrate');
         $this->newLine();
 
-        $this->line('4. Sync admin permissions (if not done during install):');
+        $this->line('3. Sync admin permissions (if not done during install):');
         $this->newLine();
         $this->line('   php artisan sso:sync-permissions');
+        $this->newLine();
+
+        $this->line('4. (Optional) Add custom methods to your User model:');
+        $this->newLine();
+        $this->line('   // app/Models/User.php');
+        $this->line('   class User extends SsoUser');
+        $this->line('   {');
+        $this->line('       // Your custom methods...');
+        $this->line('   }');
         $this->newLine();
 
         $this->line('5. To update permissions after package update:');

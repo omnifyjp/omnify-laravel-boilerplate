@@ -21,18 +21,18 @@ abstract class BaseModel extends Model
      * Model class map for polymorphic relations.
      */
     protected static array $modelMap = [
-        'Permission' => \App\Models\Permission::class,
-        'Role' => \App\Models\Role::class,
-        'Team' => \App\Models\Team::class,
-        'PasswordResetToken' => \App\Models\PasswordResetToken::class,
-        'PersonalAccessToken' => \App\Models\PersonalAccessToken::class,
-        'User' => \App\Models\User::class,
         'Cache' => \App\Models\Cache::class,
         'CacheLock' => \App\Models\CacheLock::class,
         'FailedJob' => \App\Models\FailedJob::class,
         'Job' => \App\Models\Job::class,
         'JobBatch' => \App\Models\JobBatch::class,
         'Session' => \App\Models\Session::class,
+        'User' => \App\Models\User::class,
+        'Permission' => \App\Models\Permission::class,
+        'Role' => \App\Models\Role::class,
+        'RolePermission' => \App\Models\RolePermission::class,
+        'Team' => \App\Models\Team::class,
+        'TeamPermission' => \App\Models\TeamPermission::class,
     ];
 
     /**

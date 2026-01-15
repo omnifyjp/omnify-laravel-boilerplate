@@ -20,9 +20,9 @@ beforeEach(function () {
 // =============================================================================
 
 test('index returns all roles ordered by level desc', function () {
-    $admin = Role::create(['slug' => 'admin', 'display_name' => 'Admin', 'level' => 100]);
-    $manager = Role::create(['slug' => 'manager', 'display_name' => 'Manager', 'level' => 50]);
-    $member = Role::create(['slug' => 'member', 'display_name' => 'Member', 'level' => 10]);
+    $admin = Role::create(['slug' => 'admin', 'name' => 'Admin', 'level' => 100]);
+    $manager = Role::create(['slug' => 'manager', 'name' => 'Manager', 'level' => 50]);
+    $member = Role::create(['slug' => 'member', 'name' => 'Member', 'level' => 10]);
 
     $user = User::factory()->create();
 
@@ -36,9 +36,9 @@ test('index returns all roles ordered by level desc', function () {
 });
 
 test('index includes permissions_count', function () {
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 30]);
-    $permission1 = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    $permission2 = Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 30]);
+    $permission1 = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    $permission2 = Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts']);
     $role->permissions()->attach([$permission1->id, $permission2->id]);
 
     $user = User::factory()->create();
@@ -58,19 +58,19 @@ test('store creates a new role', function () {
 
     $response = $this->actingAs($user)->postJson('/api/admin/sso/roles', [
         'slug' => 'reviewer',
-        'display_name' => 'Reviewer',
+        'name' => 'Reviewer',
         'level' => 25,
         'description' => 'Can review content',
     ]);
 
     $response->assertStatus(201)
         ->assertJsonPath('data.slug', 'reviewer')
-        ->assertJsonPath('data.display_name', 'Reviewer')
+        ->assertJsonPath('data.name', 'Reviewer')
         ->assertJsonPath('data.level', 25);
 
     $this->assertDatabaseHas('roles', [
         'slug' => 'reviewer',
-        'display_name' => 'Reviewer',
+        'name' => 'Reviewer',
     ]);
 });
 
@@ -80,16 +80,16 @@ test('store validates required fields', function () {
     $response = $this->actingAs($user)->postJson('/api/admin/sso/roles', []);
 
     $response->assertStatus(422)
-        ->assertJsonValidationErrors(['slug', 'display_name', 'level']);
+        ->assertJsonValidationErrors(['slug', 'name', 'level']);
 });
 
 test('store validates unique slug', function () {
-    Role::create(['slug' => 'existing', 'display_name' => 'Existing', 'level' => 10]);
+    Role::create(['slug' => 'existing', 'name' => 'Existing', 'level' => 10]);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->postJson('/api/admin/sso/roles', [
         'slug' => 'existing',
-        'display_name' => 'Another',
+        'name' => 'Another',
         'level' => 20,
     ]);
 
@@ -102,7 +102,7 @@ test('store validates level range', function () {
 
     $response = $this->actingAs($user)->postJson('/api/admin/sso/roles', [
         'slug' => 'test',
-        'display_name' => 'Test',
+        'name' => 'Test',
         'level' => 150, // max is 100
     ]);
 
@@ -115,8 +115,8 @@ test('store validates level range', function () {
 // =============================================================================
 
 test('show returns role with permissions', function () {
-    $role = Role::create(['slug' => 'admin', 'display_name' => 'Admin', 'level' => 100]);
-    $permission = Permission::create(['slug' => 'users.manage', 'display_name' => 'Manage Users']);
+    $role = Role::create(['slug' => 'admin', 'name' => 'Admin', 'level' => 100]);
+    $permission = Permission::create(['slug' => 'users.manage', 'name' => 'Manage Users']);
     $role->permissions()->attach($permission->id);
 
     $user = User::factory()->create();
@@ -142,33 +142,33 @@ test('show returns 404 for non-existent role', function () {
 // =============================================================================
 
 test('update modifies role', function () {
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 30]);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 30]);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->putJson("/api/admin/sso/roles/{$role->id}", [
-        'display_name' => 'Senior Editor',
+        'name' => 'Senior Editor',
         'level' => 40,
         'description' => 'Updated description',
     ]);
 
     $response->assertStatus(200)
-        ->assertJsonPath('data.display_name', 'Senior Editor')
+        ->assertJsonPath('data.name', 'Senior Editor')
         ->assertJsonPath('data.level', 40);
 
     $this->assertDatabaseHas('roles', [
         'id' => $role->id,
-        'display_name' => 'Senior Editor',
+        'name' => 'Senior Editor',
         'level' => 40,
     ]);
 });
 
 test('update does not change slug', function () {
-    $role = Role::create(['slug' => 'original', 'display_name' => 'Original', 'level' => 10]);
+    $role = Role::create(['slug' => 'original', 'name' => 'Original', 'level' => 10]);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->putJson("/api/admin/sso/roles/{$role->id}", [
         'slug' => 'changed',
-        'display_name' => 'Changed',
+        'name' => 'Changed',
     ]);
 
     $response->assertStatus(200);
@@ -184,7 +184,7 @@ test('update does not change slug', function () {
 // =============================================================================
 
 test('destroy deletes role', function () {
-    $role = Role::create(['slug' => 'deletable', 'display_name' => 'Deletable', 'level' => 5]);
+    $role = Role::create(['slug' => 'deletable', 'name' => 'Deletable', 'level' => 5]);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->deleteJson("/api/admin/sso/roles/{$role->id}");
@@ -195,7 +195,7 @@ test('destroy deletes role', function () {
 });
 
 test('destroy cannot delete system roles', function () {
-    $admin = Role::create(['slug' => 'admin', 'display_name' => 'Admin', 'level' => 100]);
+    $admin = Role::create(['slug' => 'admin', 'name' => 'Admin', 'level' => 100]);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->deleteJson("/api/admin/sso/roles/{$admin->id}");
@@ -209,7 +209,7 @@ test('destroy cannot delete system roles', function () {
 });
 
 test('destroy cannot delete manager role', function () {
-    $manager = Role::create(['slug' => 'manager', 'display_name' => 'Manager', 'level' => 50]);
+    $manager = Role::create(['slug' => 'manager', 'name' => 'Manager', 'level' => 50]);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->deleteJson("/api/admin/sso/roles/{$manager->id}");
@@ -218,7 +218,7 @@ test('destroy cannot delete manager role', function () {
 });
 
 test('destroy cannot delete member role', function () {
-    $member = Role::create(['slug' => 'member', 'display_name' => 'Member', 'level' => 10]);
+    $member = Role::create(['slug' => 'member', 'name' => 'Member', 'level' => 10]);
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->deleteJson("/api/admin/sso/roles/{$member->id}");
@@ -231,9 +231,9 @@ test('destroy cannot delete member role', function () {
 // =============================================================================
 
 test('permissions returns role with its permissions', function () {
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 30]);
-    $permission1 = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    $permission2 = Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 30]);
+    $permission1 = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    $permission2 = Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts']);
     $role->permissions()->attach([$permission1->id, $permission2->id]);
 
     $user = User::factory()->create();
@@ -242,16 +242,16 @@ test('permissions returns role with its permissions', function () {
 
     $response->assertStatus(200)
         ->assertJsonStructure([
-            'role' => ['id', 'slug', 'display_name'],
+            'role' => ['id', 'slug', 'name'],
             'permissions',
         ])
         ->assertJsonCount(2, 'permissions');
 });
 
 test('syncPermissions attaches new permissions', function () {
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 30]);
-    $permission1 = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    $permission2 = Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 30]);
+    $permission1 = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    $permission2 = Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts']);
 
     $user = User::factory()->create();
 
@@ -267,9 +267,9 @@ test('syncPermissions attaches new permissions', function () {
 });
 
 test('syncPermissions detaches removed permissions', function () {
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 30]);
-    $permission1 = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    $permission2 = Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 30]);
+    $permission1 = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    $permission2 = Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts']);
     $role->permissions()->attach([$permission1->id, $permission2->id]);
 
     $user = User::factory()->create();
@@ -288,9 +288,9 @@ test('syncPermissions detaches removed permissions', function () {
 });
 
 test('syncPermissions accepts permission slugs', function () {
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 30]);
-    Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 30]);
+    Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts']);
 
     $user = User::factory()->create();
 
@@ -305,9 +305,9 @@ test('syncPermissions accepts permission slugs', function () {
 });
 
 test('syncPermissions accepts mixed IDs and slugs', function () {
-    $role = Role::create(['slug' => 'editor', 'display_name' => 'Editor', 'level' => 30]);
-    $permission1 = Permission::create(['slug' => 'posts.create', 'display_name' => 'Create Posts']);
-    Permission::create(['slug' => 'posts.edit', 'display_name' => 'Edit Posts']);
+    $role = Role::create(['slug' => 'editor', 'name' => 'Editor', 'level' => 30]);
+    $permission1 = Permission::create(['slug' => 'posts.create', 'name' => 'Create Posts']);
+    Permission::create(['slug' => 'posts.edit', 'name' => 'Edit Posts']);
 
     $user = User::factory()->create();
 

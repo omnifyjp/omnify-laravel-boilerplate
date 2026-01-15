@@ -19,10 +19,10 @@ import type { Permission } from './Permission';
 export interface TeamPermission {
   /** Primary key */
   id: number;
-  /** Console Team ID */
-  console_team_id: number;
   /** Console Organization ID */
   console_org_id: number;
+  /** Console Team ID */
+  console_team_id: number;
   /** 権限 */
   permission: Permission;
   /** Creation timestamp */
@@ -43,17 +43,17 @@ export interface TeamPermission {
  */
 export const teamPermissionI18n = {
   /** Model display name */
-  label: {"ja":"チーム権限","en":"Team Permission","vi":"Team Permission"},
+  label: {"ja":"チーム権限","en":"Team Permission","vi":"Quyền nhóm"},
   /** Field labels and placeholders */
   fields: {
-    console_team_id: {
-      label: {"ja":"Console Team ID","en":"Console Team ID","vi":"Console Team ID"},
-    },
     console_org_id: {
       label: {"ja":"Console Organization ID","en":"Console Organization ID","vi":"Console Organization ID"},
     },
+    console_team_id: {
+      label: {"ja":"Console Team ID","en":"Console Team ID","vi":"Console Team ID"},
+    },
     permission: {
-      label: {"ja":"権限","en":"Permission","vi":"Permission"},
+      label: {"ja":"権限","en":"Permission","vi":"Quyền hạn"},
     },
   },
 } as const;
@@ -64,14 +64,14 @@ export const teamPermissionI18n = {
 
 /** Field schemas for TeamPermission */
 export const baseTeamPermissionSchemas = {
-  console_team_id: z.number().int(),
   console_org_id: z.number().int(),
+  console_team_id: z.number().int(),
 } as const;
 
 /** Create schema for TeamPermission (POST requests) */
 export const baseTeamPermissionCreateSchema = z.object({
-  console_team_id: baseTeamPermissionSchemas.console_team_id,
   console_org_id: baseTeamPermissionSchemas.console_org_id,
+  console_team_id: baseTeamPermissionSchemas.console_team_id,
 });
 
 /** Update schema for TeamPermission (PUT/PATCH requests) */

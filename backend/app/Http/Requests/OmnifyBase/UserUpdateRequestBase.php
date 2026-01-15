@@ -29,14 +29,14 @@ abstract class UserUpdateRequestBase extends FormRequest
     protected function schemaRules(): array
     {
         return [
+            'name' => ['sometimes', 'string', 'max:255'],
+            'email' => ['sometimes', 'string', 'max:255', Rule::unique('users')->ignore($this->route('user'))],
+            'password' => ['sometimes', 'string', 'max:255'],
             'console_user_id' => ['sometimes', 'integer', Rule::unique('users')->ignore($this->route('user'))],
             'console_access_token' => ['sometimes', 'string'],
             'console_refresh_token' => ['sometimes', 'string'],
             'console_token_expires_at' => ['sometimes', 'date'],
             'role_id' => ['sometimes', 'integer', 'exists:roles,id'],
-            'name' => ['sometimes', 'string', 'max:255'],
-            'email' => ['sometimes', 'string', 'max:255', Rule::unique('users')->ignore($this->route('user'))],
-            'password' => ['sometimes', 'string', 'max:255'],
         ];
     }
 
@@ -48,14 +48,14 @@ abstract class UserUpdateRequestBase extends FormRequest
     protected function schemaAttributes(): array
     {
         return [
+            'name' => 'Name',
+            'email' => 'Email',
+            'password' => 'Password',
             'console_user_id' => 'Console User ID',
             'console_access_token' => 'Console Access Token',
             'console_refresh_token' => 'Console Refresh Token',
             'console_token_expires_at' => 'Console Token Expiry',
             'role_id' => 'Role',
-            'name' => 'Name',
-            'email' => 'Email',
-            'password' => 'Password',
         ];
     }
 }

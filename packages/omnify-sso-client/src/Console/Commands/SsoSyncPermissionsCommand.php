@@ -22,31 +22,31 @@ class SsoSyncPermissionsCommand extends Command
         // Role management
         [
             'slug' => 'service-admin.role.view',
-            'display_name' => 'View Roles',
+            'name' => 'View Roles',
             'group' => 'service-admin.role',
             'description' => 'View roles list and details',
         ],
         [
             'slug' => 'service-admin.role.create',
-            'display_name' => 'Create Roles',
+            'name' => 'Create Roles',
             'group' => 'service-admin.role',
             'description' => 'Create new roles',
         ],
         [
             'slug' => 'service-admin.role.edit',
-            'display_name' => 'Edit Roles',
+            'name' => 'Edit Roles',
             'group' => 'service-admin.role',
             'description' => 'Edit existing roles',
         ],
         [
             'slug' => 'service-admin.role.delete',
-            'display_name' => 'Delete Roles',
+            'name' => 'Delete Roles',
             'group' => 'service-admin.role',
             'description' => 'Delete roles (except system roles)',
         ],
         [
             'slug' => 'service-admin.role.sync-permissions',
-            'display_name' => 'Sync Role Permissions',
+            'name' => 'Sync Role Permissions',
             'group' => 'service-admin.role',
             'description' => 'Assign/remove permissions to roles',
         ],
@@ -54,31 +54,31 @@ class SsoSyncPermissionsCommand extends Command
         // Permission management
         [
             'slug' => 'service-admin.permission.view',
-            'display_name' => 'View Permissions',
+            'name' => 'View Permissions',
             'group' => 'service-admin.permission',
             'description' => 'View permissions list and details',
         ],
         [
             'slug' => 'service-admin.permission.create',
-            'display_name' => 'Create Permissions',
+            'name' => 'Create Permissions',
             'group' => 'service-admin.permission',
             'description' => 'Create new permissions',
         ],
         [
             'slug' => 'service-admin.permission.edit',
-            'display_name' => 'Edit Permissions',
+            'name' => 'Edit Permissions',
             'group' => 'service-admin.permission',
             'description' => 'Edit existing permissions',
         ],
         [
             'slug' => 'service-admin.permission.delete',
-            'display_name' => 'Delete Permissions',
+            'name' => 'Delete Permissions',
             'group' => 'service-admin.permission',
             'description' => 'Delete permissions',
         ],
         [
             'slug' => 'service-admin.permission.matrix',
-            'display_name' => 'View Permission Matrix',
+            'name' => 'View Permission Matrix',
             'group' => 'service-admin.permission',
             'description' => 'View role-permission matrix',
         ],
@@ -86,25 +86,25 @@ class SsoSyncPermissionsCommand extends Command
         // Team permission management
         [
             'slug' => 'service-admin.team.view',
-            'display_name' => 'View Team Permissions',
+            'name' => 'View Team Permissions',
             'group' => 'service-admin.team',
             'description' => 'View team permissions',
         ],
         [
             'slug' => 'service-admin.team.edit',
-            'display_name' => 'Edit Team Permissions',
+            'name' => 'Edit Team Permissions',
             'group' => 'service-admin.team',
             'description' => 'Assign/remove permissions to teams',
         ],
         [
             'slug' => 'service-admin.team.delete',
-            'display_name' => 'Delete Team Permissions',
+            'name' => 'Delete Team Permissions',
             'group' => 'service-admin.team',
             'description' => 'Remove all permissions from a team',
         ],
         [
             'slug' => 'service-admin.team.cleanup',
-            'display_name' => 'Cleanup Orphaned Teams',
+            'name' => 'Cleanup Orphaned Teams',
             'group' => 'service-admin.team',
             'description' => 'View and cleanup orphaned team permissions',
         ],
@@ -112,31 +112,31 @@ class SsoSyncPermissionsCommand extends Command
         // User management
         [
             'slug' => 'service-admin.user.view',
-            'display_name' => 'View Users',
+            'name' => 'View Users',
             'group' => 'service-admin.user',
             'description' => 'View users list and details',
         ],
         [
             'slug' => 'service-admin.user.create',
-            'display_name' => 'Create Users',
+            'name' => 'Create Users',
             'group' => 'service-admin.user',
             'description' => 'Create new users',
         ],
         [
             'slug' => 'service-admin.user.edit',
-            'display_name' => 'Edit Users',
+            'name' => 'Edit Users',
             'group' => 'service-admin.user',
             'description' => 'Edit existing users',
         ],
         [
             'slug' => 'service-admin.user.delete',
-            'display_name' => 'Delete Users',
+            'name' => 'Delete Users',
             'group' => 'service-admin.user',
             'description' => 'Delete users',
         ],
         [
             'slug' => 'service-admin.user.assign-role',
-            'display_name' => 'Assign User Roles',
+            'name' => 'Assign User Roles',
             'group' => 'service-admin.user',
             'description' => 'Assign roles to users',
         ],
@@ -148,14 +148,14 @@ class SsoSyncPermissionsCommand extends Command
     protected array $defaultRoles = [
         [
             'slug' => 'admin',
-            'display_name' => 'Administrator',
+            'name' => 'Administrator',
             'level' => 100,
             'description' => 'Full system access',
             'permissions' => 'all', // All permissions
         ],
         [
             'slug' => 'manager',
-            'display_name' => 'Manager',
+            'name' => 'Manager',
             'level' => 50,
             'description' => 'Management access',
             'permissions' => [
@@ -171,7 +171,7 @@ class SsoSyncPermissionsCommand extends Command
         ],
         [
             'slug' => 'member',
-            'display_name' => 'Member',
+            'name' => 'Member',
             'level' => 10,
             'description' => 'Basic member access',
             'permissions' => [], // No admin permissions
@@ -192,7 +192,7 @@ class SsoSyncPermissionsCommand extends Command
             if ($existing) {
                 if ($this->option('force')) {
                     $existing->update([
-                        'display_name' => $permissionData['display_name'],
+                        'name' => $permissionData['name'],
                         'group' => $permissionData['group'],
                         'description' => $permissionData['description'],
                     ]);
@@ -231,7 +231,7 @@ class SsoSyncPermissionsCommand extends Command
             $role = Role::firstOrCreate(
                 ['slug' => $roleData['slug']],
                 [
-                    'display_name' => $roleData['display_name'],
+                    'name' => $roleData['name'],
                     'level' => $roleData['level'],
                     'description' => $roleData['description'],
                 ]

@@ -57,10 +57,10 @@ class RoleAdminController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['slug', 'display_name', 'level'],
+                required: ['slug', 'name', 'level'],
                 properties: [
                     new OA\Property(property: 'slug', type: 'string', maxLength: 100, example: 'editor'),
-                    new OA\Property(property: 'display_name', type: 'string', maxLength: 100, example: 'Editor'),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 100, example: 'Editor'),
                     new OA\Property(property: 'level', type: 'integer', minimum: 0, maximum: 100, example: 50),
                     new OA\Property(property: 'description', type: 'string', nullable: true),
                 ]
@@ -75,7 +75,7 @@ class RoleAdminController extends Controller
     {
         $validated = $request->validate([
             'slug' => ['required', 'string', 'max:100', 'unique:roles,slug'],
-            'display_name' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100'],
             'level' => ['required', 'integer', 'min:0', 'max:100'],
             'description' => ['nullable', 'string'],
         ]);
@@ -123,7 +123,7 @@ class RoleAdminController extends Controller
         requestBody: new OA\RequestBody(
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: 'display_name', type: 'string', maxLength: 100),
+                    new OA\Property(property: 'name', type: 'string', maxLength: 100),
                     new OA\Property(property: 'level', type: 'integer', minimum: 0, maximum: 100),
                     new OA\Property(property: 'description', type: 'string', nullable: true),
                 ]
@@ -140,7 +140,7 @@ class RoleAdminController extends Controller
         $role = Role::findOrFail($id);
 
         $validated = $request->validate([
-            'display_name' => ['sometimes', 'string', 'max:100'],
+            'name' => ['sometimes', 'string', 'max:100'],
             'level' => ['sometimes', 'integer', 'min:0', 'max:100'],
             'description' => ['nullable', 'string'],
         ]);
@@ -226,7 +226,7 @@ class RoleAdminController extends Controller
             'role' => [
                 'id' => $role->id,
                 'slug' => $role->slug,
-                'display_name' => $role->display_name,
+                'name' => $role->name,
             ],
             'permissions' => $role->permissions,
         ]);

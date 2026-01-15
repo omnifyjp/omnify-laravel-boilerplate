@@ -1,34 +1,27 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Omnify\SsoClient\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Omnify\SsoClient\Models\OmnifyBase\TeamPermissionBaseModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class TeamPermission extends Model
+/**
+ * TeamPermission Model
+ *
+ * This file is generated once and can be customized.
+ * Add your custom methods and logic here.
+ */
+class TeamPermission extends TeamPermissionBaseModel
 {
-    use SoftDeletes;
-
-    protected $fillable = [
-        'console_team_id',
-        'console_org_id',
-        'permission_id',
-    ];
-
-    protected $casts = [
-        'console_team_id' => 'integer',
-        'console_org_id' => 'integer',
-        'permission_id' => 'integer',
-    ];
+    use HasFactory;
 
     /**
-     * Get the permission.
+     * Create a new model instance.
      */
-    public function permission(): BelongsTo
+    public function __construct(array $attributes = [])
     {
-        return $this->belongsTo(Permission::class);
+        parent::__construct($attributes);
     }
+
+    // Add your custom methods here
 }

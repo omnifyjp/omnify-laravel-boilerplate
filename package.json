@@ -33,7 +33,10 @@
     "devDependencies": {
         "@famgia/omnify": "latest",
         "@famgia/omnify-laravel": "latest",
-        "@types/node": "^25.0.6"
+        "@types/js-yaml": "^4.0.9",
+        "@types/node": "^25.0.6",
+        "typescript": "^5.9.3",
+        "yaml": "^2.8.2"
     },
     "dependencies": {
         "@famgia/omnify-cli": "latest",

@@ -1,6 +1,6 @@
 ---
-description: "Omnify schema-driven code generation rules"
-globs: ["schemas/**/*.yaml", "omnify.config.ts"]
+description: "Omnify schema-driven code generation: YAML schema syntax, configuration (omnify.config.ts), and generation workflow. Apply when editing schema files or config."
+globs: ["schemas/**/*.yaml", "schemas/**/*.yml", "omnify.config.ts"]
 alwaysApply: false
 ---
 

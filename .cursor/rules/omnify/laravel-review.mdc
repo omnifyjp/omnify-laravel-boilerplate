@@ -1,5 +1,5 @@
 ---
-description: "Code review checklist - security, performance, quality"
+description: "Code review checklist for Laravel: security ($request->validated, SQL injection), performance (eager loading, N+1), and quality standards. Mention @laravel-review in chat to invoke."
 globs: []
 alwaysApply: false
 ---

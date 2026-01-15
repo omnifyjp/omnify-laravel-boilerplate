@@ -1,6 +1,6 @@
 ---
-description: "Form development guide - Omnify patterns, Zod validation, backend errors"
-globs: ["./frontend/src/features/**", "./frontend/src/components/**"]
+description: "React form development with Ant Design + Zod validation. Covers form instances, zodRule helper, Japanese compound fields (JapaneseName, JapaneseAddress), and backend 422 error handling. Apply when creating forms."
+globs: ["resources/ts/**/*Form*.tsx", "resources/ts/**/*form*.tsx"]
 alwaysApply: false
 ---
 

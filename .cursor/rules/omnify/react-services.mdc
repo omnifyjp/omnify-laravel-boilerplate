@@ -1,6 +1,6 @@
 ---
-description: "Frontend Services layer - API communication with backend"
-globs: ["./frontend/src/services/**"]
+description: "React service layer pattern: MUST read api-docs.json first, use TanStack Query for server state, define types from OpenAPI response. Apply when creating API integration or service files."
+globs: ["resources/ts/services/**/*.ts"]
 alwaysApply: false
 ---
 

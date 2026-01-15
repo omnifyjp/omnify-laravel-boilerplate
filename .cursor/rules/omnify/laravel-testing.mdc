@@ -1,13 +1,13 @@
 ---
-description: "PEST testing rules - 正常系/異常系, naming conventions"
-globs: ["tests/**", "**/*Test.php"]
+description: "PEST testing guide: 正常系 (happy path) + 異常系 (error cases), Japanese naming conventions, RefreshDatabase trait, and factory usage. Apply when writing or reviewing tests."
+globs: ["app/tests/**/*.php"]
 alwaysApply: false
 ---
 
 # Testing Rules (PEST)
 
 > **Agent:** Act as **@tester** agent
-> - Read `.claude/guides/laravel/testing.md` for full guide
+> - Read `.claude/omnify/guides/laravel/testing.md` for full guide
 
 ## How to Run Tests
 

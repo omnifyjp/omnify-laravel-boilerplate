@@ -1,6 +1,6 @@
 ---
-description: "React + Ant Design frontend development rules"
-globs: ["./frontend/src/**"]
+description: "React + Ant Design + TanStack Query rules for Omnify projects: component patterns, form validation with Zod, i18n, service layer, and generated types. Apply when creating React components, forms, or API integrations."
+globs: ["resources/ts/**/*.{ts,tsx}"]
 alwaysApply: false
 ---
 
@@ -10,10 +10,11 @@ alwaysApply: false
 > - **Form Development:** `.cursor/rules/omnify/react-form.mdc`
 > - **Design System:** `.cursor/rules/omnify/react-design.mdc`
 > - **Services:** `.cursor/rules/omnify/react-services.mdc`
+> - **Schema Creation:** `.cursor/rules/omnify/schema-create.mdc` (mention `@schema-create` in chat)
 
 ## Guide Documentation
 
-- Read `.claude/guides/react/` for patterns
+- Read `.claude/omnify/guides/react/` for patterns
 
 ## Critical Rules
 
@@ -67,6 +68,87 @@ export interface UserListParams { ... }
 
 // ❌ Don't redefine Omnify types
 export interface UserCreateInput { ... }  // WRONG
+```
+
+## ⚠️ Enum Usage Rules (CRITICAL)
+
+**ALWAYS use generated Enums** - NEVER inline union types or type extractions!
+
+### ❌ BAD Patterns (FORBIDDEN)
+
+```typescript
+// ❌ Complex type extraction - FORBIDDEN!
+newFilter.approval_status = status as NonNullable<ListParams["filter"]>["approval_status"];
+
+// ❌ Hardcoded union type - NOT DRY!
+newFilter.approval_status = status as "pending" | "approved" | "rejected";
+
+// ❌ Using string type - NO TYPE SAFETY!
+const [status, setStatus] = useState<string>("");
+
+// ❌ Hardcoded comparisons
+if (status === "pending") { ... }
+```
+
+### ✅ GOOD Patterns (REQUIRED)
+
+```typescript
+// ✅ Import Enum from generated file
+import { 
+  ApprovalStatus, 
+  ApprovalStatusValues,
+  isApprovalStatus,
+  getApprovalStatusLabel
+} from "@/omnify/enum/ApprovalStatus";
+
+// ✅ Type assertions with Enum
+newFilter.approval_status = status as ApprovalStatus;
+
+// ✅ State with Enum type
+const [status, setStatus] = useState<ApprovalStatus | "">(""); 
+// OR with default value:
+const [status, setStatus] = useState<ApprovalStatus>(ApprovalStatus.Pending);
+
+// ✅ Enum comparisons
+if (status === ApprovalStatus.Pending) { ... }
+
+// ✅ Iterate with Values array
+const options = ApprovalStatusValues.map(value => ({
+  value,
+  label: getApprovalStatusLabel(value, locale)
+}));
+
+// ✅ Type guard for validation
+if (isApprovalStatus(unknownValue)) {
+  // unknownValue is ApprovalStatus here
+}
+```
+
+### Generated Enum Files Structure
+
+```
+@/omnify/enum/
+├── ApprovalStatus.ts
+│   ├── ApprovalStatus        (enum)
+│   ├── ApprovalStatusValues  (array of all values)
+│   ├── isApprovalStatus()    (type guard)
+│   └── getApprovalStatusLabel()  (i18n label)
+├── OrderStatus.ts
+└── ...
+```
+
+### Select/Filter Options Pattern
+
+```typescript
+import { ApprovalStatus, ApprovalStatusValues, getApprovalStatusLabel } from "@/omnify/enum/ApprovalStatus";
+
+// ✅ Build options from Enum
+const statusOptions = ApprovalStatusValues.map(value => ({
+  value,
+  label: getApprovalStatusLabel(value, locale)
+}));
+
+<Select options={statusOptions} />
 ```
 
 ## Form Pattern (Omnify)

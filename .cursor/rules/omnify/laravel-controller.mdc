@@ -1,10 +1,40 @@
 ---
-description: "Controller development rules - thin controller, query builder, OpenAPI"
-globs: ["app/Http/Controllers/**"]
+description: "Laravel controller patterns: thin controllers with query builder, OpenAPI documentation (NO /api prefix!), validation with $request->validated(), and proper Resource usage. Apply when creating or editing controllers."
+globs: ["app/app/Http/Controllers/**/*.php"]
 alwaysApply: false
 ---
 
 # Controller Rules
+
+## ⚠️ CRITICAL: Check Route Prefix BEFORE Writing OpenAPI
+
+**MUST check route file prefix first!** Don't assume - VERIFY.
+
+### Before Writing OpenAPI Path:
+
+1. **Check route file** → Which file has your route? (`api.php`, `web.php`, custom?)
+2. **Check prefix** → Look in `RouteServiceProvider` or `bootstrap/app.php`
+3. **Write path WITHOUT prefix** → OpenAPI path = Route definition path
+
+```php
+// Route trong api.php (prefix: /api)
+Route::get('/users', [UserController::class, 'index']);
+
+// ❌ SAI - Duplicate prefix → /api/api/users !!
+#[OA\Get(path: '/api/users')]
+
+// ✅ ĐÚNG - Path không có prefix
+#[OA\Get(path: '/users')]  // → /api/users
+```
+
+| Route File | Prefix | Route Definition | OpenAPI Path |
+|------------|--------|------------------|--------------|
+| `api.php` | `/api` | `/users` | `/users` |
+| `web.php` | (none) | `/dashboard` | `/dashboard` |
+
+**Full guide:** `.claude/omnify/guides/laravel/openapi.md`
+
+---
 
 ## Golden Rule: Thin Controller
 

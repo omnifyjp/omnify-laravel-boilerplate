@@ -1,6 +1,6 @@
 ---
-description: Frontend Design System - Japanese Business UI Guidelines
-globs: ["./frontend/src/**/*.tsx", "./frontend/src/**/*.css"]
+description: "Japanese Business UI Design System: 4px spacing grid, Ant Design theme tokens (NO custom colors!), 間(Ma) whitespace philosophy. Apply when designing layouts, choosing colors, or setting spacing."
+globs: ["resources/ts/**/*.tsx", "resources/ts/**/*.css"]
 alwaysApply: false
 ---
 
@@ -10,6 +10,11 @@ alwaysApply: false
 
 This design system follows **Japanese Business UI principles**: compact, functional, and minimal.
 Primary color: Violet (#7C3AED).
+
+> ⚠️ **CRITICAL RULES:**
+> 1. **ALL colors MUST come from Ant Design theme tokens** - Never hardcode colors!
+> 2. **Minimize inline styles** - Use Ant Design components and `styles` prop with tokens
+> 3. **Use 4px grid system** - All spacing must be multiples of 4px
 
 ## Design Principles
 
@@ -100,25 +105,212 @@ const fontFamilies = {
 
 ## Spacing System
 
-### Compact Spacing Scale
+### 間 (Ma) - Japanese Whitespace Philosophy
 
-| Token       | Value | Usage           |
-| ----------- | ----- | --------------- |
-| `paddingXS` | 4px   | Minimal spacing |
-| `paddingSM` | 8px   | Small spacing   |
-| `padding`   | 12px  | Default spacing |
-| `paddingLG` | 16px  | Large spacing   |
-| `marginXS`  | 4px   | Minimal margin  |
-| `marginSM`  | 8px   | Small margin    |
-| `margin`    | 12px  | Default margin  |
-| `marginLG`  | 16px  | Large margin    |
+Japanese design embraces **間 (Ma)** - the concept of meaningful negative space. Unlike Western design that fills every gap, Japanese design uses whitespace purposefully:
 
-### Layout Spacing
+1. **機能的余白 (Functional Whitespace)** - Empty space that guides the eye
+2. **呼吸 (Breathing Room)** - Allowing elements to "breathe"
+3. **密度バランス (Density Balance)** - High info density WITH visual rest
 
-- Content margin: `12px`
-- Content padding: `16px`
+> **Key Insight**: Japanese business UIs are compact but NOT cramped. Every margin has purpose.
+
+### 4px Base Grid System
+
+All spacing values are multiples of **4px** for consistency and alignment:
+
+```
+Base Unit: 4px
+Scale: 4, 8, 12, 16, 24, 32, 48, 64, 96
+```
+
+### Spacing Scale
+
+| Token       | Value | px   | Usage                              |
+| ----------- | ----- | ---- | ---------------------------------- |
+| `space-1`   | 0.25  | 4px  | Micro spacing (icon-text gap)      |
+| `space-2`   | 0.5   | 8px  | Tight spacing (related items)      |
+| `space-3`   | 0.75  | 12px | Default internal spacing           |
+| `space-4`   | 1     | 16px | Component spacing                  |
+| `space-6`   | 1.5   | 24px | Section spacing                    |
+| `space-8`   | 2     | 32px | Large section gaps                 |
+| `space-12`  | 3     | 48px | Page section dividers              |
+| `space-16`  | 4     | 64px | Major layout sections              |
+
+### Ant Design Token Mapping
+
+| Token           | Value | Usage                    |
+| --------------- | ----- | ------------------------ |
+| `paddingXXS`    | 4px   | Micro padding            |
+| `paddingXS`     | 8px   | Tight padding            |
+| `paddingSM`     | 12px  | Small padding            |
+| `padding`       | 16px  | Default padding          |
+| `paddingMD`     | 20px  | Medium padding           |
+| `paddingLG`     | 24px  | Large padding            |
+| `paddingXL`     | 32px  | Extra large padding      |
+| `marginXXS`     | 4px   | Micro margin             |
+| `marginXS`      | 8px   | Tight margin             |
+| `marginSM`      | 12px  | Small margin             |
+| `margin`        | 16px  | Default margin           |
+| `marginMD`      | 20px  | Medium margin            |
+| `marginLG`      | 24px  | Large margin             |
+| `marginXL`      | 32px  | Extra large margin       |
+
+### Layout Spacing Guidelines
+
+#### Content Areas
+
+| Element              | Padding       | Margin         |
+| -------------------- | ------------- | -------------- |
+| Page content         | 24px          | -              |
+| Card content         | 16px          | 0 0 16px       |
+| Modal content        | 24px          | -              |
+| Sidebar content      | 12px          | -              |
+| Table cell           | 8px 12px      | -              |
+| Form item            | -             | 0 0 16px       |
+| Button               | 4px 12px      | -              |
+| Input                | 4px 8px       | -              |
+
+#### Vertical Rhythm (Japanese Business UI)
+
+```
+Header height:      48px (compact)
+Breadcrumb:         36px
+Page title area:    48px
+Card title:         40px
+Table header:       40px
+Table row:          44px (compact)
+Form row:           40px
+Footer:             48px
+```
+
+### Component Internal Spacing
+
+#### Cards
+
+```typescript
+// Japanese business style - compact but clear
+Card: {
+  paddingLG: 16,      // ✅ NOT 24px (too spacious)
+  headerHeight: 40,
+  actionsBorderTop: true,
+}
+```
+
+#### Forms
+
+```typescript
+// Dense but organized
+Form: {
+  itemMarginBottom: 16,           // Row spacing
+  verticalLabelPadding: "0 0 4px", // Label-input gap
+  labelHeight: 24,
+}
+```
+
+#### Tables
+
+```typescript
+// High-density data display
+Table: {
+  cellPaddingBlock: 8,     // Vertical
+  cellPaddingInline: 12,   // Horizontal
+  headerBg: "#F8F7FA",
+}
+```
+
+### Spacing Patterns
+
+#### 親子関係 (Parent-Child Relationship)
+
+```css
+/* Parent containers have larger padding than children */
+.page-container { padding: 24px; }       /* Outer */
+.section { padding: 16px; margin-bottom: 24px; }  /* Middle */
+.card { padding: 16px; margin-bottom: 16px; }     /* Inner */
+.card-item { padding: 8px; }             /* Deepest */
+```
+
+#### 近接の法則 (Law of Proximity)
+
+Related items should be closer together than unrelated items:
+
+```css
+/* ✅ GOOD: Related items grouped */
+.form-group { margin-bottom: 24px; }  /* Group separation */
+.form-item { margin-bottom: 12px; }   /* Item separation within group */
+
+/* ❌ BAD: Equal spacing loses relationship */
+.form-item { margin-bottom: 16px; }   /* Everything looks the same */
+```
+
+#### 段落間隔 (Section Spacing)
+
+```css
+/* Page sections */
+.section + .section { margin-top: 32px; }
+
+/* Card sections */
+.card + .card { margin-top: 16px; }
+
+/* Within card sections */
+.card-section + .card-section { margin-top: 16px; }
+```
+
+### Gap Utilities (CSS/Tailwind)
+
+Use `gap` instead of margins for flex/grid layouts:
+
+```typescript
+// ✅ GOOD: Use gap
+<Space size={8}>  {/* or "small" */}
+<Flex gap={12}>
+<div style={{ display: 'flex', gap: '16px' }}>
+
+// ❌ BAD: Margin on children
+<div style={{ marginRight: 16 }}>
+```
+
+| Ant Design Space | Value | Usage               |
+| ---------------- | ----- | ------------------- |
+| `small`          | 8px   | Tight grouping      |
+| `middle`         | 16px  | Default grouping    |
+| `large`          | 24px  | Loose grouping      |
+
+### Responsive Spacing
+
+Japanese design maintains density across breakpoints:
+
+```typescript
+const responsiveSpacing = {
+  // Mobile-first, then scale up slightly
+  mobile: {
+    pagePadding: 16,
+    cardPadding: 12,
+    gap: 12,
+  },
+  tablet: {
+    pagePadding: 20,
+    cardPadding: 16,
+    gap: 16,
+  },
+  desktop: {
+    pagePadding: 24,
+    cardPadding: 16,
+    gap: 16,
+  },
+};
+```
+
+> **Note**: Japanese business UIs don't dramatically increase spacing on larger screens. Maintain density.
+
+### Layout Structure
+
+- Content margin: `24px` (page level)
+- Content padding: `16px` (component level)
 - Header height: `48px`
-- Sidebar width: `180px`
+- Sidebar width: `200px`
+- Gutter (column gap): `16px`
 
 ## Border Radius
 
@@ -244,25 +436,208 @@ Required fonts:
 - Inter (English)
 - Be Vietnam Pro (Vietnamese)
 
+## 🚫 CRITICAL: Forbidden Practices
+
+### ❌ ABSOLUTELY FORBIDDEN: Custom Colors
+
+**NEVER add colors that are not from the Ant Design theme system.**
+
+```tsx
+// ❌ FORBIDDEN: Hardcoded colors
+<div style={{ color: '#333333' }}>
+<div style={{ backgroundColor: 'blue' }}>
+<div style={{ borderColor: 'rgb(200, 200, 200)' }}>
+<Text style={{ color: '#ff6b6b' }}>Error</Text>
+
+// ❌ FORBIDDEN: Tailwind color classes
+<div className="text-gray-500 bg-blue-100">
+<div className="border-red-500">
+
+// ✅ CORRECT: Use Ant Design theme tokens
+import { theme } from 'antd';
+const { token } = theme.useToken();
+
+<div style={{ color: token.colorText }}>
+<div style={{ backgroundColor: token.colorBgContainer }}>
+<div style={{ borderColor: token.colorBorder }}>
+<Text type="danger">Error</Text>  // Use Ant Design's built-in types
+```
+
+**Available Ant Design Color Tokens:**
+
+| Token | Usage |
+|-------|-------|
+| `token.colorPrimary` | Primary brand color |
+| `token.colorSuccess` | Success states |
+| `token.colorWarning` | Warning states |
+| `token.colorError` | Error states |
+| `token.colorText` | Primary text |
+| `token.colorTextSecondary` | Secondary text |
+| `token.colorTextTertiary` | Tertiary/disabled text |
+| `token.colorBgContainer` | Container background |
+| `token.colorBgLayout` | Layout background |
+| `token.colorBorder` | Borders |
+| `token.colorBorderSecondary` | Subtle borders |
+
+### ❌ FORBIDDEN: Excessive Inline Styles
+
+**Minimize `style` prop usage. Prefer Ant Design's component API.**
+
+```tsx
+// ❌ BAD: Inline styles everywhere
+<Card style={{ padding: 24, margin: 16, borderRadius: 8 }}>
+  <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+    <span style={{ fontSize: 14, fontWeight: 500 }}>Title</span>
+  </div>
+</Card>
+
+// ✅ GOOD: Use Ant Design component props
+<Card 
+  styles={{ body: { padding: token.paddingLG } }}
+  style={{ marginBottom: token.marginLG }}  // Only when necessary
+>
+  <Flex gap="middle" align="center">
+    <Typography.Text strong>Title</Typography.Text>
+  </Flex>
+</Card>
+```
+
+**When to use inline styles:**
+
+| Situation | Allowed? | Alternative |
+|-----------|----------|-------------|
+| Component layout (flex, grid) | ⚠️ Limited | Use `<Flex>`, `<Space>`, `<Row>`/`<Col>` |
+| Colors | ❌ NO | Use theme tokens or component types |
+| Typography | ❌ NO | Use `<Typography.Text>`, `<Typography.Title>` |
+| Spacing | ⚠️ Limited | Use Ant Design `styles` prop with tokens |
+| Responsive | ❌ NO | Use Ant Design Grid or CSS modules |
+
+**Allowed inline style patterns:**
+
+```tsx
+// ✅ Allowed: Token-based values only
+<div style={{ marginBottom: token.marginLG }}>
+<div style={{ padding: token.paddingMD }}>
+
+// ✅ Allowed: Layout properties
+<div style={{ flex: 1 }}>
+<div style={{ width: '100%', maxWidth: 800 }}>
+
+// ✅ Allowed: Component-specific overrides via styles prop
+<Table styles={{ header: { background: token.colorBgLayout } }} />
+<Card styles={{ body: { padding: 0 } }} />
+```
+
+### ❌ FORBIDDEN: CSS-in-JS Libraries for Styling
+
+```tsx
+// ❌ FORBIDDEN: Don't use styled-components, emotion, etc. for colors/spacing
+const StyledCard = styled.div`
+  background: #f5f5f5;  // NO!
+  padding: 20px;        // NO!
+`;
+
+// ✅ CORRECT: Use Ant Design components + theme
+<Card styles={{ body: { padding: token.paddingLG } }}>
+```
+
+## 🚨 Common Spacing Mistakes
+
+### ❌ Mistake 1: Inconsistent Base Unit
+
+```css
+/* ❌ BAD: Random values */
+padding: 13px;
+margin: 7px;
+gap: 15px;
+
+/* ✅ GOOD: 4px multiples */
+padding: 12px;  /* 4 × 3 */
+margin: 8px;    /* 4 × 2 */
+gap: 16px;      /* 4 × 4 */
+```
+
+### ❌ Mistake 2: Too Much Whitespace
+
+```css
+/* ❌ BAD: Western "airy" design */
+.card { padding: 32px; }
+.section { margin-bottom: 48px; }
+
+/* ✅ GOOD: Japanese compact design */
+.card { padding: 16px; }
+.section { margin-bottom: 24px; }
+```
+
+### ❌ Mistake 3: Using Margin Instead of Gap
+
+```tsx
+// ❌ BAD: Margin on each child (last-child issues)
+{items.map(item => <Item style={{ marginRight: 16 }} />)}
+
+// ✅ GOOD: Gap on parent
+<Flex gap={16}>
+  {items.map(item => <Item />)}
+</Flex>
+```
+
+### ❌ Mistake 4: Ignoring Visual Hierarchy
+
+```css
+/* ❌ BAD: Same spacing everywhere */
+.page { padding: 16px; }
+.card { padding: 16px; }
+.item { padding: 16px; }
+
+/* ✅ GOOD: Decreasing spacing as you nest deeper */
+.page { padding: 24px; }
+.card { padding: 16px; }
+.item { padding: 8px; }
+```
+
+### ❌ Mistake 5: Fixed Padding Everywhere
+
+```typescript
+// ❌ BAD: Hardcoding
+<Card style={{ padding: 24 }}>
+
+// ✅ GOOD: Use design tokens
+<Card styles={{ body: { padding: token.paddingLG } }}>
+```
+
 ## Do's and Don'ts
 
 ### ✅ Do
 
-- Use compact spacing (8-16px)
+- **Colors**: Use ONLY `token.*` from `theme.useToken()`
+- **Spacing**: Use 4px grid (4, 8, 12, 16, 24, 32...)
+- **Layout**: Use Ant Design `<Flex>`, `<Space>`, `<Row>`/`<Col>`
+- **Typography**: Use `<Typography.Text>`, `<Typography.Title>`
+- **Styles**: Use component `styles` prop with tokens
+- Use compact spacing (8-16px for components)
+- Use `gap` for flex/grid layouts
+- Decrease spacing as you nest deeper
+- Maintain consistent spacing ratios
 - Keep shadows minimal or none
 - Use subtle border radius (2-6px)
 - Maintain high information density
 - Use locale-specific fonts
-- Follow HSL color harmony
 
-### ❌ Don't
+### ❌ Don't (FORBIDDEN)
 
-- Use excessive padding (>24px)
+- **NEVER** use hardcoded colors (`#333`, `blue`, `rgb()`)
+- **NEVER** use Tailwind color classes (`text-gray-500`)
+- **NEVER** create custom styled-components for basic styling
+- **AVOID** excessive inline `style` props
+- Use random pixel values (13px, 17px, etc.)
+- Use excessive padding (>24px on components)
+- Use margins on flex children (use gap instead)
+- Apply same spacing at all nesting levels
+- Hardcode spacing values in components
 - Use heavy shadows
 - Use large border radius (>10px)
-- Leave large empty spaces
+- Leave large empty spaces without purpose
 - Mix warm and cool grays
-- Use colors outside the harmony system
 
 ## Quick Reference
 
@@ -282,8 +657,37 @@ const textPrimary = "#1E1B2E";
 const bgLayout = "#F8F7FA";
 const border = "#E5E7EB";
 
-// Sizes
+// Control sizes
 const controlHeight = 32;
 const borderRadius = 4;
-const padding = 12;
+
+// Spacing (4px grid) - 間 (Ma)
+const spacing = {
+  xxs: 4,   // Micro
+  xs: 8,    // Tight
+  sm: 12,   // Small
+  md: 16,   // Default ⭐
+  lg: 24,   // Large
+  xl: 32,   // Extra large
+  xxl: 48,  // Section divider
+};
+
+// Common use cases
+const pagePadding = 24;       // Page content
+const cardPadding = 16;       // Card body
+const componentGap = 16;      // Between components
+const itemGap = 8;            // Between items in list
+const iconTextGap = 4;        // Icon to text
+```
+
+### Spacing Cheat Sheet
+
+```
+Icon ↔ Text:    4px
+Related items:  8px
+Form items:     12px
+Components:     16px
+Sections:       24px
+Page sections:  32px
+Major areas:    48px
 ```

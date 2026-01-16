@@ -43,6 +43,13 @@ Route::prefix($prefix)
             Route::get('/tokens', [SsoTokenController::class, 'index']);
             Route::delete('/tokens/{tokenId}', [SsoTokenController::class, 'destroy']);
             Route::post('/tokens/revoke-others', [SsoTokenController::class, 'revokeOthers']);
+
+            // Read-only access to roles and permissions (for dashboard display)
+            // No org/admin requirements - just authenticated users
+            Route::get('/roles', [RoleAdminController::class, 'index']);
+            Route::get('/roles/{role}', [RoleAdminController::class, 'show']);
+            Route::get('/permissions', [PermissionAdminController::class, 'index']);
+            Route::get('/permission-matrix', [PermissionAdminController::class, 'matrix']);
         });
     });
 

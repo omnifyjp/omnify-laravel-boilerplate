@@ -52,52 +52,41 @@ export interface TeamPermission {
 
 export const ssoService = {
   // =========================================================================
-  // Roles
+  // Roles (Read-only for authenticated users)
   // =========================================================================
 
   /**
    * Get all roles
-   * GET /api/admin/sso/roles
+   * GET /api/sso/roles
    */
   getRoles: async (): Promise<{ data: Role[] }> => {
-    const { data } = await api.get<{ data: Role[] }>("/api/admin/sso/roles");
+    const { data } = await api.get<{ data: Role[] }>("/api/sso/roles");
     return data;
   },
 
   /**
    * Get single role with permissions
-   * GET /api/admin/sso/roles/{id}
+   * GET /api/sso/roles/{id}
    */
   getRole: async (id: number): Promise<{ data: RoleWithPermissions }> => {
     const { data } = await api.get<{ data: RoleWithPermissions }>(
-      `/api/admin/sso/roles/${id}`
-    );
-    return data;
-  },
-
-  /**
-   * Get role permissions
-   * GET /api/admin/sso/roles/{id}/permissions
-   */
-  getRolePermissions: async (id: number): Promise<{ data: Permission[] }> => {
-    const { data } = await api.get<{ data: Permission[] }>(
-      `/api/admin/sso/roles/${id}/permissions`
+      `/api/sso/roles/${id}`
     );
     return data;
   },
 
   // =========================================================================
-  // Permissions
+  // Permissions (Read-only for authenticated users)
   // =========================================================================
 
   /**
    * Get all permissions
-   * GET /api/admin/sso/permissions
+   * GET /api/sso/permissions
    */
   getPermissions: async (group?: string): Promise<{ data: Permission[] }> => {
     const params = group ? { group } : {};
     const { data } = await api.get<{ data: Permission[] }>(
-      "/api/admin/sso/permissions",
+      "/api/sso/permissions",
       { params }
     );
     return data;
@@ -105,39 +94,89 @@ export const ssoService = {
 
   /**
    * Get permission matrix (roles x permissions)
-   * GET /api/admin/sso/permission-matrix
+   * GET /api/sso/permission-matrix
    */
   getPermissionMatrix: async (): Promise<PermissionMatrix> => {
     const { data } = await api.get<PermissionMatrix>(
-      "/api/admin/sso/permission-matrix"
+      "/api/sso/permission-matrix"
     );
     return data;
   },
 
   // =========================================================================
-  // Teams
+  // Admin - Roles (requires admin role + org context)
   // =========================================================================
 
   /**
-   * Get all team permissions
+   * Create role (admin only)
+   * POST /api/admin/sso/roles
+   */
+  createRole: async (
+    role: Partial<Role>,
+    orgSlug: string
+  ): Promise<{ data: Role }> => {
+    const { data } = await api.post<{ data: Role }>("/api/admin/sso/roles", role, {
+      headers: { "X-Org-Id": orgSlug },
+    });
+    return data;
+  },
+
+  /**
+   * Update role (admin only)
+   * PUT /api/admin/sso/roles/{id}
+   */
+  updateRole: async (
+    id: number,
+    role: Partial<Role>,
+    orgSlug: string
+  ): Promise<{ data: Role }> => {
+    const { data } = await api.put<{ data: Role }>(
+      `/api/admin/sso/roles/${id}`,
+      role,
+      { headers: { "X-Org-Id": orgSlug } }
+    );
+    return data;
+  },
+
+  /**
+   * Delete role (admin only)
+   * DELETE /api/admin/sso/roles/{id}
+   */
+  deleteRole: async (id: number, orgSlug: string): Promise<void> => {
+    await api.delete(`/api/admin/sso/roles/${id}`, {
+      headers: { "X-Org-Id": orgSlug },
+    });
+  },
+
+  // =========================================================================
+  // Admin - Teams (requires admin role + org context)
+  // =========================================================================
+
+  /**
+   * Get all team permissions (admin only)
    * GET /api/admin/sso/teams/permissions
    */
-  getTeamPermissions: async (): Promise<{ data: TeamPermission[] }> => {
+  getTeamPermissions: async (
+    orgSlug: string
+  ): Promise<{ data: TeamPermission[] }> => {
     const { data } = await api.get<{ data: TeamPermission[] }>(
-      "/api/admin/sso/teams/permissions"
+      "/api/admin/sso/teams/permissions",
+      { headers: { "X-Org-Id": orgSlug } }
     );
     return data;
   },
 
   /**
-   * Get specific team permissions
+   * Get specific team permissions (admin only)
    * GET /api/admin/sso/teams/{teamId}/permissions
    */
   getTeamPermission: async (
-    teamId: number
+    teamId: number,
+    orgSlug: string
   ): Promise<{ data: TeamPermission }> => {
     const { data } = await api.get<{ data: TeamPermission }>(
-      `/api/admin/sso/teams/${teamId}/permissions`
+      `/api/admin/sso/teams/${teamId}/permissions`,
+      { headers: { "X-Org-Id": orgSlug } }
     );
     return data;
   },

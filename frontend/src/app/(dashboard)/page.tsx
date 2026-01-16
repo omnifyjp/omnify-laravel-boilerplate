@@ -194,41 +194,47 @@ export default function DashboardPage() {
       )}
 
       {/* Stats - Full width */}
-      <Card style={{ marginBottom: 16 }}>
-        <Row gutter={[24, 16]}>
-          <Col xs={12} sm={12} md={6}>
+      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+        <Col span={6}>
+          <Card>
             <Statistic
               title="Organizations"
               value={organizations.length}
               prefix={<TeamOutlined />}
             />
-          </Col>
-          <Col xs={12} sm={12} md={6}>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
             <Statistic
               title="Roles"
               value={roles.length}
               prefix={<CrownOutlined />}
               loading={rolesLoading}
             />
-          </Col>
-          <Col xs={12} sm={12} md={6}>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
             <Statistic
               title="Permissions"
               value={permissions.length}
               prefix={<KeyOutlined />}
               loading={permissionsLoading}
             />
-          </Col>
-          <Col xs={12} sm={12} md={6}>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
             <Statistic
               title="Permission Groups"
               value={Object.keys(permissionsByGroup).length}
               prefix={<SafetyOutlined />}
               loading={permissionsLoading}
             />
-          </Col>
-        </Row>
-      </Card>
+          </Card>
+        </Col>
+      </Row>
 
       {/* Organizations */}
       <Card

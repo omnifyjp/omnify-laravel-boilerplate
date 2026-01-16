@@ -19,6 +19,7 @@ use Omnify\SsoClient\Services\ConsoleTokenService;
 use Omnify\SsoClient\Services\JwksService;
 use Omnify\SsoClient\Services\JwtVerifier;
 use Omnify\SsoClient\Services\OrgAccessService;
+use Omnify\SsoClient\Support\SsoLogger;
 
 class SsoClientServiceProvider extends ServiceProvider
 {
@@ -69,6 +70,16 @@ class SsoClientServiceProvider extends ServiceProvider
                 config('sso-client.cache.org_access_ttl')
             );
         });
+
+        // Register SSO Logger
+        $this->app->singleton(SsoLogger::class, function ($app) {
+            return new SsoLogger();
+        });
+
+        // Register helper function
+        $this->app->singleton('sso.logger', function ($app) {
+            return $app->make(SsoLogger::class);
+        });
     }
 
     /**
@@ -76,6 +87,7 @@ class SsoClientServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureLogging();
         $this->registerMorphMap();
         $this->registerPublishing();
         $this->registerMigrations();
@@ -83,6 +95,24 @@ class SsoClientServiceProvider extends ServiceProvider
         $this->registerMiddleware();
         $this->registerCommands();
         $this->registerGates();
+    }
+
+    /**
+     * Configure SSO logging channel.
+     */
+    protected function configureLogging(): void
+    {
+        // Add 'sso' log channel if it doesn't exist
+        $channel = config('sso-client.logging.channel', 'sso');
+
+        if (! config("logging.channels.{$channel}")) {
+            config(["logging.channels.{$channel}" => [
+                'driver' => 'daily',
+                'path' => storage_path("logs/{$channel}.log"),
+                'level' => config('sso-client.logging.level', 'debug'),
+                'days' => 14,
+            ]]);
+        }
     }
 
     /**

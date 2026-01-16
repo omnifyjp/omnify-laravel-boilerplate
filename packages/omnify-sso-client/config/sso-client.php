@@ -135,4 +135,24 @@ return [
         // Maximum length for redirect URLs
         'max_redirect_url_length' => 2048,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure logging for SSO events. Useful for debugging and auditing.
+    |
+    */
+    'logging' => [
+        // Enable/disable SSO logging
+        'enabled' => env('SSO_LOGGING_ENABLED', true),
+
+        // Log channel to use (creates 'sso' channel if configured)
+        // Falls back to default channel if 'sso' channel doesn't exist
+        'channel' => env('SSO_LOG_CHANNEL', 'sso'),
+
+        // Log level for SSO events
+        'level' => env('SSO_LOG_LEVEL', 'debug'),
+    ],
 ];

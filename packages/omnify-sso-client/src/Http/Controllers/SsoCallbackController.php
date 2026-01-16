@@ -15,6 +15,7 @@ use Omnify\SsoClient\Services\ConsoleTokenService;
 use Omnify\SsoClient\Services\JwtVerifier;
 use Omnify\SsoClient\Services\OrgAccessService;
 use Omnify\SsoClient\Support\RedirectUrlValidator;
+use Omnify\SsoClient\Support\SsoLogger;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'SSO Auth', description: 'SSO authentication endpoints')]
@@ -24,7 +25,8 @@ class SsoCallbackController extends Controller
         private readonly ConsoleApiService $consoleApi,
         private readonly JwtVerifier $jwtVerifier,
         private readonly ConsoleTokenService $tokenService,
-        private readonly OrgAccessService $orgAccessService
+        private readonly OrgAccessService $orgAccessService,
+        private readonly SsoLogger $logger
     ) {}
 
     /**
@@ -72,21 +74,29 @@ class SsoCallbackController extends Controller
         $tokens = $this->consoleApi->exchangeCode($validated['code']);
 
         if (! $tokens) {
+            $this->logger->codeExchange(false, 'Invalid or expired code');
+
             return response()->json([
                 'error' => 'INVALID_CODE',
                 'message' => 'Failed to exchange SSO code',
             ], 401);
         }
 
+        $this->logger->codeExchange(true);
+
         // Verify JWT and get user info
         $claims = $this->jwtVerifier->verify($tokens['access_token']);
 
         if (! $claims) {
+            $this->logger->jwtVerification(false, 'Invalid signature or expired token');
+
             return response()->json([
                 'error' => 'INVALID_TOKEN',
                 'message' => 'Failed to verify access token',
             ], 401);
         }
+
+        $this->logger->jwtVerification(true);
 
         // Find or create user
         $userModel = config('sso-client.user_model');
@@ -130,9 +140,11 @@ class SsoCallbackController extends Controller
         if (! empty($validated['device_name'])) {
             $token = $user->createToken($validated['device_name']);
             $response['token'] = $token->plainTextToken;
+            $this->logger->authAttempt($user->email, true);
         } else {
             // Web SPA: Create session (cookie-based auth)
             Auth::login($user);
+            $this->logger->authAttempt($user->email, true);
         }
 
         return response()->json($response);
@@ -160,6 +172,8 @@ class SsoCallbackController extends Controller
         $user = $request->user();
 
         if ($user) {
+            $userId = $user->id;
+
             // Revoke Console tokens
             $this->tokenService->revokeTokens($user);
 
@@ -170,6 +184,8 @@ class SsoCallbackController extends Controller
 
             // Logout from session
             Auth::guard('web')->logout();
+
+            $this->logger->logout($userId);
         }
 
         return response()->json([
@@ -247,12 +263,22 @@ class SsoCallbackController extends Controller
     )]
     public function globalLogoutUrl(Request $request): JsonResponse
     {
+        $requestedUri = $request->query('redirect_uri');
+
         // Validate redirect URL to prevent Open Redirect attacks
         $validator = new RedirectUrlValidator();
         $redirectUri = $validator->validate(
-            $request->query('redirect_uri'),
+            $requestedUri,
             url('/')
         );
+
+        // Log if redirect was blocked
+        if ($requestedUri && $redirectUri !== $requestedUri) {
+            $this->logger->securityEvent('blocked_redirect', [
+                'requested_uri' => $requestedUri,
+                'used_uri' => $redirectUri,
+            ]);
+        }
 
         $logoutUrl = $this->consoleApi->getConsoleUrl().'/sso/logout?'.http_build_query([
             'redirect_uri' => $redirectUri,

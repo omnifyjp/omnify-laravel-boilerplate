@@ -193,9 +193,9 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {/* Stats - Full width */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-        <Col flex={1}>
+      {/* Stats - Full width 4 columns */}
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col xs={24} sm={12} md={6}>
           <Card>
             <Statistic
               title="Organizations"
@@ -204,7 +204,7 @@ export default function DashboardPage() {
             />
           </Card>
         </Col>
-        <Col flex={1}>
+        <Col xs={24} sm={12} md={6}>
           <Card>
             <Statistic
               title="Roles"
@@ -214,7 +214,7 @@ export default function DashboardPage() {
             />
           </Card>
         </Col>
-        <Col flex={1}>
+        <Col xs={24} sm={12} md={6}>
           <Card>
             <Statistic
               title="Permissions"
@@ -224,7 +224,7 @@ export default function DashboardPage() {
             />
           </Card>
         </Col>
-        <Col flex={1}>
+        <Col xs={24} sm={12} md={6}>
           <Card>
             <Statistic
               title="Permission Groups"

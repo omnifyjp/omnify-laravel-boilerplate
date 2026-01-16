@@ -35,7 +35,7 @@
         "@famgia/omnify-cli": "^0.0.165",
         "@famgia/omnify-japan": "^0.0.150",
         "@famgia/omnify-laravel": "latest",
-        "@famgia/omnify-typescript": "^0.0.146",
+        "@famgia/omnify-typescript": "^0.0.148",
         "@types/js-yaml": "^4.0.9",
         "@types/node": "^25.0.9",
         "typescript": "^5.9.3",

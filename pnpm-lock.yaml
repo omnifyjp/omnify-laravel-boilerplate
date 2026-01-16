@@ -21,8 +21,8 @@ importers:
         specifier: latest
         version: 0.0.166
       '@famgia/omnify-typescript':
-        specifier: ^0.0.146
-        version: 0.0.146(zod@4.3.5)
+        specifier: ^0.0.148
+        version: 0.0.148(zod@4.3.5)
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -63,6 +63,14 @@ packages:
 
   '@famgia/omnify-typescript@0.0.146':
     resolution: {integrity: sha512-1jWaYq70VQUHzyncffkamOtoV+J467EUNwOcCbnxAxgdXVN5IIiHaxe09hRWTlvegIiTRCT95CGS+qtBDAxZ3w==}
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
+
+  '@famgia/omnify-typescript@0.0.148':
+    resolution: {integrity: sha512-bj0SrO3AvzdqXB3x12sq6Hir2hHxYGgwl1Yz5fEgttzeUqVrMZ5zK7scVJXTPZSU9cjfZq0PyvJM5ORcFI39yA==}
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
     peerDependenciesMeta:
@@ -765,6 +773,13 @@ snapshots:
   '@famgia/omnify-types@0.0.155': {}
 
   '@famgia/omnify-typescript@0.0.146(zod@4.3.5)':
+    dependencies:
+      '@famgia/omnify-core': 0.0.157
+      '@famgia/omnify-types': 0.0.155
+    optionalDependencies:
+      zod: 4.3.5
+
+  '@famgia/omnify-typescript@0.0.148(zod@4.3.5)':
     dependencies:
       '@famgia/omnify-core': 0.0.157
       '@famgia/omnify-types': 0.0.155

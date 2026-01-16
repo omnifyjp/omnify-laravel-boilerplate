@@ -36,7 +36,12 @@ class OmnifyServiceProvider extends ServiceProvider
 
         // Register morph map for polymorphic relationships
         Relation::enforceMorphMap([
-
+            'User' => \App\Models\User::class,
+            'Permission' => \App\Models\Permission::class,
+            'Role' => \App\Models\Role::class,
+            'RolePermission' => \App\Models\RolePermission::class,
+            'Team' => \App\Models\Team::class,
+            'TeamPermission' => \App\Models\TeamPermission::class,
         ]);
     }
 }

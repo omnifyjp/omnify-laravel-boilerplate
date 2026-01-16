@@ -53,8 +53,6 @@ services:
       - AWS_BUCKET=local
       - AWS_ENDPOINT=http://minio:9000
       - AWS_USE_PATH_STYLE_ENDPOINT=true
-      - SSO_CONSOLE_URL=http://host.docker.internal
-      - SSO_SERVICE_SLUG=boilerplate
       - BROADCAST_CONNECTION=reverb
       - REVERB_APP_ID=omnify
       - REVERB_APP_KEY=omnify-reverb-key

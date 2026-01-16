@@ -49,4 +49,12 @@ class User extends UserBaseModel implements
             'password' => 'hashed',
         ]);
     }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): \Database\Factories\UserFactory
+    {
+        return \Database\Factories\UserFactory::new();
+    }
 }

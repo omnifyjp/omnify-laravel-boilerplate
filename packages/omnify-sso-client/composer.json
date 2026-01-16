@@ -30,7 +30,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Omnify\\SsoClient\\": "src/"
+            "Omnify\\SsoClient\\": "src/",
+            "Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {

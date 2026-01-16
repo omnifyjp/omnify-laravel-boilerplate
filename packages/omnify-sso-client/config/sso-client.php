@@ -115,4 +115,24 @@ return [
         'enabled' => env('SSO_LOCALE_ENABLED', true),
         'header' => 'Accept-Language',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Security Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Security settings to prevent common vulnerabilities.
+    |
+    */
+    'security' => [
+        // Allowed hosts for redirect URLs (prevents Open Redirect attacks)
+        // Supports wildcards like *.example.com
+        'allowed_redirect_hosts' => array_filter(explode(',', env('SSO_ALLOWED_REDIRECT_HOSTS', ''))),
+
+        // Whether to enforce HTTPS for redirect URLs
+        'require_https_redirects' => env('SSO_REQUIRE_HTTPS_REDIRECTS', true),
+
+        // Maximum length for redirect URLs
+        'max_redirect_url_length' => 2048,
+    ],
 ];

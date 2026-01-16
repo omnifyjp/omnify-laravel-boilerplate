@@ -14,6 +14,7 @@ use Omnify\SsoClient\Services\ConsoleApiService;
 use Omnify\SsoClient\Services\ConsoleTokenService;
 use Omnify\SsoClient\Services\JwtVerifier;
 use Omnify\SsoClient\Services\OrgAccessService;
+use Omnify\SsoClient\Support\RedirectUrlValidator;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'SSO Auth', description: 'SSO authentication endpoints')]
@@ -246,7 +247,12 @@ class SsoCallbackController extends Controller
     )]
     public function globalLogoutUrl(Request $request): JsonResponse
     {
-        $redirectUri = $request->query('redirect_uri', url('/'));
+        // Validate redirect URL to prevent Open Redirect attacks
+        $validator = new RedirectUrlValidator();
+        $redirectUri = $validator->validate(
+            $request->query('redirect_uri'),
+            url('/')
+        );
 
         $logoutUrl = $this->consoleApi->getConsoleUrl().'/sso/logout?'.http_build_query([
             'redirect_uri' => $redirectUri,

@@ -21,10 +21,10 @@ $middleware = config('sso-client.routes.middleware', ['api']);
 $adminPrefix = config('sso-client.routes.admin_prefix', 'api/admin/sso');
 $adminMiddleware = config('sso-client.routes.admin_middleware', ['api', 'sso.auth', 'sso.org', 'sso.role:admin']);
 
-// SSO Callback Route (no CSRF, no Sanctum stateful - called from Console server)
-// コールバックはConsoleサーバーから呼ばれるため、CSRFとSanctum statefulは不要
+// SSO Callback Route (with Sanctum stateful for session cookie)
+// コールバックでセッションCookieを設定するため、Sanctum statefulが必要
 Route::prefix($prefix)
-    ->middleware(['api'])
+    ->middleware($middleware)
     ->group(function () {
         Route::post('/callback', [SsoCallbackController::class, 'callback']);
     });

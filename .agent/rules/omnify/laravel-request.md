@@ -1,7 +1,12 @@
 ---
+id: laravel-request
 description: "Laravel FormRequest rules: OpenAPI schema MUST match schemaRules(), extend OmnifyBase for auto-generated validation, never use $request->all(). Apply when editing Request classes."
-globs: ["app/Http/Requests/**/*.php"]
-alwaysApply: false
+priority: medium
+globs:
+  - "app/Http/Requests/**/*.php"
+tags:
+  - laravel
+  - request
 ---
 
 # Request Rules

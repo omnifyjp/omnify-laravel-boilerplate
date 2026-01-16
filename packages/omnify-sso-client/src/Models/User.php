@@ -3,6 +3,8 @@
 namespace Omnify\SsoClient\Models;
 
 use Omnify\SsoClient\Models\OmnifyBase\UserBaseModel;
+use Omnify\SsoClient\Models\Traits\HasConsoleSso;
+use Omnify\SsoClient\Models\Traits\HasTeamPermissions;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -26,6 +28,7 @@ class User extends UserBaseModel implements
 {
     use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;
     use HasApiTokens, HasFactory, Notifiable;
+    use HasConsoleSso, HasTeamPermissions;
 
     /**
      * The attributes that should be hidden for serialization.

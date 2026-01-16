@@ -1,12 +1,19 @@
 ---
-description: "Omnify schema YAML syntax and examples. Apply when creating or editing schema files in schemas/ folder. Covers property types, relationships, validations, and Japanese compound types."
-globs: ["schemas/**/*.yaml", "schemas/**/*.yml", "database/migrations/**"]
-alwaysApply: false
+id: schema-create
+description: "Step-by-step schema creation workflow: 1) Read guide, 2) Create YAML, 3) npx omnify generate, 4) Validate output, 5) Migrate. CRITICAL: String defaults must be plain values without quotes wrapper!"
+priority: high
+globs:
+  - "schemas/**/*.yaml"
+  - "schemas/**/*.yml"
+  - "database/migrations/**"
+tags:
+  - schema
+  - workflow
 ---
 
 # Omnify Schema Creation Workflow
 
-> **Usage:** This rule auto-applies when editing schema files, or mention `@omnify-schema` in chat
+> **Usage:** Mention `@schema-create` in chat OR this rule auto-applies when editing schema files
 
 ## 📋 Workflow Steps
 
@@ -185,14 +192,14 @@ cat app/Models/{ModelName}.php
 
 ### Validation Checklist
 
-| Check | What to Verify |
-|-------|----------------|
-| ✅ Column names | snake_case in migration matches schema |
-| ✅ Column types | VARCHAR, TEXT, INT match schema types |
-| ✅ Nullable | NULL/NOT NULL matches `nullable: true/false` |
-| ✅ Defaults | DEFAULT values match `default:` in schema |
-| ✅ Foreign keys | Relationships generate correct FK |
-| ✅ Indexes | Required indexes are present |
+| Check          | What to Verify                               |
+| -------------- | -------------------------------------------- |
+| ✅ Column names | snake_case in migration matches schema       |
+| ✅ Column types | VARCHAR, TEXT, INT match schema types        |
+| ✅ Nullable     | NULL/NOT NULL matches `nullable: true/false` |
+| ✅ Defaults     | DEFAULT values match `default:` in schema    |
+| ✅ Foreign keys | Relationships generate correct FK            |
+| ✅ Indexes      | Required indexes are present                 |
 
 ### If Generated Code is Wrong
 
@@ -252,6 +259,16 @@ updated_at:
   type: Timestamp
   useCurrent: true
   useCurrentOnUpdate: true    # ON UPDATE CURRENT_TIMESTAMP
+
+# ❌ WRONG - UUID() function
+external_id:
+  type: Uuid
+  default: UUID()             # ERROR!
+
+# ✅ CORRECT - Static value or nullable
+external_id:
+  type: Uuid
+  nullable: true              # Let application generate
 ```
 
 ---
@@ -295,45 +312,50 @@ php artisan migrate
 
 ### Property Types
 
-| Type | SQL | TypeScript |
-|------|-----|------------|
-| `String` | VARCHAR | `string` |
-| `Text` | TEXT | `string` |
-| `LongText` | LONGTEXT | `string` |
-| `Int` | INT | `number` |
-| `BigInt` | BIGINT | `number` |
-| `Float` | DECIMAL | `number` |
-| `Boolean` | BOOLEAN | `boolean` |
-| `Date` | DATE | `string` |
-| `DateTime` | DATETIME | `string` |
-| `Email` | VARCHAR | `string` |
-| `Url` | VARCHAR | `string` |
-| `Json` | JSON | `Record<string, unknown>` |
+| Type       | SQL      | TypeScript                |
+| ---------- | -------- | ------------------------- |
+| `String`   | VARCHAR  | `string`                  |
+| `Text`     | TEXT     | `string`                  |
+| `LongText` | LONGTEXT | `string`                  |
+| `Int`      | INT      | `number`                  |
+| `BigInt`   | BIGINT   | `number`                  |
+| `Float`    | DECIMAL  | `number`                  |
+| `Boolean`  | BOOLEAN  | `boolean`                 |
+| `Date`     | DATE     | `string`                  |
+| `DateTime` | DATETIME | `string`                  |
+| `Email`    | VARCHAR  | `string`                  |
+| `Url`      | VARCHAR  | `string`                  |
+| `Json`     | JSON     | `Record<string, unknown>` |
 
 ### Japanese Compound Types
 
-| Type | Fields Generated |
-|------|------------------|
-| `JapaneseName` | `{prefix}_lastname`, `{prefix}_firstname`, `{prefix}_kana_lastname`, `{prefix}_kana_firstname` |
-| `JapaneseAddress` | `{prefix}_postal_code`, `{prefix}_prefecture`, `{prefix}_address1`, `{prefix}_address2`, `{prefix}_address3` |
-| `JapaneseBankAccount` | `{prefix}_bank_code`, `{prefix}_bank_name`, `{prefix}_branch_code`, etc. |
+| Type                  | Fields Generated                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `JapaneseName`        | `{prefix}_lastname`, `{prefix}_firstname`, `{prefix}_kana_lastname`, `{prefix}_kana_firstname`               |
+| `JapaneseAddress`     | `{prefix}_postal_code`, `{prefix}_prefecture`, `{prefix}_address1`, `{prefix}_address2`, `{prefix}_address3` |
+| `JapaneseBankAccount` | `{prefix}_bank_code`, `{prefix}_bank_name`, `{prefix}_branch_code`, etc.                                     |
 
 ### Relationship Types
 
-| Relation | Description | Foreign Key |
-|----------|-------------|-------------|
-| `belongsTo` | N:1 | `{property}_id` on this table |
-| `hasMany` | 1:N | `{this_model}_id` on related table |
-| `hasOne` | 1:1 | `{this_model}_id` on related table |
-| `belongsToMany` | N:N | Pivot table |
+| Relation        | Description | Foreign Key                        |
+| --------------- | ----------- | ---------------------------------- |
+| `belongsTo`     | N:1         | `{property}_id` on this table      |
+| `hasMany`       | 1:N         | `{this_model}_id` on related table |
+| `hasOne`        | 1:1         | `{this_model}_id` on related table |
+| `belongsToMany` | N:N         | Pivot table                        |
 
 ---
 
 ## ⚠️ Common Mistakes
 
 ```yaml
-# ❌ Wrong: camelCase property name (use camelCase, converts to snake_case)
-firstName:  # ✅ Correct - will become first_name in DB
+# ❌ CRITICAL: String defaults with quotes produce CURLY QUOTES!
+default: "'cloud'"     # ❌ Produces: ''cloud'' (broken!)
+default: "'member'"    # ❌ Produces: ''member'' (broken!)
+
+# ✅ CORRECT: Just the value, no quotes wrapper
+default: cloud         # ✅ Produces: 'cloud'
+default: member        # ✅ Produces: 'member'
 
 # ❌ Wrong: Missing displayName for non-English projects
 name:
@@ -355,4 +377,71 @@ status:
 # ✅ Correct: Create separate enum schema
 status:
   type: PostStatus  # Reference enum schema
+```
+
+---
+
+## 🔌 Partial Schema (Package Extensions)
+
+Partial schemas allow packages to extend or provide default schemas.
+
+**Target = Filename** (no `target` field needed):
+
+```yaml
+# packages/sso-client/schemas/User.yaml
+kind: partial
+priority: 10  # Lower = higher priority
+
+properties:
+  sso_token:
+    type: String
+    nullable: true
+  console_user_id:
+    type: BigInt
+    nullable: true
+```
+
+### Behavior
+
+| Scenario                    | Result                      |
+| --------------------------- | --------------------------- |
+| Main app has `User.yaml`    | Partial merges into main    |
+| Main app has NO `User.yaml` | Partial becomes User schema |
+
+### Priority System
+
+```yaml
+priority: 10  # High (1-49): Core packages
+priority: 50  # Default: Feature modules  
+priority: 90  # Low (51-100): Customizations
+```
+
+**For detailed guide:** See `.claude/omnify/guides/omnify/partial-schema-guide.md`
+
+---
+
+## 📦 Load Schemas from Laravel Package
+
+Configure additional schema paths in `omnify.config.ts`:
+
+```typescript
+const config: OmnifyConfig = {
+  schemasDir: './schemas',
+
+  // Additional schema paths from packages
+  additionalSchemaPaths: [
+    {
+      path: './packages/your-package/database/schemas',
+      namespace: 'YourPackage',
+    },
+  ],
+
+  // ... other config
+};
+```
+
+Then generate:
+
+```bash
+npx omnify generate
 ```

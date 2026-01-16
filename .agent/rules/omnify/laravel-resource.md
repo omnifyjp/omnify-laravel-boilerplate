@@ -1,7 +1,12 @@
 ---
+id: laravel-resource
 description: "Laravel API Resource rules: OpenAPI schema MUST match toArray() output, extend OmnifyBase for auto-generated fields, use whenLoaded() for relations. Apply when editing Resource classes."
-globs: ["app/Http/Resources/**/*.php"]
-alwaysApply: false
+priority: medium
+globs:
+  - "app/Http/Resources/**/*.php"
+tags:
+  - laravel
+  - resource
 ---
 
 # Resource Rules

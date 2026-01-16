@@ -1,7 +1,12 @@
 ---
+id: laravel-testing
 description: "PEST testing guide: 正常系 (happy path) + 異常系 (error cases), Japanese naming conventions, RefreshDatabase trait, and factory usage. Apply when writing or reviewing tests."
-globs: ["tests/**/*.php"]
-alwaysApply: false
+priority: medium
+globs:
+  - "tests/**/*.php"
+tags:
+  - laravel
+  - testing
 ---
 
 # Testing Rules (PEST)

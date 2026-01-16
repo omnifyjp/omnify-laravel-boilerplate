@@ -1,9 +1,3 @@
----
-paths:
-  - "schemas/**/*.yaml"
-  - "schemas/**/*.yml"
----
-
 # Omnify Schema Rules
 
 ## Schema Workflow

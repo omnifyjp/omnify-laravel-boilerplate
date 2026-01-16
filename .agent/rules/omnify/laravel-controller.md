@@ -1,7 +1,12 @@
 ---
+id: laravel-controller
 description: "Laravel controller patterns: thin controllers with query builder, OpenAPI documentation (NO /api prefix!), validation with $request->validated(), and proper Resource usage. Apply when creating or editing controllers."
-globs: ["app/Http/Controllers/**/*.php"]
-alwaysApply: false
+priority: medium
+globs:
+  - "app/Http/Controllers/**/*.php"
+tags:
+  - laravel
+  - controller
 ---
 
 # Controller Rules

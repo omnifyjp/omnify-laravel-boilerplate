@@ -1,8 +1,3 @@
----
-paths:
-  - "app/**/*.php"
----
-
 # Security Rules
 
 > **Non-negotiable rules** for Laravel security. Violations = vulnerabilities.

@@ -1,8 +1,3 @@
----
-paths:
-  - "resources/ts/**/*.tsx"
----
-
 # React + Ant Design Rules
 
 ## Core Patterns

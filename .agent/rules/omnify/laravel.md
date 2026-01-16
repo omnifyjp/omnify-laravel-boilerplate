@@ -1,7 +1,11 @@
 ---
+id: laravel
 description: "Laravel backend rules for Omnify projects: schema-first migrations, thin controllers, security patterns, and code generation. Apply when working with Laravel controllers, models, migrations, or API endpoints."
-globs: ["app/**/*.php", "packages/omnify-sso-client/src/**/*.php"]
-alwaysApply: false
+priority: medium
+globs:
+  - "app/**/*.php"
+tags:
+  - laravel
 ---
 
 # Laravel Rules

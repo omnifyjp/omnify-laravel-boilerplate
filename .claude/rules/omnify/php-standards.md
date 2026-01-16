@@ -1,8 +1,3 @@
----
-paths:
-  - "app/**/*.php"
----
-
 # PHP Standards & Best Practices
 
 > **PHP 8+ features** and coding standards for Laravel projects.

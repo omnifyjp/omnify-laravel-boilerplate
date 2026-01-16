@@ -1,7 +1,12 @@
 ---
+id: migrations-workflow
 description: "Schema-first workflow for database changes. NEVER use php artisan make:migration - always edit schemas/*.yaml and run npx omnify generate instead. This rule enforces the correct workflow when working with migrations."
-globs: ["database/migrations/*.php"]
-alwaysApply: true
+priority: medium
+globs:
+  - "database/migrations/*.php"
+tags:
+  - migrations
+  - workflow
 ---
 
 # ⛔ STOP: DO NOT CREATE MIGRATIONS MANUALLY

@@ -1,8 +1,3 @@
----
-paths:
-  - "database/migrations/**/*.php"
----
-
 # ⛔ STOP: Migration Rules
 
 ## Auto-Generated Migrations (DO NOT EDIT)

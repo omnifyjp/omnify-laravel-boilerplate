@@ -1,8 +1,3 @@
----
-paths:
-  - "app/**/*.php"
----
-
 # Performance & Quality Rules
 
 > **Non-negotiable rules** for Laravel performance and code quality.

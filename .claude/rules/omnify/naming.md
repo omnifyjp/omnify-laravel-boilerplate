@@ -1,8 +1,3 @@
----
-paths:
-  - "app/**/*.php"
----
-
 # Naming Conventions Guide
 
 > **Related:** [README](./README.md) | [Testing Guide](./testing-guide.md)

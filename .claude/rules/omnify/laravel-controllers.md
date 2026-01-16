@@ -1,8 +1,3 @@
----
-paths:
-  - "app/Http/Controllers/**/*.php"
----
-
 # Laravel Controller Rules
 
 ## Thin Controller Pattern

@@ -1,7 +1,12 @@
 ---
+id: omnify-migrations
 description: "STOP! These are auto-generated Omnify migrations. DO NOT EDIT these files - edit schemas/*.yaml instead and run npx omnify generate"
-globs: ["database/migrations/omnify/**/*.php"]
-alwaysApply: true
+priority: high
+globs:
+  - "database/migrations/omnify/**/*.php"
+tags:
+  - omnify
+  - migrations
 ---
 
 # ⛔ CRITICAL: DO NOT EDIT OMNIFY MIGRATIONS

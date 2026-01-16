@@ -1,7 +1,14 @@
 ---
+id: omnify-schema
 description: "Omnify schema YAML syntax and examples. Apply when creating or editing schema files in schemas/ folder. Covers property types, relationships, validations, and Japanese compound types."
-globs: ["schemas/**/*.yaml", "schemas/**/*.yml", "database/migrations/**"]
-alwaysApply: false
+priority: high
+globs:
+  - "schemas/**/*.yaml"
+  - "schemas/**/*.yml"
+  - "database/migrations/**"
+tags:
+  - omnify
+  - schema
 ---
 
 # Omnify Schema Creation Workflow

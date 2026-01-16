@@ -1,8 +1,3 @@
----
-paths:
-  - "tests/**/*.php"
----
-
 # Testing Rules (PEST)
 
 ## Test Naming Convention (Japanese Style)

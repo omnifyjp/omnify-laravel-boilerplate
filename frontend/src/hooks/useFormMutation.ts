@@ -6,20 +6,13 @@
  * - Pre-configured translateFn (next-intl)
  */
 
-import { useFormMutation as useFormMutationBase, type UseFormMutationOptions as BaseOptions } from "@famgia/omnify-react";
+import { useFormMutation as useFormMutationBase } from "@famgia/omnify-react";
 import type { FormInstance } from "antd";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-// Re-export types and helpers from package
-export {
-    type FormMutationRouter,
-    type TranslateFn,
-    type FormFieldError,
-    getFormErrors,
-    getValidationMessage,
-    getFirstValidationError,
-} from "@famgia/omnify-react";
+// Re-export helpers from package (for direct use if needed)
+export { getFormErrors, getValidationMessage, getFirstValidationError } from "@famgia/omnify-react";
 
 /** App-specific options (router and translateFn are auto-provided) */
 interface UseFormMutationOptions<TData, TResult> {

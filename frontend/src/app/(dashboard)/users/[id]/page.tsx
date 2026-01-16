@@ -73,7 +73,7 @@ export default function UserDetailPage({ params }: PageProps) {
             <Button icon={<ArrowLeftOutlined />}>{t("common.back")}</Button>
           </Link>
           <Title level={2} style={{ margin: 0 }}>
-            {user.name_full_name ?? `${user.name_lastname} ${user.name_firstname}`}
+            {user.name}
           </Title>
         </Space>
         <Space>
@@ -99,7 +99,7 @@ export default function UserDetailPage({ params }: PageProps) {
         <Descriptions column={1} bordered>
           <Descriptions.Item label="ID">{user.id}</Descriptions.Item>
           <Descriptions.Item label={getUserFieldLabel("name", locale)}>
-            {user.name_full_name ?? `${user.name_lastname} ${user.name_firstname}`}
+            {user.name}
           </Descriptions.Item>
           <Descriptions.Item label={getUserFieldLabel("email", locale)}>
             {user.email}

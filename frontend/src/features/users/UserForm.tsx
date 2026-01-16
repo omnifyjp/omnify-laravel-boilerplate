@@ -1,11 +1,11 @@
 "use client";
 
-import { Form, Input, Button, Space, Card, Row, Col } from "antd";
+import { Form, Input, Button, Space, Card } from "antd";
 import type { FormInstance } from "antd";
 import { useTranslations, useLocale } from "next-intl";
+import { zodRule, setZodLocale } from "@famgia/omnify-react";
 import type { User } from "@/omnify/schemas";
 import { userSchemas, getUserFieldLabel } from "@/omnify/schemas";
-import { zodRule, setZodLocale } from "@/omnify/lib";
 
 // =============================================================================
 // Types
@@ -53,52 +53,13 @@ export function UserForm({
         onFinish={onSubmit}
         style={{ maxWidth: 800 }}
       >
-        {/* 名前 (姓・名) / Name */}
-        <Form.Item label={label("name_lastname")} required style={{ marginBottom: 0 }}>
-          <Row gutter={8}>
-            <Col span={12}>
-              <Form.Item
-                name="name_lastname"
-                rules={[zodRule(userSchemas.name_lastname, label("name_lastname"))]}
-                style={{ marginBottom: 16 }}
-              >
-                <Input placeholder={label("name_lastname")} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="name_firstname"
-                rules={[zodRule(userSchemas.name_firstname, label("name_firstname"))]}
-                style={{ marginBottom: 16 }}
-              >
-                <Input placeholder={label("name_firstname")} />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form.Item>
-
-        {/* 名前カナ (姓・名) / Name Kana */}
-        <Form.Item label={label("name_kana_lastname")} required style={{ marginBottom: 0 }}>
-          <Row gutter={8}>
-            <Col span={12}>
-              <Form.Item
-                name="name_kana_lastname"
-                rules={[zodRule(userSchemas.name_kana_lastname, label("name_kana_lastname"))]}
-                style={{ marginBottom: 16 }}
-              >
-                <Input placeholder={label("name_kana_lastname")} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="name_kana_firstname"
-                rules={[zodRule(userSchemas.name_kana_firstname, label("name_kana_firstname"))]}
-                style={{ marginBottom: 16 }}
-              >
-                <Input placeholder={label("name_kana_firstname")} />
-              </Form.Item>
-            </Col>
-          </Row>
+        {/* 名前 / Name */}
+        <Form.Item
+          name="name"
+          label={label("name")}
+          rules={[zodRule(userSchemas.name, label("name"))]}
+        >
+          <Input placeholder={label("name")} />
         </Form.Item>
 
         {/* メールアドレス / Email */}

@@ -27,8 +27,8 @@ import {
 } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
-import { useSso } from "@famgia/sso-react";
-import { ssoService, Role, Permission } from "@/services/sso";
+import { useSso } from "@famgia/omnify-client-sso-react";
+import { ssoService, Role, Permission } from "@/lib/ssoService";
 import { queryKeys } from "@/lib/queryKeys";
 import type { ColumnsType } from "antd/es/table";
 

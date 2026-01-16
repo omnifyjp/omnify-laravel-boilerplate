@@ -7,9 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useFormMutation } from "@famgia/omnify-react";
 import { userService } from "@/services/users";
 import { queryKeys } from "@/lib/queryKeys";
-import { useFormMutation } from "@/omnify/hooks";
 import { UserForm } from "@/features/users/UserForm";
 import type { UserUpdate } from "@/omnify/schemas";
 
@@ -67,7 +67,7 @@ export default function EditUserPage({ params }: PageProps) {
           <Button icon={<ArrowLeftOutlined />}>{t("common.back")}</Button>
         </Link>
         <Title level={2} style={{ margin: 0 }}>
-          {t("common.edit")} - {user.name_full_name ?? `${user.name_lastname} ${user.name_firstname}`}
+          {t("common.edit")} - {user.name}
         </Title>
       </Space>
 

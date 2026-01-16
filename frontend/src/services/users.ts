@@ -15,8 +15,7 @@ import type { User, UserCreate, UserUpdate } from "@/omnify/schemas";
 /** Sort fields from api-docs.json enum */
 export type UserSortField =
   | "id" | "-id"
-  | "name_lastname" | "-name_lastname"
-  | "name_firstname" | "-name_firstname"
+  | "name" | "-name"
   | "email" | "-email"
   | "created_at" | "-created_at"
   | "updated_at" | "-updated_at";

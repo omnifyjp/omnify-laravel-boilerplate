@@ -27,11 +27,11 @@ import {
     CrownOutlined,
     IdcardOutlined,
 } from '@ant-design/icons';
-import { useSso } from '@famgia/sso-react';
+import { useSso } from '@famgia/omnify-client-sso-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ssoService, Role, Permission } from '@/services/sso';
+import { ssoService, Role, Permission } from '@/lib/ssoService';
 import { queryKeys } from '@/lib/queryKeys';
 import type { ColumnsType } from 'antd/es/table';
 

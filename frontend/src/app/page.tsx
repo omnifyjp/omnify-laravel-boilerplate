@@ -4,7 +4,7 @@ import { Button, Card, Space, Typography, Avatar, Divider } from "antd";
 import { GithubOutlined, RocketOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
-import { useSso } from "@famgia/sso-react";
+import { useSso } from "@famgia/omnify-client-sso-react";
 
 const { Title, Paragraph, Text } = Typography;
 

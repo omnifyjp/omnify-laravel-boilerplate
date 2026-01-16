@@ -14,20 +14,20 @@ import type { DateTimeString } from '../common';
 import type { Permission } from './Permission';
 
 /**
- * ロール
+ * Role
  */
 export interface Role {
   /** Primary key */
   id: number;
-  /** ロール名 */
+  /** Role Name */
   name: string;
-  /** スラッグ */
+  /** Slug */
   slug: string;
-  /** 説明 */
+  /** Description */
   description?: string;
-  /** レベル */
+  /** Level */
   level: number;
-  /** 権限 */
+  /** Permissions */
   permissions: Permission[];
   /** Creation timestamp */
   created_at?: DateTimeString;
@@ -45,23 +45,23 @@ export interface Role {
  */
 export const roleI18n = {
   /** Model display name */
-  label: {"ja":"ロール","en":"Role","vi":"Vai trò"},
+  label: {"en":"Role"},
   /** Field labels and placeholders */
   fields: {
     name: {
-      label: {"ja":"ロール名","en":"Role Name","vi":"Tên vai trò"},
+      label: {"en":"Role Name"},
     },
     slug: {
-      label: {"ja":"スラッグ","en":"Slug","vi":"Slug"},
+      label: {"en":"Slug"},
     },
     description: {
-      label: {"ja":"説明","en":"Description","vi":"Mô tả"},
+      label: {"en":"Description"},
     },
     level: {
-      label: {"ja":"レベル","en":"Level","vi":"Cấp độ"},
+      label: {"en":"Level"},
     },
     permissions: {
-      label: {"ja":"権限","en":"Permissions","vi":"Quyền hạn"},
+      label: {"en":"Permissions"},
     },
   },
 } as const;

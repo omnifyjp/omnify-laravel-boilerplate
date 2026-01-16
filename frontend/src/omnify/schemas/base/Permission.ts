@@ -14,18 +14,18 @@ import type { DateTimeString } from '../common';
 import type { Role } from './Role';
 
 /**
- * 権限
+ * Permission
  */
 export interface Permission {
   /** Primary key */
   id: number;
-  /** 権限名 */
+  /** Permission Name */
   name: string;
-  /** スラッグ */
+  /** Slug */
   slug: string;
-  /** グループ */
+  /** Group */
   group?: string;
-  /** ロール */
+  /** Roles */
   roles: Role[];
   /** Creation timestamp */
   created_at?: DateTimeString;
@@ -43,20 +43,20 @@ export interface Permission {
  */
 export const permissionI18n = {
   /** Model display name */
-  label: {"ja":"権限","en":"Permission","vi":"Quyền hạn"},
+  label: {"en":"Permission"},
   /** Field labels and placeholders */
   fields: {
     name: {
-      label: {"ja":"権限名","en":"Permission Name","vi":"Tên quyền"},
+      label: {"en":"Permission Name"},
     },
     slug: {
-      label: {"ja":"スラッグ","en":"Slug","vi":"Slug"},
+      label: {"en":"Slug"},
     },
     group: {
-      label: {"ja":"グループ","en":"Group","vi":"Nhóm"},
+      label: {"en":"Group"},
     },
     roles: {
-      label: {"ja":"ロール","en":"Roles","vi":"Vai trò"},
+      label: {"en":"Roles"},
     },
   },
 } as const;

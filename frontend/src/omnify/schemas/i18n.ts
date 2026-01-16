@@ -25,7 +25,7 @@ export const fallbackLocale = 'en' as const;
 /**
  * Supported locales in this project.
  */
-export const supportedLocales = ["ja","en","vi"] as const;
+export const supportedLocales = ["ja","en"] as const;
 
 /**
  * Validation messages for all supported locales.
@@ -34,43 +34,35 @@ export const supportedLocales = ["ja","en","vi"] as const;
 export const validationMessages = {
   "required": {
     "ja": "${displayName}は必須です",
-    "en": "${displayName} is required",
-    "vi": "${displayName} là bắt buộc"
+    "en": "${displayName} is required"
   },
   "minLength": {
     "ja": "${displayName}は${min}文字以上で入力してください",
-    "en": "${displayName} must be at least ${min} characters",
-    "vi": "${displayName} phải có ít nhất ${min} ký tự"
+    "en": "${displayName} must be at least ${min} characters"
   },
   "maxLength": {
     "ja": "${displayName}は${max}文字以内で入力してください",
-    "en": "${displayName} must be at most ${max} characters",
-    "vi": "${displayName} không được quá ${max} ký tự"
+    "en": "${displayName} must be at most ${max} characters"
   },
   "min": {
     "ja": "${displayName}は${min}以上で入力してください",
-    "en": "${displayName} must be at least ${min}",
-    "vi": "${displayName} phải lớn hơn hoặc bằng ${min}"
+    "en": "${displayName} must be at least ${min}"
   },
   "max": {
     "ja": "${displayName}は${max}以下で入力してください",
-    "en": "${displayName} must be at most ${max}",
-    "vi": "${displayName} phải nhỏ hơn hoặc bằng ${max}"
+    "en": "${displayName} must be at most ${max}"
   },
   "email": {
     "ja": "有効なメールアドレスを入力してください",
-    "en": "Please enter a valid email address",
-    "vi": "Vui lòng nhập địa chỉ email hợp lệ"
+    "en": "Please enter a valid email address"
   },
   "url": {
     "ja": "有効なURLを入力してください",
-    "en": "Please enter a valid URL",
-    "vi": "Vui lòng nhập URL hợp lệ"
+    "en": "Please enter a valid URL"
   },
   "pattern": {
     "ja": "${displayName}の形式が正しくありません",
-    "en": "${displayName} format is invalid",
-    "vi": "${displayName} không đúng định dạng"
+    "en": "${displayName} format is invalid"
   }
 } as const;
 

@@ -3,9 +3,9 @@
 import { Typography, Form } from "antd";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useFormMutation } from "@famgia/omnify-react";
 import { userService } from "@/services/users";
 import { queryKeys } from "@/lib/queryKeys";
-import { useFormMutation } from "@/omnify/hooks";
 import { UserForm } from "@/features/users/UserForm";
 import type { UserCreate } from "@/omnify/schemas";
 

@@ -20,7 +20,7 @@ export interface LocaleMap {
 /**
  * Supported locales in this project.
  */
-export type Locale = 'ja' | 'en' | 'vi';
+export type Locale = 'ja' | 'en';
 
 /**
  * Validation rule with multi-locale messages.

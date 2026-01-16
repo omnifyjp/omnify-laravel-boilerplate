@@ -15,14 +15,14 @@ import type { Permission } from './Permission';
 import type { Role } from './Role';
 
 /**
- * ロール権限
+ * Role Permission
  */
 export interface RolePermission {
   /** Primary key */
   id: number;
-  /** ロール */
+  /** Role */
   role: Role;
-  /** 権限 */
+  /** Permission */
   permission: Permission;
   /** Creation timestamp */
   created_at?: DateTimeString;
@@ -40,14 +40,14 @@ export interface RolePermission {
  */
 export const rolePermissionI18n = {
   /** Model display name */
-  label: {"ja":"ロール権限","en":"Role Permission","vi":"Quyền vai trò"},
+  label: {"en":"Role Permission"},
   /** Field labels and placeholders */
   fields: {
     role: {
-      label: {"ja":"ロール","en":"Role","vi":"Vai trò"},
+      label: {"en":"Role"},
     },
     permission: {
-      label: {"ja":"権限","en":"Permission","vi":"Quyền hạn"},
+      label: {"en":"Permission"},
     },
   },
 } as const;

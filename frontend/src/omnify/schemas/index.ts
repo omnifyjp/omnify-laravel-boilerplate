@@ -29,21 +29,21 @@ export {
   isBankAccountType,
   getBankAccountTypeLabel,
   getBankAccountTypeExtra,
-} from '../enum/plugin/BankAccountType';
+} from '@omnify-client/enum/BankAccountType';
 export {
   Prefecture,
   PrefectureValues,
   isPrefecture,
   getPrefectureLabel,
   getPrefectureExtra,
-} from '../enum/plugin/Prefecture';
+} from '@omnify-client/enum/Prefecture';
 export {
   PrefectureCode,
   PrefectureCodeValues,
   isPrefectureCode,
   getPrefectureCodeLabel,
   getPrefectureCodeExtra,
-} from '../enum/plugin/PrefectureCode';
+} from '@omnify-client/enum/PrefectureCode';
 
 // Models (with Zod schemas, i18n, and Create/Update types)
 export type { User, UserCreate, UserUpdate } from './User';

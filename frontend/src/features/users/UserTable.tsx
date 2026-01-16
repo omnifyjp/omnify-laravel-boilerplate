@@ -48,9 +48,7 @@ export function UserTable({
     },
     {
       title: "Name",
-      key: "name",
-      render: (_, record) =>
-        record.name_full_name ?? `${record.name_lastname} ${record.name_firstname}`,
+      dataIndex: "name",
     },
     {
       title: "Created",

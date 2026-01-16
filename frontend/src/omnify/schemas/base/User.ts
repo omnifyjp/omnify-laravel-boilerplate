@@ -14,20 +14,20 @@ import type { DateTimeString } from '../common';
 import type { Role } from './Role';
 
 /**
- * ユーザー
+ * User
  */
 export interface User {
   /** Primary key */
   id: number;
-  /** 名前 */
+  /** Name */
   name: string;
-  /** メールアドレス */
+  /** Email */
   email: string;
-  /** メール確認日時 */
+  /** Email Verified At */
   email_verified_at?: DateTimeString;
-  /** パスワード */
+  /** Password */
   password: string;
-  /** リメンバートークン */
+  /** Remember Token */
   remember_token?: string;
   /** Console User ID */
   console_user_id?: number;
@@ -35,9 +35,9 @@ export interface User {
   console_access_token?: string;
   /** Console Refresh Token */
   console_refresh_token?: string;
-  /** Console Token有効期限 */
+  /** Console Token Expiry */
   console_token_expires_at?: DateTimeString;
-  /** ロール */
+  /** Role */
   role?: Role;
   /** Creation timestamp */
   created_at?: DateTimeString;
@@ -55,38 +55,38 @@ export interface User {
  */
 export const userI18n = {
   /** Model display name */
-  label: {"ja":"ユーザー","en":"User","vi":"Người dùng"},
+  label: {"en":"User"},
   /** Field labels and placeholders */
   fields: {
     name: {
-      label: {"ja":"名前","en":"Name","vi":"Tên"},
+      label: {"en":"Name"},
     },
     email: {
-      label: {"ja":"メールアドレス","en":"Email","vi":"Email"},
+      label: {"en":"Email"},
     },
     email_verified_at: {
-      label: {"ja":"メール確認日時","en":"Email Verified At","vi":"Ngày xác thực email"},
+      label: {"en":"Email Verified At"},
     },
     password: {
-      label: {"ja":"パスワード","en":"Password","vi":"Mật khẩu"},
+      label: {"en":"Password"},
     },
     remember_token: {
-      label: {"ja":"リメンバートークン","en":"Remember Token","vi":"Token ghi nhớ"},
+      label: {"en":"Remember Token"},
     },
     console_user_id: {
-      label: {"ja":"Console User ID","en":"Console User ID","vi":"Console User ID"},
+      label: {"en":"Console User ID"},
     },
     console_access_token: {
-      label: {"ja":"Console Access Token","en":"Console Access Token","vi":"Console Access Token"},
+      label: {"en":"Console Access Token"},
     },
     console_refresh_token: {
-      label: {"ja":"Console Refresh Token","en":"Console Refresh Token","vi":"Console Refresh Token"},
+      label: {"en":"Console Refresh Token"},
     },
     console_token_expires_at: {
-      label: {"ja":"Console Token有効期限","en":"Console Token Expiry","vi":"Hạn Token Console"},
+      label: {"en":"Console Token Expiry"},
     },
     role: {
-      label: {"ja":"ロール","en":"Role","vi":"Vai trò"},
+      label: {"en":"Role"},
     },
   },
 } as const;

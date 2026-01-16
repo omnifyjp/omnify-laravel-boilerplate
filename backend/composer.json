@@ -10,11 +10,8 @@
     "license": "MIT",
     "repositories": [
         {
-            "type": "path",
-            "url": "/var/www/packages/omnify-sso-client",
-            "options": {
-                "symlink": true
-            }
+            "type": "vcs",
+            "url": "https://github.com/omnifyjp/omnify-client-laravel-sso"
         }
     ],
     "require": {
@@ -27,7 +24,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "lcobucci/jwt": "^5.0",
-        "omnify/sso-client": "@dev",
+        "omnifyjp/omnify-client-laravel-sso": "^1.1",
         "spatie/laravel-query-builder": "^6.4"
     },
     "require-dev": {
@@ -102,7 +99,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "omnifyjp/omnify-client-laravel-sso": true
         }
     },
     "minimum-stability": "stable",

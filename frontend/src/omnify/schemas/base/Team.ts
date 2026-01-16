@@ -13,7 +13,7 @@ import { z } from 'zod';
 import type { DateTimeString } from '../common';
 
 /**
- * チーム
+ * Team
  */
 export interface Team {
   /** Primary key */
@@ -22,7 +22,7 @@ export interface Team {
   console_team_id: number;
   /** Console Organization ID */
   console_org_id: number;
-  /** チーム名 */
+  /** Team Name */
   name: string;
   /** Creation timestamp */
   created_at?: DateTimeString;
@@ -42,17 +42,17 @@ export interface Team {
  */
 export const teamI18n = {
   /** Model display name */
-  label: {"ja":"チーム","en":"Team","vi":"Nhóm"},
+  label: {"en":"Team"},
   /** Field labels and placeholders */
   fields: {
     console_team_id: {
-      label: {"ja":"Console Team ID","en":"Console Team ID","vi":"Console Team ID"},
+      label: {"en":"Console Team ID"},
     },
     console_org_id: {
-      label: {"ja":"Console Organization ID","en":"Console Organization ID","vi":"Console Organization ID"},
+      label: {"en":"Console Organization ID"},
     },
     name: {
-      label: {"ja":"チーム名","en":"Team Name","vi":"Tên nhóm"},
+      label: {"en":"Team Name"},
     },
   },
 } as const;

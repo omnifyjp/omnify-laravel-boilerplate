@@ -14,7 +14,7 @@ import type { DateTimeString } from '../common';
 import type { Permission } from './Permission';
 
 /**
- * チーム権限
+ * Team Permission
  */
 export interface TeamPermission {
   /** Primary key */
@@ -23,7 +23,7 @@ export interface TeamPermission {
   console_org_id: number;
   /** Console Team ID */
   console_team_id: number;
-  /** 権限 */
+  /** Permission */
   permission: Permission;
   /** Creation timestamp */
   created_at?: DateTimeString;
@@ -43,17 +43,17 @@ export interface TeamPermission {
  */
 export const teamPermissionI18n = {
   /** Model display name */
-  label: {"ja":"チーム権限","en":"Team Permission","vi":"Quyền nhóm"},
+  label: {"en":"Team Permission"},
   /** Field labels and placeholders */
   fields: {
     console_org_id: {
-      label: {"ja":"Console Organization ID","en":"Console Organization ID","vi":"Console Organization ID"},
+      label: {"en":"Console Organization ID"},
     },
     console_team_id: {
-      label: {"ja":"Console Team ID","en":"Console Team ID","vi":"Console Team ID"},
+      label: {"en":"Console Team ID"},
     },
     permission: {
-      label: {"ja":"権限","en":"Permission","vi":"Quyền hạn"},
+      label: {"en":"Permission"},
     },
   },
 } as const;

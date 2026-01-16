@@ -26,19 +26,43 @@ class TeamPermissionAdminController extends Controller
     #[OA\Get(
         path: '/api/admin/sso/teams/permissions',
         summary: 'List team permissions',
-        description: 'List all teams with their assigned permissions',
+        description: 'List all teams with their assigned permissions for the current organization',
         tags: ['SSO Team Permissions'],
         security: [['sanctum' => []]],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Teams with permissions',
+                description: 'Teams with their assigned permissions',
                 content: new OA\JsonContent(
                     properties: [
-                        new OA\Property(property: 'teams', type: 'array', items: new OA\Items(type: 'object')),
+                        new OA\Property(
+                            property: 'teams',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'console_team_id', type: 'integer', example: 12345),
+                                    new OA\Property(property: 'name', type: 'string', example: 'Development Team'),
+                                    new OA\Property(property: 'path', type: 'string', nullable: true, example: '/engineering/development'),
+                                    new OA\Property(
+                                        property: 'permissions',
+                                        type: 'array',
+                                        items: new OA\Items(
+                                            properties: [
+                                                new OA\Property(property: 'id', type: 'integer'),
+                                                new OA\Property(property: 'slug', type: 'string'),
+                                            ],
+                                            type: 'object'
+                                        )
+                                    ),
+                                ],
+                                type: 'object'
+                            )
+                        ),
                     ]
                 )
             ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden - requires admin role'),
         ]
     )]
     public function index(Request $request): JsonResponse
@@ -88,10 +112,43 @@ class TeamPermissionAdminController extends Controller
     #[OA\Get(
         path: '/api/admin/sso/teams/{teamId}/permissions',
         summary: 'Get team permissions',
+        description: 'Get all permissions assigned to a specific team',
         tags: ['SSO Team Permissions'],
         security: [['sanctum' => []]],
-        parameters: [new OA\Parameter(name: 'teamId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
-        responses: [new OA\Response(response: 200, description: 'Team permissions')]
+        parameters: [
+            new OA\Parameter(
+                name: 'teamId',
+                in: 'path',
+                required: true,
+                description: 'Console team ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Team permissions',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'console_team_id', type: 'integer', example: 12345),
+                        new OA\Property(
+                            property: 'permissions',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'id', type: 'integer'),
+                                    new OA\Property(property: 'slug', type: 'string'),
+                                    new OA\Property(property: 'name', type: 'string'),
+                                ],
+                                type: 'object'
+                            )
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden - requires admin role'),
+        ]
     )]
     public function show(Request $request, int $teamId): JsonResponse
     {
@@ -120,11 +177,55 @@ class TeamPermissionAdminController extends Controller
     #[OA\Put(
         path: '/api/admin/sso/teams/{teamId}/permissions',
         summary: 'Sync team permissions',
+        description: 'Replace all permissions for a team with the provided list',
         tags: ['SSO Team Permissions'],
         security: [['sanctum' => []]],
-        parameters: [new OA\Parameter(name: 'teamId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
-        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(required: ['permissions'], properties: [new OA\Property(property: 'permissions', type: 'array', items: new OA\Items(oneOf: [new OA\Schema(type: 'integer'), new OA\Schema(type: 'string')]))])),
-        responses: [new OA\Response(response: 200, description: 'Permissions synced')]
+        parameters: [
+            new OA\Parameter(
+                name: 'teamId',
+                in: 'path',
+                required: true,
+                description: 'Console team ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['permissions'],
+                properties: [
+                    new OA\Property(
+                        property: 'permissions',
+                        type: 'array',
+                        description: 'Array of permission IDs or slugs',
+                        items: new OA\Items(
+                            oneOf: [
+                                new OA\Schema(type: 'integer', example: 1),
+                                new OA\Schema(type: 'string', example: 'projects.create'),
+                            ]
+                        ),
+                        example: [1, 2, 'projects.create']
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Permissions synced successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Team permissions synced'),
+                        new OA\Property(property: 'console_team_id', type: 'integer', example: 12345),
+                        new OA\Property(property: 'attached', type: 'integer', description: 'Number of permissions added', example: 2),
+                        new OA\Property(property: 'detached', type: 'integer', description: 'Number of permissions removed', example: 1),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden - requires admin role'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
     )]
     public function sync(Request $request, int $teamId): JsonResponse
     {
@@ -194,10 +295,23 @@ class TeamPermissionAdminController extends Controller
     #[OA\Delete(
         path: '/api/admin/sso/teams/{teamId}/permissions',
         summary: 'Remove team permissions',
+        description: 'Soft delete all permissions for a team. Can be restored later.',
         tags: ['SSO Team Permissions'],
         security: [['sanctum' => []]],
-        parameters: [new OA\Parameter(name: 'teamId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
-        responses: [new OA\Response(response: 204, description: 'Permissions removed')]
+        parameters: [
+            new OA\Parameter(
+                name: 'teamId',
+                in: 'path',
+                required: true,
+                description: 'Console team ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: 204, description: 'Permissions removed successfully'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden - requires admin role'),
+        ]
     )]
     public function destroy(Request $request, int $teamId): JsonResponse
     {
@@ -219,9 +333,40 @@ class TeamPermissionAdminController extends Controller
     #[OA\Get(
         path: '/api/admin/sso/teams/orphaned',
         summary: 'List orphaned permissions',
+        description: 'List team permissions that are orphaned (team no longer exists in Console or soft-deleted)',
         tags: ['SSO Team Permissions'],
         security: [['sanctum' => []]],
-        responses: [new OA\Response(response: 200, description: 'Orphaned team permissions')]
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Orphaned team permissions',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'orphaned_teams',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'console_team_id', type: 'integer', example: 12345),
+                                    new OA\Property(property: 'permissions_count', type: 'integer', example: 5),
+                                    new OA\Property(
+                                        property: 'permissions',
+                                        type: 'array',
+                                        items: new OA\Items(type: 'string'),
+                                        example: ['projects.create', 'projects.edit']
+                                    ),
+                                    new OA\Property(property: 'deleted_at', type: 'string', format: 'date-time', nullable: true),
+                                ],
+                                type: 'object'
+                            )
+                        ),
+                        new OA\Property(property: 'total_orphaned_permissions', type: 'integer', example: 10),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden - requires admin role'),
+        ]
     )]
     public function orphaned(Request $request): JsonResponse
     {
@@ -274,10 +419,33 @@ class TeamPermissionAdminController extends Controller
     #[OA\Post(
         path: '/api/admin/sso/teams/orphaned/{teamId}/restore',
         summary: 'Restore orphaned permissions',
+        description: 'Restore soft-deleted permissions for a team',
         tags: ['SSO Team Permissions'],
         security: [['sanctum' => []]],
-        parameters: [new OA\Parameter(name: 'teamId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
-        responses: [new OA\Response(response: 200, description: 'Permissions restored')]
+        parameters: [
+            new OA\Parameter(
+                name: 'teamId',
+                in: 'path',
+                required: true,
+                description: 'Console team ID',
+                schema: new OA\Schema(type: 'integer')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Permissions restored successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Team permissions restored'),
+                        new OA\Property(property: 'console_team_id', type: 'integer', example: 12345),
+                        new OA\Property(property: 'restored_count', type: 'integer', example: 3),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden - requires admin role'),
+        ]
     )]
     public function restore(Request $request, int $teamId): JsonResponse
     {
@@ -303,10 +471,46 @@ class TeamPermissionAdminController extends Controller
     #[OA\Delete(
         path: '/api/admin/sso/teams/orphaned',
         summary: 'Cleanup orphaned permissions',
+        description: 'Permanently delete orphaned team permissions. This action cannot be undone.',
         tags: ['SSO Team Permissions'],
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(content: new OA\JsonContent(properties: [new OA\Property(property: 'console_team_id', type: 'integer', nullable: true), new OA\Property(property: 'older_than_days', type: 'integer', minimum: 1, nullable: true)])),
-        responses: [new OA\Response(response: 200, description: 'Orphaned permissions deleted')]
+        requestBody: new OA\RequestBody(
+            required: false,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(
+                        property: 'console_team_id',
+                        type: 'integer',
+                        nullable: true,
+                        description: 'Optional: Only delete permissions for this team',
+                        example: 12345
+                    ),
+                    new OA\Property(
+                        property: 'older_than_days',
+                        type: 'integer',
+                        minimum: 1,
+                        nullable: true,
+                        description: 'Optional: Only delete permissions soft-deleted more than N days ago',
+                        example: 30
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Orphaned permissions permanently deleted',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Orphaned team permissions permanently deleted'),
+                        new OA\Property(property: 'deleted_count', type: 'integer', example: 5),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 403, description: 'Forbidden - requires admin role'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
     )]
     public function cleanupOrphaned(Request $request): JsonResponse
     {

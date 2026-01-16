@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnify\SsoClient\Database\Factories;
+namespace Database\Factories;
 
 use Omnify\SsoClient\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;

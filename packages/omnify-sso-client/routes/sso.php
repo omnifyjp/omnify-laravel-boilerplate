@@ -5,6 +5,7 @@ use Omnify\SsoClient\Http\Controllers\Admin\PermissionAdminController;
 use Omnify\SsoClient\Http\Controllers\Admin\RoleAdminController;
 use Omnify\SsoClient\Http\Controllers\Admin\TeamPermissionAdminController;
 use Omnify\SsoClient\Http\Controllers\SsoCallbackController;
+use Omnify\SsoClient\Http\Controllers\SsoReadOnlyController;
 use Omnify\SsoClient\Http\Controllers\SsoTokenController;
 
 /*
@@ -46,10 +47,10 @@ Route::prefix($prefix)
 
             // Read-only access to roles and permissions (for dashboard display)
             // No org/admin requirements - just authenticated users
-            Route::get('/roles', [RoleAdminController::class, 'index']);
-            Route::get('/roles/{role}', [RoleAdminController::class, 'show']);
-            Route::get('/permissions', [PermissionAdminController::class, 'index']);
-            Route::get('/permission-matrix', [PermissionAdminController::class, 'matrix']);
+            Route::get('/roles', [SsoReadOnlyController::class, 'roles']);
+            Route::get('/roles/{id}', [SsoReadOnlyController::class, 'role']);
+            Route::get('/permissions', [SsoReadOnlyController::class, 'permissions']);
+            Route::get('/permission-matrix', [SsoReadOnlyController::class, 'permissionMatrix']);
         });
     });
 

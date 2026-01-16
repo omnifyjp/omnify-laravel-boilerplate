@@ -19,24 +19,69 @@ export const queryKeys = {
     detail: (id: number) => [...queryKeys.users.details(), id] as const,
   },
 
-  // SSO - Roles, Permissions, Teams
+  // SSO - Auth, Tokens, Roles, Permissions, Teams
   sso: {
     all: ["sso"] as const,
+
+    // SSO Auth
+    auth: {
+      all: () => [...queryKeys.sso.all, "auth"] as const,
+      user: () => [...queryKeys.sso.auth.all(), "user"] as const,
+      globalLogoutUrl: (redirectUri?: string) =>
+        [...queryKeys.sso.auth.all(), "global-logout-url", redirectUri] as const,
+    },
+
+    // SSO Tokens
+    tokens: {
+      all: () => [...queryKeys.sso.all, "tokens"] as const,
+      list: () => [...queryKeys.sso.tokens.all(), "list"] as const,
+    },
+
+    // Roles (read-only)
     roles: {
       all: () => [...queryKeys.sso.all, "roles"] as const,
       list: () => [...queryKeys.sso.roles.all(), "list"] as const,
       detail: (id: number) => [...queryKeys.sso.roles.all(), "detail", id] as const,
-      permissions: (id: number) => [...queryKeys.sso.roles.all(), id, "permissions"] as const,
     },
+
+    // Permissions (read-only)
     permissions: {
       all: () => [...queryKeys.sso.all, "permissions"] as const,
-      list: (group?: string) => [...queryKeys.sso.permissions.all(), "list", group] as const,
+      list: (params?: { group?: string; search?: string; grouped?: boolean }) =>
+        [...queryKeys.sso.permissions.all(), "list", params] as const,
       matrix: () => [...queryKeys.sso.permissions.all(), "matrix"] as const,
     },
-    teams: {
-      all: () => [...queryKeys.sso.all, "teams"] as const,
-      permissions: () => [...queryKeys.sso.teams.all(), "permissions"] as const,
-      teamPermissions: (teamId: number) => [...queryKeys.sso.teams.all(), teamId, "permissions"] as const,
+
+    // Admin - Roles
+    adminRoles: {
+      all: (orgSlug: string) => [...queryKeys.sso.all, "admin", orgSlug, "roles"] as const,
+      list: (orgSlug: string) => [...queryKeys.sso.adminRoles.all(orgSlug), "list"] as const,
+      detail: (orgSlug: string, id: number) =>
+        [...queryKeys.sso.adminRoles.all(orgSlug), "detail", id] as const,
+      permissions: (orgSlug: string, id: number) =>
+        [...queryKeys.sso.adminRoles.all(orgSlug), id, "permissions"] as const,
+    },
+
+    // Admin - Permissions
+    adminPermissions: {
+      all: (orgSlug: string) => [...queryKeys.sso.all, "admin", orgSlug, "permissions"] as const,
+      list: (orgSlug: string, params?: { group?: string; search?: string; grouped?: boolean }) =>
+        [...queryKeys.sso.adminPermissions.all(orgSlug), "list", params] as const,
+      detail: (orgSlug: string, id: number) =>
+        [...queryKeys.sso.adminPermissions.all(orgSlug), "detail", id] as const,
+      matrix: (orgSlug: string) =>
+        [...queryKeys.sso.adminPermissions.all(orgSlug), "matrix"] as const,
+    },
+
+    // Admin - Teams
+    adminTeams: {
+      all: (orgSlug: string) => [...queryKeys.sso.all, "admin", orgSlug, "teams"] as const,
+      permissions: (orgSlug: string) =>
+        [...queryKeys.sso.adminTeams.all(orgSlug), "permissions"] as const,
+      teamPermissions: (orgSlug: string, teamId: number) =>
+        [...queryKeys.sso.adminTeams.all(orgSlug), teamId, "permissions"] as const,
+      orphaned: (orgSlug: string) =>
+        [...queryKeys.sso.adminTeams.all(orgSlug), "orphaned"] as const,
     },
   },
 } as const;

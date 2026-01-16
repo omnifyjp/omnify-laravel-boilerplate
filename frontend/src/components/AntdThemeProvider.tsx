@@ -111,10 +111,18 @@ export default function AntdThemeProvider({
           lineHeight: 1.5,
         },
         components: {
+          // Global icon margin in Space component
+          Space: {
+            marginXS: 6,
+          },
           Button: {
             controlHeight: 32,
             paddingInline: 12,
             fontWeight: 500,
+          },
+          Statistic: {
+            contentFontSize: 24,
+            titleFontSize: 13,
           },
           Input: {
             controlHeight: 32,

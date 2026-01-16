@@ -206,64 +206,58 @@ export default function DashboardPage() {
                     <Space size="large">
                         <Avatar size={64} icon={<UserOutlined />} />
                         <Descriptions column={2} size="small">
-                            <Descriptions.Item label={<><MailOutlined /> Email</>}>
+                            <Descriptions.Item label={<Space><MailOutlined />Email</Space>}>
                                 {user.email}
                             </Descriptions.Item>
-                            <Descriptions.Item label={<><UserOutlined /> Name</>}>
+                            <Descriptions.Item label={<Space><UserOutlined />Name</Space>}>
                                 {user.name || 'Not set'}
                             </Descriptions.Item>
-                            <Descriptions.Item label={<><IdcardOutlined /> Console User ID</>}>
+                            <Descriptions.Item label={<Space><IdcardOutlined />Console User ID</Space>}>
                                 {user.consoleUserId}
                             </Descriptions.Item>
-                            <Descriptions.Item label={<><TeamOutlined /> Current Org</>}>
+                            <Descriptions.Item label={<Space><TeamOutlined />Current Org</Space>}>
                                 {currentOrg?.name || 'None'}
                             </Descriptions.Item>
                         </Descriptions>
                     </Space>
                 </Card>
 
-                {/* Stats */}
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card>
+                {/* Stats - Full width */}
+                <Card>
+                    <Row gutter={[24, 16]}>
+                        <Col xs={12} sm={12} md={6}>
                             <Statistic
                                 title="Organizations"
                                 value={organizations.length}
                                 prefix={<TeamOutlined />}
                             />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card>
+                        </Col>
+                        <Col xs={12} sm={12} md={6}>
                             <Statistic
                                 title="Roles"
                                 value={roles.length}
                                 prefix={<CrownOutlined />}
                                 loading={rolesLoading}
                             />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card>
+                        </Col>
+                        <Col xs={12} sm={12} md={6}>
                             <Statistic
                                 title="Permissions"
                                 value={permissions.length}
                                 prefix={<KeyOutlined />}
                                 loading={permissionsLoading}
                             />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} lg={6}>
-                        <Card>
+                        </Col>
+                        <Col xs={12} sm={12} md={6}>
                             <Statistic
                                 title="Permission Groups"
                                 value={Object.keys(permissionsByGroup).length}
                                 prefix={<SafetyOutlined />}
                                 loading={permissionsLoading}
                             />
-                        </Card>
-                    </Col>
-                </Row>
+                        </Col>
+                    </Row>
+                </Card>
 
                 {/* Organizations */}
                 <Card

@@ -122,7 +122,7 @@ export function UserTable({
     if (!Array.isArray(sorter)) {
       onSortChange?.(toSortField(sorter));
     }
-    
+
     // Handle pagination change
     if (paginationConfig.current && paginationConfig.pageSize) {
       onPageChange?.(paginationConfig.current, paginationConfig.pageSize);

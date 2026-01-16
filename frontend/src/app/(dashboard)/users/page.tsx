@@ -62,17 +62,19 @@ export default function UsersPage() {
         </Link>
       </div>
 
-      <Space style={{ marginBottom: 16 }}>
-        <Input
-          placeholder={t("common.search")}
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          onPressEnter={handleSearch}
-          style={{ width: 250 }}
-          prefix={<SearchOutlined />}
-        />
-        <Button onClick={handleSearch}>{t("common.search")}</Button>
-      </Space>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+        <Space>
+          <Input
+            placeholder={t("common.search")}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onPressEnter={handleSearch}
+            style={{ width: 250 }}
+            prefix={<SearchOutlined />}
+          />
+          <Button onClick={handleSearch}>{t("common.search")}</Button>
+        </Space>
+      </div>
 
       <UserTable
         users={data?.data ?? []}

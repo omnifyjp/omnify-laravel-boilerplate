@@ -26,9 +26,9 @@ class Role extends RoleBaseModel
     /**
      * Create a new factory instance for the model.
      */
-    protected static function newFactory(): \Database\Factories\RoleFactory
+    protected static function newFactory(): \Omnify\SsoClient\Database\Factories\RoleFactory
     {
-        return \Database\Factories\RoleFactory::new();
+        return \Omnify\SsoClient\Database\Factories\RoleFactory::new();
     }
 
     /**

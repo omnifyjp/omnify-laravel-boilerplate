@@ -26,9 +26,9 @@ class Team extends TeamBaseModel
     /**
      * Create a new factory instance for the model.
      */
-    protected static function newFactory(): \Database\Factories\TeamFactory
+    protected static function newFactory(): \Omnify\SsoClient\Database\Factories\TeamFactory
     {
-        return \Database\Factories\TeamFactory::new();
+        return \Omnify\SsoClient\Database\Factories\TeamFactory::new();
     }
 
     /**

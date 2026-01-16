@@ -53,8 +53,8 @@ class User extends UserBaseModel implements
     /**
      * Create a new factory instance for the model.
      */
-    protected static function newFactory(): \Database\Factories\UserFactory
+    protected static function newFactory(): \Omnify\SsoClient\Database\Factories\UserFactory
     {
-        return \Database\Factories\UserFactory::new();
+        return \Omnify\SsoClient\Database\Factories\UserFactory::new();
     }
 }

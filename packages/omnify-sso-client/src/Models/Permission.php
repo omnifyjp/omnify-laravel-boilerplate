@@ -26,9 +26,9 @@ class Permission extends PermissionBaseModel
     /**
      * Create a new factory instance for the model.
      */
-    protected static function newFactory(): \Database\Factories\PermissionFactory
+    protected static function newFactory(): \Omnify\SsoClient\Database\Factories\PermissionFactory
     {
-        return \Database\Factories\PermissionFactory::new();
+        return \Omnify\SsoClient\Database\Factories\PermissionFactory::new();
     }
 
     // Add your custom methods here

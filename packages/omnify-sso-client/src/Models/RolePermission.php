@@ -26,9 +26,9 @@ class RolePermission extends RolePermissionBaseModel
     /**
      * Create a new factory instance for the model.
      */
-    protected static function newFactory(): \Database\Factories\RolePermissionFactory
+    protected static function newFactory(): \Omnify\SsoClient\Database\Factories\RolePermissionFactory
     {
-        return \Database\Factories\RolePermissionFactory::new();
+        return \Omnify\SsoClient\Database\Factories\RolePermissionFactory::new();
     }
 
     // Add your custom methods here

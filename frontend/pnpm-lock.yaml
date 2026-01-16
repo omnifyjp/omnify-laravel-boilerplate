@@ -15,8 +15,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(@ant-design/cssinjs@2.0.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(antd@6.2.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(next@16.1.1(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@famgia/omnify-client-sso-react':
-        specifier: ^1.1.1
-        version: 1.1.1(@ant-design/icons@6.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(antd@6.2.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: ^1.1.2
+        version: 1.1.2(@ant-design/icons@6.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(antd@6.2.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@famgia/omnify-react':
         specifier: ^0.0.2
         version: 0.0.2(antd@6.2.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@3.25.76)
@@ -493,8 +493,8 @@ packages:
       '@exodus/crypto':
         optional: true
 
-  '@famgia/omnify-client-sso-react@1.1.1':
-    resolution: {integrity: sha512-3cQbYxhb/oy5Sq8CXX25V+axsqMFMjHVkCPaicvmCn2Jsqug6Ho9UH/Xp5ljxHgMTER+Wp46qfz2imu4XGMj9Q==}
+  '@famgia/omnify-client-sso-react@1.1.2':
+    resolution: {integrity: sha512-IfUTD9FRey63ebrfTsYTcB2347yurK2weJmm9/MmgY6JMB7J7GROsRG38R7jHucptFd/uxR0LvTQ/IDAsCupwg==}
     peerDependencies:
       '@ant-design/icons': ^5.0.0 || ^6.0.0
       antd: ^5.0.0 || ^6.0.0
@@ -3877,7 +3877,7 @@ snapshots:
 
   '@exodus/bytes@1.8.0': {}
 
-  '@famgia/omnify-client-sso-react@1.1.1(@ant-design/icons@6.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(antd@6.2.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@famgia/omnify-client-sso-react@1.1.2(@ant-design/icons@6.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(antd@6.2.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@ant-design/icons': 6.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       antd: 6.2.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)

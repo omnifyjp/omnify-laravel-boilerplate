@@ -89,8 +89,14 @@ return [
             'api',
         ],
 
-        // Middleware for admin routes
-        'admin_middleware' => ['api', 'sso.auth', 'sso.org', 'sso.role:admin'],
+        // Middleware for admin routes (Sanctum SPA認証用)
+        'admin_middleware' => [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'api',
+            'sso.auth',
+            'sso.org',
+            'sso.role:admin',
+        ],
     ],
 
     /*
@@ -114,5 +120,45 @@ return [
     'locale' => [
         'enabled' => env('SSO_LOCALE_ENABLED', true),
         'header' => 'Accept-Language',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Security Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Security settings to prevent common vulnerabilities.
+    |
+    */
+    'security' => [
+        // Allowed hosts for redirect URLs (prevents Open Redirect attacks)
+        // Supports wildcards like *.example.com
+        'allowed_redirect_hosts' => array_filter(explode(',', env('SSO_ALLOWED_REDIRECT_HOSTS', ''))),
+
+        // Whether to enforce HTTPS for redirect URLs
+        'require_https_redirects' => env('SSO_REQUIRE_HTTPS_REDIRECTS', true),
+
+        // Maximum length for redirect URLs
+        'max_redirect_url_length' => 2048,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logging Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure logging for SSO events. Useful for debugging and auditing.
+    |
+    */
+    'logging' => [
+        // Enable/disable SSO logging
+        'enabled' => env('SSO_LOGGING_ENABLED', true),
+
+        // Log channel to use (creates 'sso' channel if configured)
+        // Falls back to default channel if 'sso' channel doesn't exist
+        'channel' => env('SSO_LOG_CHANNEL', 'sso'),
+
+        // Log level for SSO events
+        'level' => env('SSO_LOG_LEVEL', 'debug'),
     ],
 ];

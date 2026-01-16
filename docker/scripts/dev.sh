@@ -190,14 +190,11 @@ EOF
 }
 
 # =============================================================================
-# 空きポートを見つける関数
+# ポートを解放する関数
 # =============================================================================
-find_available_port() {
+kill_port() {
     local port=$1
-    while lsof -i:$port >/dev/null 2>&1; do
-        port=$((port + 1))
-    done
-    echo $port
+    lsof -ti:$port | xargs kill -9 2>/dev/null || true
 }
 
 # =============================================================================
@@ -223,8 +220,9 @@ echo " Developer: ${DEV_NAME}"
 echo " Project:   ${PROJECT_NAME}"
 echo ""
 
-# フロントエンド用の空きポートを見つける
-FRONTEND_PORT=$(find_available_port 3000)
+# ポート3000を解放して使用
+FRONTEND_PORT=3000
+kill_port $FRONTEND_PORT
 
 # =============================================================================
 # Step 1: frpc設定ファイル生成
@@ -326,10 +324,8 @@ echo "  Starting frontend dev server..."
 echo ""
 echo ""
 
-# クリーンアップ: 既存のNext.js devサーバーを停止
-pkill -f "next dev" 2>/dev/null || true
+# クリーンアップ: Next.js lockファイル削除
 rm -f ./frontend/.next/dev/lock 2>/dev/null || true
-sleep 1
 
 # Start frontend dev server (bind to 0.0.0.0 for tunnel access)
 cd frontend && npm run dev -- -H 0.0.0.0 -p ${FRONTEND_PORT}

@@ -7,29 +7,28 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@famgia/omnify-cli':
-        specifier: latest
-        version: 0.0.158(@types/node@25.0.8)(zod@4.3.5)
-      '@famgia/omnify-japan':
-        specifier: latest
-        version: 0.0.134
     devDependencies:
       '@famgia/omnify':
         specifier: latest
-        version: 1.0.168(@types/node@25.0.8)(hono@4.11.4)(zod@4.3.5)
+        version: 1.0.173(@types/node@25.0.9)(hono@4.11.4)(zod@4.3.5)
+      '@famgia/omnify-cli':
+        specifier: ^0.0.165
+        version: 0.0.165(@types/node@25.0.9)(zod@4.3.5)
+      '@famgia/omnify-japan':
+        specifier: ^0.0.150
+        version: 0.0.150
       '@famgia/omnify-laravel':
         specifier: latest
         version: 0.0.166
       '@famgia/omnify-typescript':
-        specifier: latest
-        version: 0.0.145(zod@4.3.5)
+        specifier: ^0.0.146
+        version: 0.0.146(zod@4.3.5)
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
       '@types/node':
-        specifier: ^25.0.6
-        version: 25.0.8
+        specifier: ^25.0.9
+        version: 25.0.9
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -39,34 +38,18 @@ importers:
 
 packages:
 
-  '@famgia/omnify-atlas@0.0.145':
-    resolution: {integrity: sha512-GCFnbCT8Twg8yIQzrHgTTWnCRZdCkPkdj2Vow/XHmWY9JTAYdf35Cm2maw2DXmcM+39DN98TtqpX36qt96jyoA==}
-
   '@famgia/omnify-atlas@0.0.151':
     resolution: {integrity: sha512-s6oJ1dtaKpoLH2cJvGT37RqOhhfTmJ5BPr3I+583cvVKvLWd1wNgciaqrQ7KZ2ClXC2Ko7czNZM+bOC891qHxA==}
 
-  '@famgia/omnify-cli@0.0.158':
-    resolution: {integrity: sha512-YDIg8ftHt12XaE0B+67Q5dCTcAkvZzEcah41EqUf2kFF1jUz4qitOcvMQb+sRoufor9k5us+9FPifoS0BlnglQ==}
+  '@famgia/omnify-cli@0.0.165':
+    resolution: {integrity: sha512-R28cygAtn2CSyaKdmJHXYXQUFmjUhjzjeVRKH5WB5p26lmqjv0QtALfzgxvmZJP7+wj45OHXKFRraH1RxShWew==}
     hasBin: true
-
-  '@famgia/omnify-cli@0.0.164':
-    resolution: {integrity: sha512-k/q6uDsMXw2wKig4A5X+2WCRfEbcYz7Mjr83dYKSOQ/5hh1ajYOA8o2qB1Lu3+FmNEOSaL45TTPiVWlOqU9slw==}
-    hasBin: true
-
-  '@famgia/omnify-core@0.0.151':
-    resolution: {integrity: sha512-CFBbWUMgoXgF40CLKQlS8G+iknHbPxMGqlsTnLFpc5ROV/jq0ogQqa5CCJQgcmhQg6HsAmD7NNsC8aSnmAWzkw==}
 
   '@famgia/omnify-core@0.0.157':
     resolution: {integrity: sha512-8O9iajten7ZfSSVN/Vj9jDstdmDcECcMMoUUh5GPiP0q9kJMADbjxDmC773zthRoSlk5SGFfr5pdGINf6uU3eQ==}
 
-  '@famgia/omnify-japan@0.0.134':
-    resolution: {integrity: sha512-zQ7z7NzmHT7TT/Gib1I0oQe89/zY3hnzRQh8qTWRF7KUg63htFIp/sIxF1mxLVRzjlIR9ZR6+ZQZWSCX4BslUg==}
-
   '@famgia/omnify-japan@0.0.150':
     resolution: {integrity: sha512-+3Q3PCmaFIX3KyR6P217fbxZeWSQclpXqTx08+UcecBN7qTGdoHnW7eWf0BZB1dz5QfjqJVA19QI7ymxjRygaQ==}
-
-  '@famgia/omnify-laravel@0.0.160':
-    resolution: {integrity: sha512-ZSow9dv9vV0DCFnQkwyRZzm6KC9FQGDb5lSIVnKNx+RHAQEk+0p+Qvi28/NVpKFtMUWJmWeqhFQ6jzK2en/HWg==}
 
   '@famgia/omnify-laravel@0.0.166':
     resolution: {integrity: sha512-y8LtlXpSiItJUg8gyNRlgTBSKfngOoAL/+TMZJca5bW/U6bzjKtz4MRE1t08HWiTCUTQ8gJtGaF0WoKVF97EjQ==}
@@ -75,33 +58,19 @@ packages:
     resolution: {integrity: sha512-CpobL0DtE3xjRXhJumU/IzLQooEvBEEJfbWGXKAiLua/eUrpz8M2DjhJ/72n9TfyEtxIdPeilXj8MnzrI0NlPQ==}
     hasBin: true
 
-  '@famgia/omnify-types@0.0.139':
-    resolution: {integrity: sha512-52eNSHj2PorFH41IOyr2/Pl1ahI7IIbqsNtXrnXObg+aNpIcCINXoSg6wfoH7dcmUwnygzyutnmL5cSWfMHcyQ==}
-
-  '@famgia/omnify-types@0.0.149':
-    resolution: {integrity: sha512-2jFDPsjmDUagfZpu1ueQrj7kfMShSqIgduMrnPOxAmWy0NbZZoQ0wg11ikLyj63v8ZO0qBwYYL06RNVJhPGgtw==}
-
   '@famgia/omnify-types@0.0.155':
     resolution: {integrity: sha512-PBRKsljBOv1O5RXdlWij3/6b/5XCkrjbTeipOR4eO7Lm7Unc5B+NKq2Y7jSti/jkGgrxvAyDct0Af3u8C7m7Xg==}
 
-  '@famgia/omnify-typescript@0.0.139':
-    resolution: {integrity: sha512-VD1bj+xUZzBSTD/px6JoepIzrN4pZhD8SZygZqSQ00sW3ra4w0wVnph3n8q65XF4fUGDAZLQ53O9O9xEZPzQOQ==}
+  '@famgia/omnify-typescript@0.0.146':
+    resolution: {integrity: sha512-1jWaYq70VQUHzyncffkamOtoV+J467EUNwOcCbnxAxgdXVN5IIiHaxe09hRWTlvegIiTRCT95CGS+qtBDAxZ3w==}
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
     peerDependenciesMeta:
       zod:
         optional: true
 
-  '@famgia/omnify-typescript@0.0.145':
-    resolution: {integrity: sha512-vUVAherFe0eLqOi75J3wx3yZe8AhvAAn+/dRd2m5QxyrUP/COvqvr2DVhQQIvZvpiCYi5IbGKhNxXhejjZ7/Sg==}
-    peerDependencies:
-      zod: ^3.25.0 || ^4.0.0
-    peerDependenciesMeta:
-      zod:
-        optional: true
-
-  '@famgia/omnify@1.0.168':
-    resolution: {integrity: sha512-jaEIDD7w5N5+I9mKzSxq3Mchaqhm2EwzYApBc3iuhymGYH9wB11ZtLh3VSIHh4PRycsD+PJWBQMA0RnWi7WrpQ==}
+  '@famgia/omnify@1.0.173':
+    resolution: {integrity: sha512-Qz+HNhy0KjvdWkrIOpNrDwh1SN4UxLkLvy0AqX6i8367dTYfDnnjfwoKoc1GpE1ueCObpx+1TeEUM3M5zkCdlg==}
     hasBin: true
 
   '@hono/node-server@1.19.9':
@@ -264,8 +233,8 @@ packages:
   '@types/js-yaml@4.0.9':
     resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
 
-  '@types/node@25.0.8':
-    resolution: {integrity: sha512-powIePYMmC3ibL0UJ2i2s0WIbq6cg6UyVFQxSCpaPxxzAaziRfimGivjdF943sSGV6RADVbk0Nvlm5P/FB44Zg==}
+  '@types/node@25.0.9':
+    resolution: {integrity: sha512-/rpCXHlCWeqClNBwUhDcusJxXYDjZTyE8v5oTO7WbL8eij2nKhUeU89/6xgjU7N4/Vh3He0BtyhJdQbDyhiXAw==}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -744,53 +713,26 @@ packages:
 
 snapshots:
 
-  '@famgia/omnify-atlas@0.0.145':
-    dependencies:
-      '@famgia/omnify-core': 0.0.151
-      '@famgia/omnify-types': 0.0.149
-      execa: 9.6.1
-
   '@famgia/omnify-atlas@0.0.151':
     dependencies:
       '@famgia/omnify-core': 0.0.157
       '@famgia/omnify-types': 0.0.155
       execa: 9.6.1
 
-  '@famgia/omnify-cli@0.0.158(@types/node@25.0.8)(zod@4.3.5)':
-    dependencies:
-      '@famgia/omnify-atlas': 0.0.145
-      '@famgia/omnify-core': 0.0.151
-      '@famgia/omnify-laravel': 0.0.160
-      '@famgia/omnify-types': 0.0.149
-      '@famgia/omnify-typescript': 0.0.139(zod@4.3.5)
-      '@inquirer/prompts': 8.2.0(@types/node@25.0.8)
-      commander: 14.0.2
-      jiti: 2.6.1
-      picocolors: 1.1.1
-    transitivePeerDependencies:
-      - '@types/node'
-      - zod
-
-  '@famgia/omnify-cli@0.0.164(@types/node@25.0.8)(zod@4.3.5)':
+  '@famgia/omnify-cli@0.0.165(@types/node@25.0.9)(zod@4.3.5)':
     dependencies:
       '@famgia/omnify-atlas': 0.0.151
       '@famgia/omnify-core': 0.0.157
       '@famgia/omnify-laravel': 0.0.166
       '@famgia/omnify-types': 0.0.155
-      '@famgia/omnify-typescript': 0.0.145(zod@4.3.5)
-      '@inquirer/prompts': 8.2.0(@types/node@25.0.8)
+      '@famgia/omnify-typescript': 0.0.146(zod@4.3.5)
+      '@inquirer/prompts': 8.2.0(@types/node@25.0.9)
       commander: 14.0.2
       jiti: 2.6.1
       picocolors: 1.1.1
     transitivePeerDependencies:
       - '@types/node'
       - zod
-
-  '@famgia/omnify-core@0.0.151':
-    dependencies:
-      '@famgia/omnify-types': 0.0.149
-      js-yaml: 4.1.1
-      yaml: 2.8.2
 
   '@famgia/omnify-core@0.0.157':
     dependencies:
@@ -798,19 +740,9 @@ snapshots:
       js-yaml: 4.1.1
       yaml: 2.8.2
 
-  '@famgia/omnify-japan@0.0.134':
-    dependencies:
-      '@famgia/omnify-types': 0.0.139
-
   '@famgia/omnify-japan@0.0.150':
     dependencies:
       '@famgia/omnify-types': 0.0.155
-
-  '@famgia/omnify-laravel@0.0.160':
-    dependencies:
-      '@famgia/omnify-atlas': 0.0.145
-      '@famgia/omnify-core': 0.0.151
-      '@famgia/omnify-types': 0.0.149
 
   '@famgia/omnify-laravel@0.0.166':
     dependencies:
@@ -830,36 +762,25 @@ snapshots:
       - hono
       - supports-color
 
-  '@famgia/omnify-types@0.0.139': {}
-
-  '@famgia/omnify-types@0.0.149': {}
-
   '@famgia/omnify-types@0.0.155': {}
 
-  '@famgia/omnify-typescript@0.0.139(zod@4.3.5)':
-    dependencies:
-      '@famgia/omnify-core': 0.0.151
-      '@famgia/omnify-types': 0.0.149
-    optionalDependencies:
-      zod: 4.3.5
-
-  '@famgia/omnify-typescript@0.0.145(zod@4.3.5)':
+  '@famgia/omnify-typescript@0.0.146(zod@4.3.5)':
     dependencies:
       '@famgia/omnify-core': 0.0.157
       '@famgia/omnify-types': 0.0.155
     optionalDependencies:
       zod: 4.3.5
 
-  '@famgia/omnify@1.0.168(@types/node@25.0.8)(hono@4.11.4)(zod@4.3.5)':
+  '@famgia/omnify@1.0.173(@types/node@25.0.9)(hono@4.11.4)(zod@4.3.5)':
     dependencies:
       '@famgia/omnify-atlas': 0.0.151
-      '@famgia/omnify-cli': 0.0.164(@types/node@25.0.8)(zod@4.3.5)
+      '@famgia/omnify-cli': 0.0.165(@types/node@25.0.9)(zod@4.3.5)
       '@famgia/omnify-core': 0.0.157
       '@famgia/omnify-japan': 0.0.150
       '@famgia/omnify-laravel': 0.0.166
       '@famgia/omnify-mcp': 0.0.143(hono@4.11.4)
       '@famgia/omnify-types': 0.0.155
-      '@famgia/omnify-typescript': 0.0.145(zod@4.3.5)
+      '@famgia/omnify-typescript': 0.0.146(zod@4.3.5)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@types/node'
@@ -873,122 +794,122 @@ snapshots:
 
   '@inquirer/ansi@2.0.3': {}
 
-  '@inquirer/checkbox@5.0.4(@types/node@25.0.8)':
+  '@inquirer/checkbox@5.0.4(@types/node@25.0.9)':
     dependencies:
       '@inquirer/ansi': 2.0.3
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
       '@inquirer/figures': 2.0.3
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
-  '@inquirer/confirm@6.0.4(@types/node@25.0.8)':
+  '@inquirer/confirm@6.0.4(@types/node@25.0.9)':
     dependencies:
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
-  '@inquirer/core@11.1.1(@types/node@25.0.8)':
+  '@inquirer/core@11.1.1(@types/node@25.0.9)':
     dependencies:
       '@inquirer/ansi': 2.0.3
       '@inquirer/figures': 2.0.3
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
       cli-width: 4.1.0
       mute-stream: 3.0.0
       signal-exit: 4.1.0
       wrap-ansi: 9.0.2
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
-  '@inquirer/editor@5.0.4(@types/node@25.0.8)':
+  '@inquirer/editor@5.0.4(@types/node@25.0.9)':
     dependencies:
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/external-editor': 2.0.3(@types/node@25.0.8)
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/external-editor': 2.0.3(@types/node@25.0.9)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
-  '@inquirer/expand@5.0.4(@types/node@25.0.8)':
+  '@inquirer/expand@5.0.4(@types/node@25.0.9)':
     dependencies:
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
-  '@inquirer/external-editor@2.0.3(@types/node@25.0.8)':
+  '@inquirer/external-editor@2.0.3(@types/node@25.0.9)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.2
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
   '@inquirer/figures@2.0.3': {}
 
-  '@inquirer/input@5.0.4(@types/node@25.0.8)':
+  '@inquirer/input@5.0.4(@types/node@25.0.9)':
     dependencies:
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
-  '@inquirer/number@4.0.4(@types/node@25.0.8)':
+  '@inquirer/number@4.0.4(@types/node@25.0.9)':
     dependencies:
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
-  '@inquirer/password@5.0.4(@types/node@25.0.8)':
-    dependencies:
-      '@inquirer/ansi': 2.0.3
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
-    optionalDependencies:
-      '@types/node': 25.0.8
-
-  '@inquirer/prompts@8.2.0(@types/node@25.0.8)':
-    dependencies:
-      '@inquirer/checkbox': 5.0.4(@types/node@25.0.8)
-      '@inquirer/confirm': 6.0.4(@types/node@25.0.8)
-      '@inquirer/editor': 5.0.4(@types/node@25.0.8)
-      '@inquirer/expand': 5.0.4(@types/node@25.0.8)
-      '@inquirer/input': 5.0.4(@types/node@25.0.8)
-      '@inquirer/number': 4.0.4(@types/node@25.0.8)
-      '@inquirer/password': 5.0.4(@types/node@25.0.8)
-      '@inquirer/rawlist': 5.2.0(@types/node@25.0.8)
-      '@inquirer/search': 4.1.0(@types/node@25.0.8)
-      '@inquirer/select': 5.0.4(@types/node@25.0.8)
-    optionalDependencies:
-      '@types/node': 25.0.8
-
-  '@inquirer/rawlist@5.2.0(@types/node@25.0.8)':
-    dependencies:
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
-    optionalDependencies:
-      '@types/node': 25.0.8
-
-  '@inquirer/search@4.1.0(@types/node@25.0.8)':
-    dependencies:
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/figures': 2.0.3
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
-    optionalDependencies:
-      '@types/node': 25.0.8
-
-  '@inquirer/select@5.0.4(@types/node@25.0.8)':
+  '@inquirer/password@5.0.4(@types/node@25.0.9)':
     dependencies:
       '@inquirer/ansi': 2.0.3
-      '@inquirer/core': 11.1.1(@types/node@25.0.8)
-      '@inquirer/figures': 2.0.3
-      '@inquirer/type': 4.0.3(@types/node@25.0.8)
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
 
-  '@inquirer/type@4.0.3(@types/node@25.0.8)':
+  '@inquirer/prompts@8.2.0(@types/node@25.0.9)':
+    dependencies:
+      '@inquirer/checkbox': 5.0.4(@types/node@25.0.9)
+      '@inquirer/confirm': 6.0.4(@types/node@25.0.9)
+      '@inquirer/editor': 5.0.4(@types/node@25.0.9)
+      '@inquirer/expand': 5.0.4(@types/node@25.0.9)
+      '@inquirer/input': 5.0.4(@types/node@25.0.9)
+      '@inquirer/number': 4.0.4(@types/node@25.0.9)
+      '@inquirer/password': 5.0.4(@types/node@25.0.9)
+      '@inquirer/rawlist': 5.2.0(@types/node@25.0.9)
+      '@inquirer/search': 4.1.0(@types/node@25.0.9)
+      '@inquirer/select': 5.0.4(@types/node@25.0.9)
     optionalDependencies:
-      '@types/node': 25.0.8
+      '@types/node': 25.0.9
+
+  '@inquirer/rawlist@5.2.0(@types/node@25.0.9)':
+    dependencies:
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
+    optionalDependencies:
+      '@types/node': 25.0.9
+
+  '@inquirer/search@4.1.0(@types/node@25.0.9)':
+    dependencies:
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/figures': 2.0.3
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
+    optionalDependencies:
+      '@types/node': 25.0.9
+
+  '@inquirer/select@5.0.4(@types/node@25.0.9)':
+    dependencies:
+      '@inquirer/ansi': 2.0.3
+      '@inquirer/core': 11.1.1(@types/node@25.0.9)
+      '@inquirer/figures': 2.0.3
+      '@inquirer/type': 4.0.3(@types/node@25.0.9)
+    optionalDependencies:
+      '@types/node': 25.0.9
+
+  '@inquirer/type@4.0.3(@types/node@25.0.9)':
+    optionalDependencies:
+      '@types/node': 25.0.9
 
   '@modelcontextprotocol/sdk@1.25.2(hono@4.11.4)(zod@4.3.5)':
     dependencies:
@@ -1018,7 +939,7 @@ snapshots:
 
   '@types/js-yaml@4.0.9': {}
 
-  '@types/node@25.0.8':
+  '@types/node@25.0.9':
     dependencies:
       undici-types: 7.16.0
 

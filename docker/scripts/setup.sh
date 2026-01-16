@@ -88,6 +88,12 @@ if [ ! -d "./backend" ]; then
     composer require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction
     echo "    Pest installed"
 
+    # Install SSO Client package + dependencies
+    echo "    Installing SSO Client..."
+    composer config --no-plugins allow-plugins.omnifyjp/omnify-client-laravel-sso true
+    composer require omnifyjp/omnify-client-laravel-sso lcobucci/jwt --no-interaction
+    echo "    SSO Client installed"
+
     # Remove frontend stuff
     rm -rf resources/js resources/css public/build
     rm -f vite.config.js package.json package-lock.json postcss.config.js tailwind.config.js
@@ -97,6 +103,11 @@ if [ ! -d "./backend" ]; then
     rm -f database/migrations/*.php
 
     cd ..
+    
+    # Copy custom CORS config (supports *.dev.omnify.jp)
+    echo "    Configuring CORS..."
+    cp ./docker/stubs/cors.php.stub ./backend/config/cors.php
+    echo "    CORS configured"
     
     # Generate Omnify migrations
     echo " Generating Omnify migrations..."

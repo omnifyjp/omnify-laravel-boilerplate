@@ -25,6 +25,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@omnify/*": [
+        "src/omnify/schemas/*"
       ]
     },
     "baseUrl": "."

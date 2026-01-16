@@ -45,6 +45,10 @@ export default function UsersPage() {
     setParams({ ...params, page, per_page: pageSize });
   };
 
+  const handleSortChange = (sort: UserListParams["sort"]) => {
+    setParams({ ...params, sort, page: 1 });
+  };
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
@@ -74,7 +78,9 @@ export default function UsersPage() {
         users={data?.data ?? []}
         loading={isLoading}
         pagination={data?.meta}
+        sortField={params.sort}
         onPageChange={handlePageChange}
+        onSortChange={handleSortChange}
         onDelete={(user) => deleteMutation.mutate(user.id)}
         deleteLoading={deleteMutation.isPending}
       />

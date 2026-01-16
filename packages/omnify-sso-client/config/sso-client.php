@@ -89,8 +89,14 @@ return [
             'api',
         ],
 
-        // Middleware for admin routes
-        'admin_middleware' => ['api', 'sso.auth', 'sso.org', 'sso.role:admin'],
+        // Middleware for admin routes (Sanctum SPA認証用)
+        'admin_middleware' => [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'api',
+            'sso.auth',
+            'sso.org',
+            'sso.role:admin',
+        ],
     ],
 
     /*

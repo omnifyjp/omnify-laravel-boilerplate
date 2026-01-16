@@ -1,18 +1,30 @@
 /**
- * useFormMutation - Mutation với auto error handling cho Form
+ * useFormMutation - Re-export from @famgia/omnify-react with app-specific defaults
+ *
+ * This wrapper provides:
+ * - Pre-configured router (Next.js)
+ * - Pre-configured translateFn (next-intl)
  */
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { App } from "antd";
+import { useFormMutation as useFormMutationBase, type UseFormMutationOptions as BaseOptions } from "@famgia/omnify-react";
 import type { FormInstance } from "antd";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { getFormErrors, getValidationMessage } from "@/lib/api";
 
+// Re-export types and helpers from package
+export {
+    type FormMutationRouter,
+    type TranslateFn,
+    type FormFieldError,
+    getFormErrors,
+    getValidationMessage,
+    getFirstValidationError,
+} from "@famgia/omnify-react";
+
+/** App-specific options (router and translateFn are auto-provided) */
 interface UseFormMutationOptions<TData, TResult> {
     form: FormInstance;
     mutationFn: (data: TData) => Promise<TResult>;
-    /** Query keys to invalidate on success */
     invalidateKeys?: readonly (readonly unknown[])[];
     successMessage?: string;
     redirectTo?: string;
@@ -20,56 +32,18 @@ interface UseFormMutationOptions<TData, TResult> {
     onError?: (error: unknown) => void;
 }
 
-export function useFormMutation<TData, TResult = unknown>({
-    form,
-    mutationFn,
-    invalidateKeys = [],
-    successMessage,
-    redirectTo,
-    onSuccess,
-    onError,
-}: UseFormMutationOptions<TData, TResult>) {
-    const t = useTranslations();
+/**
+ * App-specific wrapper that auto-injects router and translateFn
+ */
+export function useFormMutation<TData, TResult = unknown>(
+    options: UseFormMutationOptions<TData, TResult>
+) {
     const router = useRouter();
-    const queryClient = useQueryClient();
-    const { message } = App.useApp();
+    const t = useTranslations();
 
-    return useMutation({
-        mutationFn,
-        onSuccess: (data) => {
-            // Invalidate queries
-            invalidateKeys?.forEach((key) => {
-                queryClient.invalidateQueries({ queryKey: [...key] });
-            });
-
-            // Show message
-            if (successMessage) {
-                message.success(t(successMessage as never));
-            }
-
-            // Redirect
-            if (redirectTo) {
-                router.push(redirectTo);
-            }
-
-            // Custom callback
-            onSuccess?.(data);
-        },
-        onError: (error) => {
-            // Set form field errors
-            const formErrors = getFormErrors(error);
-            if (formErrors.length > 0) {
-                form.setFields(formErrors);
-            }
-
-            // Show general validation message (từ Laravel)
-            const validationMessage = getValidationMessage(error);
-            if (validationMessage) {
-                message.error(validationMessage);
-            }
-
-            // Custom callback
-            onError?.(error);
-        },
+    return useFormMutationBase<TData, TResult>({
+        ...options,
+        router,
+        translateFn: t as (key: string) => string,
     });
 }

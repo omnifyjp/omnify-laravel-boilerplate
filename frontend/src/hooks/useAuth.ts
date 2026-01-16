@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { App } from "antd";
 import { useTranslations } from "next-intl";
 import { authService, LoginInput, RegisterInput } from "@/services/auth";
-import { getFormErrors } from "@/lib/api";
+import { getFormErrors } from "@famgia/omnify-react";
 import { queryKeys } from "@/lib/queryKeys";
 import type { FormInstance } from "antd";
 

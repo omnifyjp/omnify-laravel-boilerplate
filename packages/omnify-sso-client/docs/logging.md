@@ -22,17 +22,17 @@ storage/logs/sso.log
 
 ## Logged Events
 
-| Event               | Level     | Description                        |
-| ------------------- | --------- | ---------------------------------- |
-| Auth success        | `info`    | Successful authentication          |
-| Auth failure        | `warning` | Failed authentication attempt      |
-| Code exchange       | `debug`   | SSO code exchange                  |
-| JWT verification    | `debug`   | Token verification                 |
-| Token refresh       | `debug`   | Token refresh operations           |
-| Logout              | `info`    | User logout                        |
-| Security events     | `warning` | Blocked redirects, invalid tokens  |
-| API errors          | `error`   | Console API failures               |
-| Permission sync     | `info`    | Permission synchronization         |
+| Event            | Level     | Description                       |
+| ---------------- | --------- | --------------------------------- |
+| Auth success     | `info`    | Successful authentication         |
+| Auth failure     | `warning` | Failed authentication attempt     |
+| Code exchange    | `debug`   | SSO code exchange                 |
+| JWT verification | `debug`   | Token verification                |
+| Token refresh    | `debug`   | Token refresh operations          |
+| Logout           | `info`    | User logout                       |
+| Security events  | `warning` | Blocked redirects, invalid tokens |
+| API errors       | `error`   | Console API failures              |
+| Permission sync  | `info`    | Permission synchronization        |
 
 ## Using the Logger
 

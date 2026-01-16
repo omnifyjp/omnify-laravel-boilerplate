@@ -4,14 +4,14 @@ Security features and best practices for the SSO Client package.
 
 ## Security Features
 
-| Feature                    | Description                                    |
-| -------------------------- | ---------------------------------------------- |
-| Open Redirect Protection   | Validates redirect URLs against whitelist      |
-| JWT Verification           | RS256 signature verification with JWKS         |
-| CSRF Protection            | Stateful requests via Laravel Sanctum          |
-| Input Validation           | Strict validation on all inputs                |
-| Email Masking              | Privacy protection in logs                     |
-| Secure Token Storage       | Encrypted token storage                        |
+| Feature                  | Description                               |
+| ------------------------ | ----------------------------------------- |
+| Open Redirect Protection | Validates redirect URLs against whitelist |
+| JWT Verification         | RS256 signature verification with JWKS    |
+| CSRF Protection          | Stateful requests via Laravel Sanctum     |
+| Input Validation         | Strict validation on all inputs           |
+| Email Masking            | Privacy protection in logs                |
+| Secure Token Storage     | Encrypted token storage                   |
 
 ## Open Redirect Protection
 
@@ -49,13 +49,13 @@ SSO_REQUIRE_HTTPS_REDIRECTS=true
 
 ### What Gets Blocked
 
-| Input                        | Result    | Reason                     |
-| ---------------------------- | --------- | -------------------------- |
-| `https://evil.com`           | Blocked   | Not in allowed hosts       |
-| `//evil.com`                 | Blocked   | Protocol-relative URL      |
-| `javascript:alert(1)`        | Blocked   | Dangerous protocol         |
-| `/dashboard`                 | Allowed   | Relative URL               |
-| `https://myapp.com/page`     | Allowed   | In allowed hosts           |
+| Input                    | Result  | Reason                |
+| ------------------------ | ------- | --------------------- |
+| `https://evil.com`       | Blocked | Not in allowed hosts  |
+| `//evil.com`             | Blocked | Protocol-relative URL |
+| `javascript:alert(1)`    | Blocked | Dangerous protocol    |
+| `/dashboard`             | Allowed | Relative URL          |
+| `https://myapp.com/page` | Allowed | In allowed hosts      |
 
 ## JWT Security
 
@@ -68,13 +68,13 @@ SSO_REQUIRE_HTTPS_REDIRECTS=true
 
 ### Protected Against
 
-| Attack                  | Protection                           |
-| ----------------------- | ------------------------------------ |
-| Token tampering         | Signature verification               |
-| Algorithm confusion     | Only RS256 accepted                  |
-| Expired tokens          | exp claim validation                 |
-| Token replay            | Short-lived tokens                   |
-| None algorithm          | Explicitly rejected                  |
+| Attack              | Protection             |
+| ------------------- | ---------------------- |
+| Token tampering     | Signature verification |
+| Algorithm confusion | Only RS256 accepted    |
+| Expired tokens      | exp claim validation   |
+| Token replay        | Short-lived tokens     |
+| None algorithm      | Explicitly rejected    |
 
 ### Configuration
 

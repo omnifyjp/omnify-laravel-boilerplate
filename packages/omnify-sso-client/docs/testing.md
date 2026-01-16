@@ -24,15 +24,15 @@ cd packages/omnify-sso-client
 
 ### Test Statistics
 
-| Category         | Tests | Assertions |
-| ---------------- | ----- | ---------- |
-| Security         | 47    | 100+       |
-| Authentication   | 35    | 70+        |
-| Authorization    | 45    | 90+        |
-| Models           | 80    | 200+       |
-| Factories        | 28    | 82         |
-| Middleware       | 25    | 50+        |
-| **Total**        | 490+  | 947+       |
+| Category       | Tests | Assertions |
+| -------------- | ----- | ---------- |
+| Security       | 47    | 100+       |
+| Authentication | 35    | 70+        |
+| Authorization  | 45    | 90+        |
+| Models         | 80    | 200+       |
+| Factories      | 28    | 82         |
+| Middleware     | 25    | 50+        |
+| **Total**      | 490+  | 947+       |
 
 ## Testing in Your Application
 

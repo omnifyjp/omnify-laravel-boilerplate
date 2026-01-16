@@ -24,6 +24,14 @@ class Team extends TeamBaseModel
     }
 
     /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): \Database\Factories\TeamFactory
+    {
+        return \Database\Factories\TeamFactory::new();
+    }
+
+    /**
      * Get permissions for this team via TeamPermission model.
      * Uses console_team_id for Console integration.
      */

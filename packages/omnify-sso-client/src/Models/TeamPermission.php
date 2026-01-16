@@ -23,5 +23,13 @@ class TeamPermission extends TeamPermissionBaseModel
         parent::__construct($attributes);
     }
 
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): \Database\Factories\TeamPermissionFactory
+    {
+        return \Database\Factories\TeamPermissionFactory::new();
+    }
+
     // Add your custom methods here
 }

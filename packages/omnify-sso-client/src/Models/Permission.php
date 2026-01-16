@@ -23,5 +23,13 @@ class Permission extends PermissionBaseModel
         parent::__construct($attributes);
     }
 
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): \Database\Factories\PermissionFactory
+    {
+        return \Database\Factories\PermissionFactory::new();
+    }
+
     // Add your custom methods here
 }

@@ -23,5 +23,13 @@ class RolePermission extends RolePermissionBaseModel
         parent::__construct($attributes);
     }
 
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): \Database\Factories\RolePermissionFactory
+    {
+        return \Database\Factories\RolePermissionFactory::new();
+    }
+
     // Add your custom methods here
 }

@@ -2,7 +2,16 @@
 
 # =============================================================================
 # Setup Script
-# Installs everything needed: Docker, SSL, Backend, Frontend, Migrations
+# Sets up everything needed: Backend (Laravel), Frontend (Next.js), Migrations
+# 
+# Prerequisites (must be installed manually):
+#   - Node.js 18+
+#   - npm
+#   - Docker Desktop (running)
+#
+# NOT required (handled via Docker):
+#   - PHP (runs in Docker container)
+#   - Composer (runs in Docker container)
 # =============================================================================
 
 set -e
@@ -52,11 +61,19 @@ get_dev_name() {
         local saved_name=$(cat "$config_file" 2>/dev/null | tr -d '\n')
         if [ -n "$saved_name" ] && validate_dev_name "$saved_name"; then
             echo "$saved_name"
-            return
+            return 0
         fi
     fi
     
-    # Prompt user for input
+    # Check if we're in an interactive terminal
+    if [ ! -t 0 ]; then
+        # Non-interactive mode (e.g., running from npx omnify create-laravel-project)
+        # Skip prompting, will be asked during 'npm run dev'
+        echo ""
+        return 1
+    fi
+    
+    # Prompt user for input (interactive mode)
     echo ""
     echo "=================================================="
     echo " Developer Name Required"
@@ -97,7 +114,7 @@ get_dev_name() {
         echo ""
         
         echo "$dev_name"
-        return
+        return 0
     done
 }
 
@@ -152,52 +169,6 @@ else
     fi
 fi
 
-# Check Composer (only needed if backend doesn't exist)
-if [ ! -d "./backend" ]; then
-    if ! command -v composer &> /dev/null; then
-        print_warning "Composer is not installed (will try to install)"
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            if command -v brew &> /dev/null; then
-                echo "         Installing Composer via Homebrew..."
-                brew install composer
-                print_success "Composer installed"
-            else
-                print_error "Homebrew not found. Please install Composer manually: https://getcomposer.org/download/"
-                MISSING_PREREQS=1
-            fi
-        elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-            echo "         Installing Composer..."
-            sudo apt update && sudo apt install -y composer
-            print_success "Composer installed"
-        else
-            print_error "Please install Composer manually: https://getcomposer.org/download/"
-            MISSING_PREREQS=1
-        fi
-    else
-        print_success "Composer $(composer -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
-    fi
-fi
-
-# Check PHP (only needed if backend doesn't exist)
-if [ ! -d "./backend" ]; then
-    if ! command -v php &> /dev/null; then
-        print_error "PHP is not installed (required for initial Laravel setup)"
-        echo "         Please install PHP 8.2+: https://www.php.net/downloads"
-        MISSING_PREREQS=1
-    else
-        PHP_VERSION=$(php -v | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
-        PHP_MAJOR=$(echo $PHP_VERSION | cut -d. -f1)
-        PHP_MINOR=$(echo $PHP_VERSION | cut -d. -f2)
-        if [ "$PHP_MAJOR" -lt 8 ] || ([ "$PHP_MAJOR" -eq 8 ] && [ "$PHP_MINOR" -lt 2 ]); then
-            print_error "PHP version must be 8.2 or higher (current: $PHP_VERSION)"
-            echo "         Please upgrade PHP: https://www.php.net/downloads"
-            MISSING_PREREQS=1
-        else
-            print_success "PHP $PHP_VERSION"
-        fi
-    fi
-fi
-
 # Exit if any prerequisites are missing
 if [ $MISSING_PREREQS -eq 1 ]; then
     echo ""
@@ -211,11 +182,40 @@ print_success "All prerequisites satisfied"
 echo ""
 
 # =============================================================================
+# Docker helper functions (PHP/Composer run inside containers)
+# =============================================================================
+DOCKER_PHP_IMAGE="php:8.4-cli"
+DOCKER_COMPOSER_IMAGE="composer:latest"
+
+# Run composer command via Docker
+docker_composer() {
+    docker run --rm -v "$(pwd):/app" -w /app \
+        --user "$(id -u):$(id -g)" \
+        "$DOCKER_COMPOSER_IMAGE" "$@"
+}
+
+# Run PHP command via Docker (with extensions for Laravel)
+docker_php() {
+    docker run --rm -v "$(pwd):/app" -w /app \
+        --user "$(id -u):$(id -g)" \
+        "$DOCKER_PHP_IMAGE" php "$@"
+}
+
+# =============================================================================
 # Get developer name (for tunnel URLs)
 # =============================================================================
 DEV_NAME=$(get_dev_name)
-echo " Developer: ${DEV_NAME}"
-echo ""
+DEV_NAME_STATUS=$?
+
+if [ $DEV_NAME_STATUS -eq 0 ] && [ -n "$DEV_NAME" ]; then
+    echo " Developer: ${DEV_NAME}"
+    echo ""
+else
+    echo ""
+    print_warning "Developer name not configured yet"
+    echo "         You will be prompted when running 'npm run dev'"
+    echo ""
+fi
 
 # =============================================================================
 # Install/update packages
@@ -248,45 +248,69 @@ echo ""
 # =============================================================================
 if [ ! -d "./backend" ]; then
     echo ""
-    echo " Creating Laravel API project..."
+    echo " Creating Laravel API project via Docker..."
+    echo "   (No local PHP/Composer required - using Docker containers)"
+    echo ""
     
-    # Create Laravel project
-    composer create-project laravel/laravel backend --prefer-dist --no-interaction
+    # Pull Docker images first (for better UX)
+    echo "   Pulling Docker images..."
+    docker pull "$DOCKER_COMPOSER_IMAGE" > /dev/null 2>&1 || true
+    docker pull "$DOCKER_PHP_IMAGE" > /dev/null 2>&1 || true
     
-    cd backend
+    # Create Laravel project via Docker Composer
+    echo "   Running composer create-project..."
+    docker run --rm -v "$(pwd):/app" -w /app \
+        "$DOCKER_COMPOSER_IMAGE" \
+        create-project laravel/laravel backend --prefer-dist --no-interaction
 
-    # Install API with Sanctum (Laravel 11+)
-    php artisan install:api --no-interaction 2>/dev/null || true
+    # Fix permissions (Docker may create files as root)
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo chown -R "$(id -u):$(id -g)" ./backend 2>/dev/null || true
+    fi
+
+    # Install API with Sanctum (Laravel 11+) via Docker
+    echo "   Installing Sanctum..."
+    docker run --rm -v "$(pwd)/backend:/app" -w /app \
+        "$DOCKER_PHP_IMAGE" php artisan install:api --no-interaction 2>/dev/null || true
     echo "    Sanctum installed"
 
-    # Install Pest for testing
-    echo "    Installing Pest..."
-    composer require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction
+    # Install Pest for testing via Docker
+    echo "   Installing Pest..."
+    docker run --rm -v "$(pwd)/backend:/app" -w /app \
+        "$DOCKER_COMPOSER_IMAGE" \
+        require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction
     echo "    Pest installed"
 
-    # Install SSO Client package + dependencies
-    echo "    Installing SSO Client..."
-    composer config --no-plugins allow-plugins.omnifyjp/omnify-client-laravel-sso true
-    composer require omnifyjp/omnify-client-laravel-sso lcobucci/jwt --no-interaction
+    # Install SSO Client package + dependencies via Docker
+    echo "   Installing SSO Client..."
+    docker run --rm -v "$(pwd)/backend:/app" -w /app \
+        "$DOCKER_COMPOSER_IMAGE" \
+        config --no-plugins allow-plugins.omnifyjp/omnify-client-laravel-sso true
+    docker run --rm -v "$(pwd)/backend:/app" -w /app \
+        "$DOCKER_COMPOSER_IMAGE" \
+        require omnifyjp/omnify-client-laravel-sso lcobucci/jwt --no-interaction
     echo "    SSO Client installed"
 
+    # Fix permissions again after composer operations
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo chown -R "$(id -u):$(id -g)" ./backend 2>/dev/null || true
+    fi
+
     # Remove frontend stuff
-    rm -rf resources/js resources/css public/build
-    rm -f vite.config.js package.json package-lock.json postcss.config.js tailwind.config.js
-    rm -rf node_modules
+    rm -rf ./backend/resources/js ./backend/resources/css ./backend/public/build
+    rm -f ./backend/vite.config.js ./backend/package.json ./backend/package-lock.json ./backend/postcss.config.js ./backend/tailwind.config.js
+    rm -rf ./backend/node_modules
 
     # Remove default Laravel migrations (Omnify will generate them)
-    rm -f database/migrations/*.php
-
-    cd ..
+    rm -f ./backend/database/migrations/*.php
     
     # Copy custom CORS config (supports *.dev.omnify.jp)
-    echo "    Configuring CORS..."
+    echo "   Configuring CORS..."
     cp ./docker/stubs/cors.php.stub ./backend/config/cors.php
     echo "    CORS configured"
     
     # Configure bootstrap/app.php for CSRF exclusion and statefulApi
-    echo "    Configuring middleware..."
+    echo "   Configuring middleware..."
     cp ./docker/stubs/bootstrap-app.php.stub ./backend/bootstrap/app.php
     echo "    Middleware configured"
     
@@ -296,7 +320,7 @@ if [ ! -d "./backend" ]; then
     echo "    Omnify migrations generated"
     
     # Copy User model with SSO trait (after Omnify generates base)
-    echo "    Configuring User model with SSO..."
+    echo "   Configuring User model with SSO..."
     cp ./docker/stubs/User.php.stub ./backend/app/Models/User.php
     echo "    User model configured"
     
@@ -321,8 +345,10 @@ fi
 # =============================================================================
 if [ "$GENERATE_KEY" = true ] || [ ! -f "./backend/.env" ]; then
     echo " Generating backend/.env..."
-    # Generate APP_KEY locally before Docker starts
-    APP_KEY=$(cd backend && php artisan key:generate --show 2>/dev/null || openssl rand -base64 32 | tr -d '\n' | sed 's/^/base64:/')
+    # Generate APP_KEY via Docker (no local PHP required)
+    APP_KEY=$(docker run --rm -v "$(pwd)/backend:/app" -w /app \
+        "$DOCKER_PHP_IMAGE" php artisan key:generate --show 2>/dev/null || \
+        openssl rand -base64 32 | tr -d '\n' | sed 's/^/base64:/')
     cat > ./backend/.env << EOF
 APP_NAME=${PROJECT_NAME}
 APP_KEY=${APP_KEY}
@@ -545,11 +571,15 @@ echo "============================================="
 echo " Setup complete!"
 echo "============================================="
 echo ""
-echo "  Database: omnify / omnify / secret"
-echo "  Testing DB: omnify_testing"
-echo "  SMTP: mailpit:1025 (no auth)"
-echo "  S3: minio:9000 (minioadmin/minioadmin)"
+echo " Requirements met:"
+echo "   - Node.js + npm (for Omnify & frontend)"
+echo "   - Docker (PHP/Composer run inside containers)"
 echo ""
+echo " Services:"
+echo "   Database: omnify / omnify / secret"
+echo "   Testing DB: omnify_testing"
+echo "   SMTP: mailpit:1025 (no auth)"
+echo "   S3: minio:9000 (minioadmin/minioadmin)"
 echo ""
 echo " Run 'npm run dev' to start with tunnel!"
 echo "   URLs will be displayed after startup."

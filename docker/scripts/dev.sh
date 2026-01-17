@@ -22,43 +22,94 @@ TUNNEL_PORT=7000
 FRP_TOKEN="65565cab2397330948c3374416a829dc1d0c25ad25055dd8d712b6d6555c9f36"
 
 # =============================================================================
-# Get dev name from .omnify-dev file (created during setup)
+# Validate dev name (alphanumeric only, for domain compatibility)
+# =============================================================================
+validate_dev_name() {
+    local name=$1
+    if [[ ! "$name" =~ ^[a-zA-Z0-9]+$ ]]; then
+        return 1
+    fi
+    return 0
+}
+
+# =============================================================================
+# Get dev name from .omnify-dev file or prompt if missing
 # =============================================================================
 get_dev_name() {
     local config_file=".omnify-dev"
     
-    if [ ! -f "$config_file" ]; then
+    # Try to read from file
+    if [ -f "$config_file" ]; then
+        local saved_name=$(cat "$config_file" 2>/dev/null | tr -d '\n')
+        if [ -n "$saved_name" ]; then
+            # Validate alphanumeric only
+            if ! validate_dev_name "$saved_name"; then
+                echo -e "${RED}ERROR: Invalid developer name in .omnify-dev${NC}" >&2
+                echo "" >&2
+                echo "  Current value: '$saved_name'" >&2
+                echo "  Developer name must contain only letters and numbers (a-z, A-Z, 0-9)." >&2
+                echo "  Please delete .omnify-dev and try again." >&2
+                echo "" >&2
+                exit 1
+            fi
+            echo "$saved_name"
+            return
+        fi
+    fi
+    
+    # Check if we're in an interactive terminal
+    if [ ! -t 0 ]; then
         echo -e "${RED}ERROR: Developer name not configured${NC}" >&2
         echo "" >&2
-        echo "  The file .omnify-dev is missing." >&2
-        echo "  Please run 'npm run setup' first to configure your developer name." >&2
+        echo "  The file .omnify-dev is missing and this is a non-interactive shell." >&2
+        echo "  Please run 'npm run dev' in an interactive terminal first." >&2
         echo "" >&2
         exit 1
     fi
     
-    local saved_name=$(cat "$config_file" 2>/dev/null | tr -d '\n')
+    # Prompt user for input (interactive mode)
+    echo "" >&2
+    echo "==================================================" >&2
+    echo " Developer Name Required" >&2
+    echo "==================================================" >&2
+    echo "" >&2
+    echo "  This name will be used in your development URLs:" >&2
+    echo "  https://project.YOUR_NAME.dev.omnify.jp" >&2
+    echo "" >&2
+    echo "  Rules:" >&2
+    echo "    - Only letters and numbers (a-z, A-Z, 0-9)" >&2
+    echo "    - No spaces, hyphens, or special characters" >&2
+    echo "    - Example: satoshi, tanaka, john123" >&2
+    echo "" >&2
     
-    if [ -z "$saved_name" ]; then
-        echo -e "${RED}ERROR: Developer name is empty${NC}" >&2
+    while true; do
+        echo -n "  Enter your dev name: " >&2
+        read dev_name
+        
+        # Check if empty
+        if [ -z "$dev_name" ]; then
+            echo -e "${RED}ERROR: Dev name cannot be empty${NC}" >&2
+            continue
+        fi
+        
+        # Convert to lowercase
+        dev_name=$(echo "$dev_name" | tr '[:upper:]' '[:lower:]')
+        
+        # Validate
+        if ! validate_dev_name "$dev_name"; then
+            echo -e "${RED}ERROR: Invalid dev name: '$dev_name'${NC}" >&2
+            echo "         Only letters and numbers are allowed" >&2
+            continue
+        fi
+        
+        # Save to file
+        echo "$dev_name" > "$config_file"
+        echo -e "${GREEN}✓${NC} Saved to .omnify-dev" >&2
         echo "" >&2
-        echo "  The file .omnify-dev exists but is empty." >&2
-        echo "  Please run 'npm run setup' again to configure your developer name." >&2
-        echo "" >&2
-        exit 1
-    fi
-    
-    # Validate alphanumeric only
-    if [[ ! "$saved_name" =~ ^[a-zA-Z0-9]+$ ]]; then
-        echo -e "${RED}ERROR: Invalid developer name in .omnify-dev${NC}" >&2
-        echo "" >&2
-        echo "  Current value: '$saved_name'" >&2
-        echo "  Developer name must contain only letters and numbers (a-z, A-Z, 0-9)." >&2
-        echo "  Please edit .omnify-dev or run 'npm run setup' again." >&2
-        echo "" >&2
-        exit 1
-    fi
-    
-    echo "$saved_name"
+        
+        echo "$dev_name"
+        return
+    done
 }
 
 # =============================================================================

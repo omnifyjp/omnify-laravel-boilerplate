@@ -22,6 +22,7 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # =============================================================================
@@ -51,77 +52,51 @@ validate_dev_name() {
 }
 
 # =============================================================================
-# Get or prompt for dev name
+# Get system username (clean, alphanumeric only)
 # =============================================================================
-get_dev_name() {
-    local config_file=".omnify-dev"
-    
-    # Try to read from file
-    if [ -f "$config_file" ]; then
-        local saved_name=$(cat "$config_file" 2>/dev/null | tr -d '\n')
-        if [ -n "$saved_name" ] && validate_dev_name "$saved_name"; then
-            echo "$saved_name"
-            return 0
-        fi
+get_system_username() {
+    local username=$(whoami | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
+    # If username contains dots or special chars, extract first part
+    if [ -z "$username" ]; then
+        username="developer"
     fi
-    
-    # Check if we're in an interactive terminal
-    if [ ! -t 0 ]; then
-        # Non-interactive mode (e.g., running from npx omnify create-laravel-project)
-        # Skip prompting, will be asked during 'npm run dev'
-        # Return empty string (no exit code error)
-        return 0
-    fi
-    
-    # Prompt user for input (interactive mode)
-    echo ""
-    echo "=================================================="
-    echo " Developer Name Required"
-    echo "=================================================="
-    echo ""
-    echo "  This name will be used in your development URLs:"
-    echo "  https://project.YOUR_NAME.dev.omnify.jp"
-    echo ""
-    echo "  Rules:"
-    echo "    - Only letters and numbers (a-z, A-Z, 0-9)"
-    echo "    - No spaces, hyphens, or special characters"
-    echo "    - Example: satoshi, tanaka, john123"
-    echo ""
-    
-    while true; do
-        echo -n "  Enter your dev name: "
-        read dev_name
-        
-        # Check if empty
-        if [ -z "$dev_name" ]; then
-            print_error "Dev name cannot be empty"
-            continue
-        fi
-        
-        # Convert to lowercase
-        dev_name=$(echo "$dev_name" | tr '[:upper:]' '[:lower:]')
-        
-        # Validate
-        if ! validate_dev_name "$dev_name"; then
-            print_error "Invalid dev name: '$dev_name'"
-            echo "         Only letters and numbers are allowed (no spaces, hyphens, or special characters)"
-            continue
-        fi
-        
-        # Save to file
-        echo "$dev_name" > "$config_file"
-        print_success "Saved to .omnify-dev"
-        echo ""
-        
-        echo "$dev_name"
-        return 0
-    done
+    echo "$username"
 }
 
 # =============================================================================
-# Check all prerequisites
+# STEP 1: Get developer name FIRST (before anything else)
 # =============================================================================
 echo ""
+echo -e "${CYAN}==================================================${NC}"
+echo -e "${CYAN} Omnify Laravel Project Setup${NC}"
+echo -e "${CYAN}==================================================${NC}"
+echo ""
+
+CONFIG_FILE=".omnify-dev"
+DEV_NAME=""
+
+# Check if already configured
+if [ -f "$CONFIG_FILE" ]; then
+    SAVED_NAME=$(cat "$CONFIG_FILE" 2>/dev/null | tr -d '\n')
+    if [ -n "$SAVED_NAME" ] && validate_dev_name "$SAVED_NAME"; then
+        DEV_NAME="$SAVED_NAME"
+        echo "  Developer: $DEV_NAME"
+    fi
+fi
+
+# If not configured, use system username
+if [ -z "$DEV_NAME" ]; then
+    DEV_NAME=$(get_system_username)
+    echo "$DEV_NAME" > "$CONFIG_FILE"
+    echo "  Developer: $DEV_NAME (auto-detected)"
+fi
+
+echo "  URLs will be: https://PROJECT.$DEV_NAME.dev.omnify.jp"
+echo ""
+
+# =============================================================================
+# STEP 2: Check all prerequisites
+# =============================================================================
 echo "=================================================="
 echo " Checking Prerequisites"
 echo "=================================================="
@@ -204,31 +179,6 @@ docker_php() {
         --user "$(id -u):$(id -g)" \
         "$DOCKER_PHP_IMAGE" php "$@"
 }
-
-# =============================================================================
-# Get developer name (for tunnel URLs) - skip in non-interactive mode
-# =============================================================================
-echo " Checking developer name configuration..."
-DEV_NAME=""
-if [ -t 0 ] && [ -t 1 ]; then
-    # Interactive mode - can prompt for input
-    DEV_NAME=$(get_dev_name) || true
-else
-    # Non-interactive mode - try to read from file only
-    if [ -f ".omnify-dev" ]; then
-        DEV_NAME=$(cat ".omnify-dev" 2>/dev/null | tr -d '\n')
-    fi
-fi
-
-if [ -n "$DEV_NAME" ]; then
-    echo " Developer: ${DEV_NAME}"
-    echo ""
-else
-    echo ""
-    print_warning "Developer name not configured yet"
-    echo "         You will be prompted when running 'npm run dev'"
-    echo ""
-fi
 
 # =============================================================================
 # Install/update packages

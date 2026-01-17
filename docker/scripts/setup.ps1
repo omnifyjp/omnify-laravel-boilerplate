@@ -56,69 +56,53 @@ function Test-DevName {
 }
 
 # =============================================================================
-# Get or prompt for dev name
+# Get system username (clean, alphanumeric only)
 # =============================================================================
-function Get-DevName {
-    $configFile = ".omnify-dev"
-    
-    # Try to read from file
-    if (Test-Path $configFile) {
-        $savedName = (Get-Content $configFile -Raw -ErrorAction SilentlyContinue)
-        if ($savedName) {
-            $savedName = $savedName.Trim()
-            if ((Test-DevName $savedName)) {
-                return $savedName
-            }
-        }
+function Get-SystemUsername {
+    $username = $env:USERNAME.ToLower() -replace '[^a-z0-9]', ''
+    if ([string]::IsNullOrWhiteSpace($username)) {
+        $username = "developer"
     }
-    
-    # Prompt user for input
-    Write-Host ""
-    Write-Host "=================================================="
-    Write-Host " Developer Name Required"
-    Write-Host "=================================================="
-    Write-Host ""
-    Write-Host "  This name will be used in your development URLs:"
-    Write-Host "  https://project.YOUR_NAME.dev.omnify.jp"
-    Write-Host ""
-    Write-Host "  Rules:"
-    Write-Host "    - Only letters and numbers (a-z, A-Z, 0-9)"
-    Write-Host "    - No spaces, hyphens, or special characters"
-    Write-Host "    - Example: satoshi, tanaka, john123"
-    Write-Host ""
-    
-    while ($true) {
-        $devName = Read-Host "  Enter your dev name"
-        
-        # Check if empty
-        if ([string]::IsNullOrWhiteSpace($devName)) {
-            Write-Error-Message "Dev name cannot be empty"
-            continue
-        }
-        
-        # Convert to lowercase
-        $devName = $devName.ToLower()
-        
-        # Validate
-        if (-not (Test-DevName $devName)) {
-            Write-Error-Message "Invalid dev name: '$devName'"
-            Write-Host "         Only letters and numbers are allowed (no spaces, hyphens, or special characters)"
-            continue
-        }
-        
-        # Save to file
-        $devName | Set-Content $configFile -NoNewline
-        Write-Success "Saved to .omnify-dev"
-        Write-Host ""
-        
-        return $devName
-    }
+    return $username
 }
 
 # =============================================================================
-# Check all prerequisites
+# STEP 1: Get developer name FIRST (before anything else)
 # =============================================================================
 Write-Host ""
+Write-Host "==================================================" -ForegroundColor Cyan
+Write-Host " Omnify Laravel Project Setup" -ForegroundColor Cyan
+Write-Host "==================================================" -ForegroundColor Cyan
+Write-Host ""
+
+$CONFIG_FILE = ".omnify-dev"
+$DEV_NAME = $null
+
+# Check if already configured
+if (Test-Path $CONFIG_FILE) {
+    $SAVED_NAME = (Get-Content $CONFIG_FILE -Raw -ErrorAction SilentlyContinue)
+    if ($SAVED_NAME) {
+        $SAVED_NAME = $SAVED_NAME.Trim()
+        if ((Test-DevName $SAVED_NAME)) {
+            $DEV_NAME = $SAVED_NAME
+            Write-Host "  Developer: $DEV_NAME"
+        }
+    }
+}
+
+# If not configured, use system username
+if (-not $DEV_NAME) {
+    $DEV_NAME = Get-SystemUsername
+    $DEV_NAME | Set-Content $CONFIG_FILE -NoNewline
+    Write-Host "  Developer: $DEV_NAME (auto-detected)"
+}
+
+Write-Host "  URLs will be: https://PROJECT.$DEV_NAME.dev.omnify.jp"
+Write-Host ""
+
+# =============================================================================
+# STEP 2: Check all prerequisites
+# =============================================================================
 Write-Host "=================================================="
 Write-Host " Checking Prerequisites"
 Write-Host "=================================================="
@@ -189,41 +173,6 @@ $DOCKER_COMPOSER_IMAGE = "composer:latest"
 Write-Host "   PHP:      $DOCKER_PHP_IMAGE"
 Write-Host "   Composer: $DOCKER_COMPOSER_IMAGE"
 Write-Host ""
-
-# =============================================================================
-# Get developer name (for tunnel URLs) - skip in non-interactive mode
-# =============================================================================
-Write-Host " Checking developer name configuration..."
-$DEV_NAME = $null
-
-# Check if we're in an interactive session
-$isInteractive = [Environment]::UserInteractive -and [Console]::KeyAvailable -ne $null
-
-if ($isInteractive) {
-    try {
-        $DEV_NAME = Get-DevName
-    } catch {
-        # Skip if prompting fails
-    }
-} else {
-    # Non-interactive mode - try to read from file only
-    if (Test-Path ".omnify-dev") {
-        $DEV_NAME = (Get-Content ".omnify-dev" -Raw -ErrorAction SilentlyContinue)
-        if ($DEV_NAME) {
-            $DEV_NAME = $DEV_NAME.Trim()
-        }
-    }
-}
-
-if ($DEV_NAME) {
-    Write-Host " Developer: $DEV_NAME"
-    Write-Host ""
-} else {
-    Write-Host ""
-    Write-Warning-Message "Developer name not configured yet"
-    Write-Host "         You will be prompted when running 'npm run dev'"
-    Write-Host ""
-}
 
 # =============================================================================
 # Install/update packages

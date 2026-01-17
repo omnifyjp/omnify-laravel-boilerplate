@@ -184,8 +184,12 @@ echo ""
 # =============================================================================
 # Docker helper functions (PHP/Composer run inside containers)
 # =============================================================================
+echo " Configuring Docker images for PHP/Composer..."
 DOCKER_PHP_IMAGE="php:8.4-cli"
 DOCKER_COMPOSER_IMAGE="composer:latest"
+echo "   PHP:      $DOCKER_PHP_IMAGE"
+echo "   Composer: $DOCKER_COMPOSER_IMAGE"
+echo ""
 
 # Run composer command via Docker
 docker_composer() {

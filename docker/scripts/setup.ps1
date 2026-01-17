@@ -1,15 +1,49 @@
 # =============================================================================
 # Setup Script for Windows (PowerShell)
-# Installs everything needed: Docker, SSL, Backend, Frontend, Migrations
-# Run as Administrator for hosts file modification
+# Sets up everything needed: Backend (Laravel), Frontend (Next.js), Migrations
+#
+# Prerequisites (must be installed manually):
+#   - Node.js 18+
+#   - npm
+#   - Docker Desktop (running)
+#
+# NOT required (handled via Docker):
+#   - PHP (runs in Docker container)
+#   - Composer (runs in Docker container)
 # =============================================================================
 
 $ErrorActionPreference = "Stop"
+
+# Docker image configuration
+$DOCKER_PHP_IMAGE = "php:8.4-cli"
+$DOCKER_COMPOSER_IMAGE = "composer:latest"
 
 # =============================================================================
 # Check required tools
 # =============================================================================
 Write-Host " Checking required tools..." -ForegroundColor Yellow
+
+# Check Node.js
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    Write-Host " Node.js is not installed!" -ForegroundColor Red
+    Write-Host "   Please install Node.js 18+: https://nodejs.org/" -ForegroundColor Yellow
+    exit 1
+}
+$nodeVersion = (node -v) -replace 'v', '' -split '\.' | Select-Object -First 1
+if ([int]$nodeVersion -lt 18) {
+    Write-Host " Node.js version must be 18 or higher (current: $(node -v))" -ForegroundColor Red
+    Write-Host "   Please upgrade Node.js: https://nodejs.org/" -ForegroundColor Yellow
+    exit 1
+}
+Write-Host "    Node.js $(node -v)" -ForegroundColor Green
+
+# Check npm
+if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+    Write-Host " npm is not installed!" -ForegroundColor Red
+    Write-Host "   npm should come with Node.js installation" -ForegroundColor Yellow
+    exit 1
+}
+Write-Host "    npm $(npm -v)" -ForegroundColor Green
 
 # Check Docker
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
@@ -24,23 +58,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "   Please start Docker Desktop and try again." -ForegroundColor Yellow
     exit 1
 }
-Write-Host "    Docker" -ForegroundColor Green
-
-# Check Composer (only needed if backend doesn't exist)
-if (-not (Test-Path ".\backend")) {
-    if (-not (Get-Command composer -ErrorAction SilentlyContinue)) {
-        Write-Host "    Installing Composer..." -ForegroundColor Yellow
-        if (Get-Command choco -ErrorAction SilentlyContinue) {
-            choco install composer -y
-        } else {
-            Write-Host " Composer is not installed!" -ForegroundColor Red
-            Write-Host "   Please install Composer: https://getcomposer.org/download/" -ForegroundColor Yellow
-            Write-Host "   Or install Chocolatey first: https://chocolatey.org/" -ForegroundColor Yellow
-            exit 1
-        }
-    }
-    Write-Host "    Composer" -ForegroundColor Green
-}
+Write-Host "    Docker $(docker -v | Select-String -Pattern '\d+\.\d+\.\d+' | ForEach-Object { $_.Matches.Value })" -ForegroundColor Green
 
 # Install/update packages (skip if already installed by pnpm or npm)
 if (-not (Test-Path "node_modules")) {
@@ -71,36 +89,64 @@ Write-Host ""
 # =============================================================================
 if (-not (Test-Path ".\backend")) {
     Write-Host ""
-    Write-Host " Creating Laravel API project..." -ForegroundColor Yellow
+    Write-Host " Creating Laravel API project via Docker..." -ForegroundColor Yellow
+    Write-Host "   (No local PHP/Composer required - using Docker containers)" -ForegroundColor Gray
+    Write-Host ""
     
-    composer create-project laravel/laravel backend --prefer-dist --no-interaction
+    # Pull Docker images first (for better UX)
+    Write-Host "   Pulling Docker images..." -ForegroundColor Gray
+    docker pull $DOCKER_COMPOSER_IMAGE 2>$null
+    docker pull $DOCKER_PHP_IMAGE 2>$null
     
-    Push-Location .\backend
-
-    # Install API with Sanctum (Laravel 11+)
-    php artisan install:api --no-interaction 2>$null
+    # Create Laravel project via Docker Composer
+    Write-Host "   Running composer create-project..." -ForegroundColor Gray
+    $currentDir = (Get-Location).Path -replace '\\', '/'
+    docker run --rm -v "${currentDir}:/app" -w /app $DOCKER_COMPOSER_IMAGE create-project laravel/laravel backend --prefer-dist --no-interaction
+    
+    # Install API with Sanctum (Laravel 11+) via Docker
+    Write-Host "   Installing Sanctum..." -ForegroundColor Gray
+    docker run --rm -v "${currentDir}/backend:/app" -w /app $DOCKER_PHP_IMAGE php artisan install:api --no-interaction 2>$null
     Write-Host "    Sanctum installed" -ForegroundColor Green
 
-    # Install Pest for testing
-    Write-Host "    Installing Pest..." -ForegroundColor Yellow
-    composer require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction
+    # Install Pest for testing via Docker
+    Write-Host "   Installing Pest..." -ForegroundColor Gray
+    docker run --rm -v "${currentDir}/backend:/app" -w /app $DOCKER_COMPOSER_IMAGE require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction
     Write-Host "    Pest installed" -ForegroundColor Green
 
+    # Install SSO Client package + dependencies via Docker
+    Write-Host "   Installing SSO Client..." -ForegroundColor Gray
+    docker run --rm -v "${currentDir}/backend:/app" -w /app $DOCKER_COMPOSER_IMAGE config --no-plugins allow-plugins.omnifyjp/omnify-client-laravel-sso true
+    docker run --rm -v "${currentDir}/backend:/app" -w /app $DOCKER_COMPOSER_IMAGE require omnifyjp/omnify-client-laravel-sso lcobucci/jwt --no-interaction
+    Write-Host "    SSO Client installed" -ForegroundColor Green
+
     # Remove frontend stuff
-    Remove-Item -Path "resources\js", "resources\css", "public\build" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "vite.config.js", "package.json", "package-lock.json", "postcss.config.js", "tailwind.config.js" -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "node_modules" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path ".\backend\resources\js", ".\backend\resources\css", ".\backend\public\build" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path ".\backend\vite.config.js", ".\backend\package.json", ".\backend\package-lock.json", ".\backend\postcss.config.js", ".\backend\tailwind.config.js" -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path ".\backend\node_modules" -Recurse -Force -ErrorAction SilentlyContinue
 
     # Remove default Laravel migrations
-    Remove-Item -Path "database\migrations\*.php" -Force -ErrorAction SilentlyContinue
-
-    Pop-Location
+    Remove-Item -Path ".\backend\database\migrations\*.php" -Force -ErrorAction SilentlyContinue
+    
+    # Copy custom CORS config (supports *.dev.omnify.jp)
+    Write-Host "   Configuring CORS..." -ForegroundColor Gray
+    Copy-Item ".\docker\stubs\cors.php.stub" ".\backend\config\cors.php" -Force
+    Write-Host "    CORS configured" -ForegroundColor Green
+    
+    # Configure bootstrap/app.php for CSRF exclusion and statefulApi
+    Write-Host "   Configuring middleware..." -ForegroundColor Gray
+    Copy-Item ".\docker\stubs\bootstrap-app.php.stub" ".\backend\bootstrap\app.php" -Force
+    Write-Host "    Middleware configured" -ForegroundColor Green
     
     # Generate Omnify migrations
     Write-Host " Generating Omnify migrations..." -ForegroundColor Yellow
     npx omnify reset -y
     npx omnify generate
     Write-Host "    Omnify migrations generated" -ForegroundColor Green
+    
+    # Copy User model with SSO trait (after Omnify generates base)
+    Write-Host "   Configuring User model with SSO..." -ForegroundColor Gray
+    Copy-Item ".\docker\stubs\User.php.stub" ".\backend\app\Models\User.php" -Force
+    Write-Host "    User model configured" -ForegroundColor Green
     
     # Register OmnifyServiceProvider
     Write-Host " Registering OmnifyServiceProvider..." -ForegroundColor Yellow
@@ -112,15 +158,75 @@ if (-not (Test-Path ".\backend")) {
 }
 
 # =============================================================================
-# Step 2: Generate backend/.env (if not exists)
+# Step 2: Generate backend/.env (if not exists or GENERATE_KEY is true)
 # =============================================================================
-if (-not (Test-Path ".\backend\.env")) {
+if ($GENERATE_KEY -or (-not (Test-Path ".\backend\.env"))) {
     Write-Host " Generating backend/.env..." -ForegroundColor Yellow
-    # Copy stub and replace placeholders
-    $envContent = Get-Content ".\docker\stubs\backend.env.stub" -Raw
-    $envContent = $envContent -replace "__PROJECT_NAME__", $PROJECT_NAME
-    $envContent = $envContent -replace "__DOMAIN__", $DOMAIN
-    $envContent = $envContent -replace "__API_DOMAIN__", $API_DOMAIN
+    
+    # Generate APP_KEY via Docker (no local PHP required)
+    $currentDir = (Get-Location).Path -replace '\\', '/'
+    $APP_KEY = docker run --rm -v "${currentDir}/backend:/app" -w /app $DOCKER_PHP_IMAGE php artisan key:generate --show 2>$null
+    if (-not $APP_KEY) {
+        # Fallback to openssl if artisan fails
+        $APP_KEY = "base64:" + [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+    }
+    
+    # Generate .env file
+    $envContent = @"
+APP_NAME=$PROJECT_NAME
+APP_KEY=$APP_KEY
+APP_ENV=local
+APP_DEBUG=true
+APP_TIMEZONE=UTC
+APP_URL=https://$API_DOMAIN
+FRONTEND_URL=https://$DOMAIN
+
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=omnify
+DB_USERNAME=omnify
+DB_PASSWORD=secret
+
+SESSION_DRIVER=cookie
+SESSION_DOMAIN=.$DOMAIN
+SESSION_SAME_SITE=none
+SESSION_SECURE_COOKIE=true
+CACHE_DRIVER=file
+QUEUE_CONNECTION=sync
+
+SANCTUM_STATEFUL_DOMAINS=$DOMAIN,$API_DOMAIN
+CORS_ALLOWED_ORIGINS=https://$DOMAIN
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="`${APP_NAME}"
+
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=local
+AWS_ENDPOINT=http://minio:9000
+AWS_USE_PATH_STYLE_ENDPOINT=true
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# SSO Configuration (dev.console.omnify.jp)
+SSO_CONSOLE_URL=https://dev.console.omnify.jp
+SSO_SERVICE_SLUG=test-service
+SSO_SERVICE_SECRET=test_secret_2026_dev_only_do_not_use_in_prod
+"@
     $envContent | Out-File -FilePath ".\backend\.env" -Encoding UTF8 -NoNewline
     Write-Host "    backend/.env created" -ForegroundColor Green
     $GENERATE_KEY = $true
@@ -191,11 +297,12 @@ if ($RETRY_COUNT -eq $MAX_RETRIES) {
     exit 1
 }
 
-# Generate APP_KEY if needed
+# Run setup tasks if needed
 if ($GENERATE_KEY) {
-    Write-Host " Generating APP_KEY..." -ForegroundColor Yellow
-    docker compose exec -T backend php artisan key:generate
-    Write-Host "    APP_KEY generated" -ForegroundColor Green
+    # Publish SSO config only (migrations are generated by Omnify schema)
+    Write-Host " Publishing SSO config..." -ForegroundColor Yellow
+    docker compose exec -T backend php artisan vendor:publish --tag=sso-client-config --force
+    Write-Host "    SSO config published" -ForegroundColor Green
     
     # Run migrations
     Write-Host "  Running migrations..." -ForegroundColor Yellow
@@ -263,12 +370,16 @@ Write-Host "=============================================" -ForegroundColor Gree
 Write-Host " Setup complete!" -ForegroundColor Green
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "  Database: omnify / omnify / secret" -ForegroundColor Gray
-Write-Host "  Testing DB: omnify_testing" -ForegroundColor Gray
-Write-Host "  SMTP: mailpit:1025 (no auth)" -ForegroundColor Gray
-Write-Host "  S3: minio:9000 (minioadmin/minioadmin)" -ForegroundColor Gray
+Write-Host " Requirements met:" -ForegroundColor Gray
+Write-Host "   - Node.js + npm (for Omnify & frontend)" -ForegroundColor Gray
+Write-Host "   - Docker (PHP/Composer run inside containers)" -ForegroundColor Gray
 Write-Host ""
-Write-Host "" -ForegroundColor DarkGray
+Write-Host " Services:" -ForegroundColor Gray
+Write-Host "   Database: omnify / omnify / secret" -ForegroundColor Gray
+Write-Host "   Testing DB: omnify_testing" -ForegroundColor Gray
+Write-Host "   SMTP: mailpit:1025 (no auth)" -ForegroundColor Gray
+Write-Host "   S3: minio:9000 (minioadmin/minioadmin)" -ForegroundColor Gray
+Write-Host ""
 Write-Host " Run 'npm run dev' to start with tunnel!" -ForegroundColor Yellow
 Write-Host "   URLs will be displayed after startup." -ForegroundColor Gray
-Write-Host "" -ForegroundColor DarkGray
+Write-Host ""

@@ -69,8 +69,8 @@ get_dev_name() {
     if [ ! -t 0 ]; then
         # Non-interactive mode (e.g., running from npx omnify create-laravel-project)
         # Skip prompting, will be asked during 'npm run dev'
-        echo ""
-        return 1
+        # Return empty string (no exit code error)
+        return 0
     fi
     
     # Prompt user for input (interactive mode)
@@ -204,10 +204,10 @@ docker_php() {
 # =============================================================================
 # Get developer name (for tunnel URLs)
 # =============================================================================
-DEV_NAME=$(get_dev_name)
+DEV_NAME=$(get_dev_name) || true
 DEV_NAME_STATUS=$?
 
-if [ $DEV_NAME_STATUS -eq 0 ] && [ -n "$DEV_NAME" ]; then
+if [ -n "$DEV_NAME" ]; then
     echo " Developer: ${DEV_NAME}"
     echo ""
 else

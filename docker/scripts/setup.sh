@@ -8,46 +8,222 @@
 set -e
 
 # =============================================================================
-# Check required tools
+# Colors for output
 # =============================================================================
-echo "🔍 Checking required tools..."
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# =============================================================================
+# Helper functions
+# =============================================================================
+print_error() {
+    echo -e "${RED}ERROR: $1${NC}"
+}
+
+print_success() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
+# =============================================================================
+# Validate dev name (alphanumeric only, for domain compatibility)
+# =============================================================================
+validate_dev_name() {
+    local name=$1
+    if [[ ! "$name" =~ ^[a-zA-Z0-9]+$ ]]; then
+        return 1
+    fi
+    return 0
+}
+
+# =============================================================================
+# Get or prompt for dev name
+# =============================================================================
+get_dev_name() {
+    local config_file=".omnify-dev"
+    
+    # Try to read from file
+    if [ -f "$config_file" ]; then
+        local saved_name=$(cat "$config_file" 2>/dev/null | tr -d '\n')
+        if [ -n "$saved_name" ] && validate_dev_name "$saved_name"; then
+            echo "$saved_name"
+            return
+        fi
+    fi
+    
+    # Prompt user for input
+    echo ""
+    echo "=================================================="
+    echo " Developer Name Required"
+    echo "=================================================="
+    echo ""
+    echo "  This name will be used in your development URLs:"
+    echo "  https://project.YOUR_NAME.dev.omnify.jp"
+    echo ""
+    echo "  Rules:"
+    echo "    - Only letters and numbers (a-z, A-Z, 0-9)"
+    echo "    - No spaces, hyphens, or special characters"
+    echo "    - Example: satoshi, tanaka, john123"
+    echo ""
+    
+    while true; do
+        echo -n "  Enter your dev name: "
+        read dev_name
+        
+        # Check if empty
+        if [ -z "$dev_name" ]; then
+            print_error "Dev name cannot be empty"
+            continue
+        fi
+        
+        # Convert to lowercase
+        dev_name=$(echo "$dev_name" | tr '[:upper:]' '[:lower:]')
+        
+        # Validate
+        if ! validate_dev_name "$dev_name"; then
+            print_error "Invalid dev name: '$dev_name'"
+            echo "         Only letters and numbers are allowed (no spaces, hyphens, or special characters)"
+            continue
+        fi
+        
+        # Save to file
+        echo "$dev_name" > "$config_file"
+        print_success "Saved to .omnify-dev"
+        echo ""
+        
+        echo "$dev_name"
+        return
+    done
+}
+
+# =============================================================================
+# Check all prerequisites
+# =============================================================================
+echo ""
+echo "=================================================="
+echo " Checking Prerequisites"
+echo "=================================================="
+echo ""
+
+MISSING_PREREQS=0
+
+# Check Node.js
+if ! command -v node &> /dev/null; then
+    print_error "Node.js is not installed"
+    echo "         Please install Node.js 18+: https://nodejs.org/"
+    MISSING_PREREQS=1
+else
+    NODE_VERSION=$(node -v | sed 's/v//' | cut -d. -f1)
+    if [ "$NODE_VERSION" -lt 18 ]; then
+        print_error "Node.js version must be 18 or higher (current: $(node -v))"
+        echo "         Please upgrade Node.js: https://nodejs.org/"
+        MISSING_PREREQS=1
+    else
+        print_success "Node.js $(node -v)"
+    fi
+fi
+
+# Check npm
+if ! command -v npm &> /dev/null; then
+    print_error "npm is not installed"
+    echo "         npm should come with Node.js installation"
+    MISSING_PREREQS=1
+else
+    print_success "npm $(npm -v)"
+fi
 
 # Check Docker
 if ! command -v docker &> /dev/null; then
-    echo " Docker is not installed!"
-    echo "   Please install Docker Desktop: https://www.docker.com/products/docker-desktop"
-    exit 1
+    print_error "Docker is not installed"
+    echo "         Please install Docker Desktop: https://www.docker.com/products/docker-desktop"
+    MISSING_PREREQS=1
+else
+    if ! docker info &> /dev/null 2>&1; then
+        print_error "Docker is not running"
+        echo "         Please start Docker Desktop and try again"
+        MISSING_PREREQS=1
+    else
+        print_success "Docker $(docker -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
+    fi
 fi
-
-if ! docker info &> /dev/null; then
-    echo " Docker is not running!"
-    echo "   Please start Docker Desktop and try again."
-    exit 1
-fi
-echo "    Docker"
 
 # Check Composer (only needed if backend doesn't exist)
 if [ ! -d "./backend" ]; then
     if ! command -v composer &> /dev/null; then
-        echo "    Installing Composer..."
+        print_warning "Composer is not installed (will try to install)"
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            brew install composer
+            if command -v brew &> /dev/null; then
+                echo "         Installing Composer via Homebrew..."
+                brew install composer
+                print_success "Composer installed"
+            else
+                print_error "Homebrew not found. Please install Composer manually: https://getcomposer.org/download/"
+                MISSING_PREREQS=1
+            fi
         elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            echo "         Installing Composer..."
             sudo apt update && sudo apt install -y composer
+            print_success "Composer installed"
         else
-            echo " Composer is not installed!"
-            echo "   Please install Composer: https://getcomposer.org/download/"
-            exit 1
+            print_error "Please install Composer manually: https://getcomposer.org/download/"
+            MISSING_PREREQS=1
         fi
+    else
+        print_success "Composer $(composer -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
     fi
-    echo "    Composer"
 fi
 
-# Install/update packages (skip if already installed by pnpm or npm)
+# Check PHP (only needed if backend doesn't exist)
+if [ ! -d "./backend" ]; then
+    if ! command -v php &> /dev/null; then
+        print_error "PHP is not installed (required for initial Laravel setup)"
+        echo "         Please install PHP 8.2+: https://www.php.net/downloads"
+        MISSING_PREREQS=1
+    else
+        PHP_VERSION=$(php -v | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+        PHP_MAJOR=$(echo $PHP_VERSION | cut -d. -f1)
+        PHP_MINOR=$(echo $PHP_VERSION | cut -d. -f2)
+        if [ "$PHP_MAJOR" -lt 8 ] || ([ "$PHP_MAJOR" -eq 8 ] && [ "$PHP_MINOR" -lt 2 ]); then
+            print_error "PHP version must be 8.2 or higher (current: $PHP_VERSION)"
+            echo "         Please upgrade PHP: https://www.php.net/downloads"
+            MISSING_PREREQS=1
+        else
+            print_success "PHP $PHP_VERSION"
+        fi
+    fi
+fi
+
+# Exit if any prerequisites are missing
+if [ $MISSING_PREREQS -eq 1 ]; then
+    echo ""
+    print_error "Prerequisites check failed. Please install missing dependencies and try again."
+    echo ""
+    exit 1
+fi
+
+echo ""
+print_success "All prerequisites satisfied"
+echo ""
+
+# =============================================================================
+# Get developer name (for tunnel URLs)
+# =============================================================================
+DEV_NAME=$(get_dev_name)
+echo " Developer: ${DEV_NAME}"
+echo ""
+
+# =============================================================================
+# Install/update packages
+# =============================================================================
 if [ ! -d "node_modules" ]; then
     echo " Installing packages..."
     npm install
-    echo "    Packages installed"
+    print_success "Packages installed"
 else
     echo " Packages already installed, skipping..."
 fi

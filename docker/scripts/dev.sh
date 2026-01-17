@@ -2,67 +2,72 @@
 
 # =============================================================================
 # Dev Script - Omnify Tunnel Version
-# Tunnel経由でlocalhostをインターネットに公開する
+# Starts development environment with tunnel for public access
 # =============================================================================
 
 set -e
 
 # =============================================================================
-# Tunnel Server設定
+# Colors for output
+# =============================================================================
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# =============================================================================
+# Tunnel Server Configuration
 # =============================================================================
 TUNNEL_SERVER="dev.omnify.jp"
 TUNNEL_PORT=7000
 FRP_TOKEN="65565cab2397330948c3374416a829dc1d0c25ad25055dd8d712b6d6555c9f36"
 
 # =============================================================================
-# 開発者名を取得/保存する関数
+# Get dev name from .omnify-dev file (created during setup)
 # =============================================================================
 get_dev_name() {
     local config_file=".omnify-dev"
     
-    # ファイルから取得を試みる
-    if [ -f "$config_file" ]; then
-        local saved_name=$(cat "$config_file" 2>/dev/null | tr -d '\n')
-        if [ -n "$saved_name" ]; then
-            echo "$saved_name"
-            return
-        fi
-    fi
-    
-    # ユーザーに入力を求める
-    echo "" >&2
-    echo "" >&2
-    echo " Developer name required" >&2
-    echo "   This will be saved to .omnify-dev" >&2
-    echo "   Example: satoshi, tanaka, yamada" >&2
-    echo "" >&2
-    echo -n "   Enter your dev name: " >&2
-    read dev_name
-    
-    # 入力検証
-    if [ -z "$dev_name" ]; then
-        echo " Dev name cannot be empty" >&2
+    if [ ! -f "$config_file" ]; then
+        echo -e "${RED}ERROR: Developer name not configured${NC}" >&2
+        echo "" >&2
+        echo "  The file .omnify-dev is missing." >&2
+        echo "  Please run 'npm run setup' first to configure your developer name." >&2
+        echo "" >&2
         exit 1
     fi
     
-    # 小文字に変換してスペースを削除
-    dev_name=$(echo "$dev_name" | tr '[:upper:]' '[:lower:]' | tr -d ' ')
+    local saved_name=$(cat "$config_file" 2>/dev/null | tr -d '\n')
     
-    # ファイルに保存
-    echo "$dev_name" > "$config_file"
-    echo "    Saved to .omnify-dev" >&2
-    echo "" >&2
+    if [ -z "$saved_name" ]; then
+        echo -e "${RED}ERROR: Developer name is empty${NC}" >&2
+        echo "" >&2
+        echo "  The file .omnify-dev exists but is empty." >&2
+        echo "  Please run 'npm run setup' again to configure your developer name." >&2
+        echo "" >&2
+        exit 1
+    fi
     
-    echo "$dev_name"
+    # Validate alphanumeric only
+    if [[ ! "$saved_name" =~ ^[a-zA-Z0-9]+$ ]]; then
+        echo -e "${RED}ERROR: Invalid developer name in .omnify-dev${NC}" >&2
+        echo "" >&2
+        echo "  Current value: '$saved_name'" >&2
+        echo "  Developer name must contain only letters and numbers (a-z, A-Z, 0-9)." >&2
+        echo "  Please edit .omnify-dev or run 'npm run setup' again." >&2
+        echo "" >&2
+        exit 1
+    fi
+    
+    echo "$saved_name"
 }
 
 # =============================================================================
-# プロジェクト名を取得/保存する関数
+# Get project name (from .env or folder name, no prompting)
 # =============================================================================
 get_project_name() {
     local env_file=".env"
     
-    # .envファイルから取得を試みる
+    # Try to read from .env file
     if [ -f "$env_file" ]; then
         local saved_name=$(grep "^OMNIFY_PROJECT_NAME=" "$env_file" 2>/dev/null | cut -d'=' -f2 | tr -d '"' | tr -d "'")
         if [ -n "$saved_name" ]; then
@@ -71,30 +76,16 @@ get_project_name() {
         fi
     fi
     
-    # デフォルトはフォルダ名
-    local default_name=$(basename "$(pwd)")
+    # Use folder name as default (convert to lowercase, remove non-alphanumeric)
+    local project_name=$(basename "$(pwd)" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
     
-    # ユーザーに入力を求める
-    echo "" >&2
-    echo "" >&2
-    echo " Project name required" >&2
-    echo "   This will be saved to .env file." >&2
-    echo "   Press Enter to use default: $default_name" >&2
-    echo "" >&2
-    echo -n "   Enter project name [$default_name]: " >&2
-    read project_name
-    
-    # デフォルト値を使用
+    # Validate
     if [ -z "$project_name" ]; then
-        project_name="$default_name"
+        project_name="myproject"
     fi
     
-    # 小文字に変換してスペースを削除
-    project_name=$(echo "$project_name" | tr '[:upper:]' '[:lower:]' | tr -d ' ')
-    
-    # .envファイルに保存
+    # Save to .env file
     if [ -f "$env_file" ]; then
-        # OMNIFY_PROJECT_NAME行が存在する場合は更新、なければ追加
         if grep -q "^OMNIFY_PROJECT_NAME=" "$env_file"; then
             sed -i.bak "s/^OMNIFY_PROJECT_NAME=.*/OMNIFY_PROJECT_NAME=$project_name/" "$env_file"
             rm -f "$env_file.bak"
@@ -104,8 +95,6 @@ get_project_name() {
     else
         echo "OMNIFY_PROJECT_NAME=$project_name" > "$env_file"
     fi
-    echo "    Saved to .env" >&2
-    echo "" >&2
     
     echo "$project_name"
 }

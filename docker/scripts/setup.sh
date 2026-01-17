@@ -274,12 +274,16 @@ if [ ! -d "./backend" ]; then
         "$DOCKER_PHP_IMAGE" php artisan install:api --no-interaction 2>/dev/null || true
     echo "    Sanctum installed"
 
-    # Install Pest for testing via Docker
+    # Install Pest for testing via Docker (optional - may fail with newer PHP/Laravel)
     echo "   Installing Pest..."
-    docker run --rm -v "$(pwd)/backend:/app" -w /app \
+    if docker run --rm -v "$(pwd)/backend:/app" -w /app \
         "$DOCKER_COMPOSER_IMAGE" \
-        require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction
-    echo "    Pest installed"
+        require pestphp/pest pestphp/pest-plugin-laravel --dev --with-all-dependencies --no-interaction 2>/dev/null; then
+        print_success "Pest installed"
+    else
+        print_warning "Pest installation failed (PHP/Laravel version compatibility)"
+        echo "         You can install Pest manually later if needed"
+    fi
 
     # Install SSO Client package + dependencies via Docker
     echo "   Installing SSO Client..."

@@ -206,10 +206,19 @@ docker_php() {
 }
 
 # =============================================================================
-# Get developer name (for tunnel URLs)
+# Get developer name (for tunnel URLs) - skip in non-interactive mode
 # =============================================================================
-DEV_NAME=$(get_dev_name) || true
-DEV_NAME_STATUS=$?
+echo " Checking developer name configuration..."
+DEV_NAME=""
+if [ -t 0 ] && [ -t 1 ]; then
+    # Interactive mode - can prompt for input
+    DEV_NAME=$(get_dev_name) || true
+else
+    # Non-interactive mode - try to read from file only
+    if [ -f ".omnify-dev" ]; then
+        DEV_NAME=$(cat ".omnify-dev" 2>/dev/null | tr -d '\n')
+    fi
+fi
 
 if [ -n "$DEV_NAME" ]; then
     echo " Developer: ${DEV_NAME}"

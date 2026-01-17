@@ -191,13 +191,28 @@ Write-Host "   Composer: $DOCKER_COMPOSER_IMAGE"
 Write-Host ""
 
 # =============================================================================
-# Get developer name (for tunnel URLs)
+# Get developer name (for tunnel URLs) - skip in non-interactive mode
 # =============================================================================
+Write-Host " Checking developer name configuration..."
 $DEV_NAME = $null
-try {
-    $DEV_NAME = Get-DevName
-} catch {
-    # Skip if prompting fails
+
+# Check if we're in an interactive session
+$isInteractive = [Environment]::UserInteractive -and [Console]::KeyAvailable -ne $null
+
+if ($isInteractive) {
+    try {
+        $DEV_NAME = Get-DevName
+    } catch {
+        # Skip if prompting fails
+    }
+} else {
+    # Non-interactive mode - try to read from file only
+    if (Test-Path ".omnify-dev") {
+        $DEV_NAME = (Get-Content ".omnify-dev" -Raw -ErrorAction SilentlyContinue)
+        if ($DEV_NAME) {
+            $DEV_NAME = $DEV_NAME.Trim()
+        }
+    }
 }
 
 if ($DEV_NAME) {

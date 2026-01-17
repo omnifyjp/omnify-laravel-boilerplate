@@ -1,6 +1,6 @@
 ---
 description: "User-editable Eloquent models. MUST read corresponding BaseModel before editing to avoid duplicating auto-generated code."
-globs: ["app/Models/*.php", "packages/omnify-sso-client/src/Models/*.php"]
+globs: ["app/Models/*.php", "/Users/f.satoshi/dev/boilerplate/backend/vendor/omnifyjp/omnify-client-laravel-sso/src/Models/*.php"]
 alwaysApply: true
 ---
 

@@ -239,6 +239,15 @@ cp ./docker/stubs/docker-compose.yml.stub ./docker-compose.yml
 echo "    docker-compose.yml"
 
 # =============================================================================
+# Step 2b: CORS設定をコピー (supports *.console.omnify.jp for SSO)
+# =============================================================================
+if [ -f "./docker/stubs/cors.php.stub" ]; then
+    echo "  Updating CORS config..."
+    cp ./docker/stubs/cors.php.stub ./backend/config/cors.php
+    echo "    backend/config/cors.php"
+fi
+
+# =============================================================================
 # Step 3: Dockerサービスを起動
 # =============================================================================
 echo ""

@@ -19,7 +19,7 @@ alwaysApply: false
 ## Critical Rules
 
 1. **Use Ant Design** - Don't recreate existing components
-2. **Use Omnify types** - Import from `@/types/model`, don't duplicate
+2. **Use Omnify types** - Import from `@omnify/schemas`, don't duplicate
 3. **Use i18n** - Use `useTranslations()` for UI text
 4. **Service Layer** - API calls in `services/`, not components
 5. **TanStack Query** - For all server state, no `useState` + `useEffect`
@@ -61,7 +61,7 @@ const mutation = useMutation({
 
 ```typescript
 // ✅ Use Omnify-generated types
-import type { User, UserCreate } from "@/types/model";
+import type { User, UserCreate } from "@omnify/schemas";
 
 // ✅ Only define query params locally
 export interface UserListParams { ... }
@@ -95,44 +95,44 @@ if (status === "pending") { ... }
 ```typescript
 // ✅ Import Enum from generated file
 import { 
-  ApprovalStatus, 
-  ApprovalStatusValues,
-  isApprovalStatus,
-  getApprovalStatusLabel
-} from "@/omnify/enum/ApprovalStatus";
+  PostStatus, 
+  PostStatusValues,
+  isPostStatus,
+  getPostStatusLabel
+} from "@omnify/enum/PostStatus";
 
 // ✅ Type assertions with Enum
-newFilter.approval_status = status as ApprovalStatus;
+newFilter.approval_status = status as PostStatus;
 
 // ✅ State with Enum type
-const [status, setStatus] = useState<ApprovalStatus | "">(""); 
+const [status, setStatus] = useState<PostStatus | "">(""); 
 // OR with default value:
-const [status, setStatus] = useState<ApprovalStatus>(ApprovalStatus.Pending);
+const [status, setStatus] = useState<PostStatus>(PostStatus.Pending);
 
 // ✅ Enum comparisons
-if (status === ApprovalStatus.Pending) { ... }
+if (status === PostStatus.Pending) { ... }
 
 // ✅ Iterate with Values array
-const options = ApprovalStatusValues.map(value => ({
+const options = PostStatusValues.map(value => ({
   value,
-  label: getApprovalStatusLabel(value, locale)
+  label: getPostStatusLabel(value, locale)
 }));
 
 // ✅ Type guard for validation
-if (isApprovalStatus(unknownValue)) {
-  // unknownValue is ApprovalStatus here
+if (isPostStatus(unknownValue)) {
+  // unknownValue is PostStatus here
 }
 ```
 
 ### Generated Enum Files Structure
 
 ```
-@/omnify/enum/
-├── ApprovalStatus.ts
-│   ├── ApprovalStatus        (enum)
-│   ├── ApprovalStatusValues  (array of all values)
-│   ├── isApprovalStatus()    (type guard)
-│   └── getApprovalStatusLabel()  (i18n label)
+@omnify/enum/
+├── PostStatus.ts
+│   ├── PostStatus        (enum)
+│   ├── PostStatusValues  (array of all values)
+│   ├── isPostStatus()    (type guard)
+│   └── getPostStatusLabel()  (i18n label)
 ├── OrderStatus.ts
 └── ...
 ```
@@ -140,12 +140,12 @@ if (isApprovalStatus(unknownValue)) {
 ### Select/Filter Options Pattern
 
 ```typescript
-import { ApprovalStatus, ApprovalStatusValues, getApprovalStatusLabel } from "@/omnify/enum/ApprovalStatus";
+import { PostStatus, PostStatusValues, getPostStatusLabel } from "@omnify/enum/PostStatus";
 
 // ✅ Build options from Enum
-const statusOptions = ApprovalStatusValues.map(value => ({
+const statusOptions = PostStatusValues.map(value => ({
   value,
-  label: getApprovalStatusLabel(value, locale)
+  label: getPostStatusLabel(value, locale)
 }));
 
 <Select options={statusOptions} />

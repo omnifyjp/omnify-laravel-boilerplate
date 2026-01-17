@@ -19,12 +19,15 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [],
 
     'allowed_origins_patterns' => [
-        '#^https://.*\.dev\.omnify\.jp$#',  // *.dev.omnify.jp
-        '#^https://localhost(:\d+)?$#',      // localhost with any port
-        '#^http://localhost(:\d+)?$#',       // localhost HTTP
+        '#^https://.*\.omnify\.jp$#',         // *.omnify.jp (all subdomains)
+        '#^https://.*\.dev\.omnify\.jp$#',    // *.dev.omnify.jp
+        '#^https://.*\.console\.omnify\.jp$#', // *.console.omnify.jp (e.g. dev.console.omnify.jp)
+        '#^https://localhost(:\d+)?$#',        // localhost with any port
+        '#^http://localhost(:\d+)?$#',         // localhost HTTP
+        '#^http://127\.0\.0\.1(:\d+)?$#',      // 127.0.0.1 HTTP
     ],
 
     'allowed_headers' => ['*'],

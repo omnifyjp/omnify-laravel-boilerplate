@@ -36,10 +36,10 @@ const mutation = useMutation({
 
 ```typescript
 // ✅ CORRECT - Import generated Enum
-import { ApprovalStatus, ApprovalStatusValues } from "@/omnify/enum/ApprovalStatus";
+import { PostStatus, PostStatusValues } from "@omnify/enum/PostStatus";
 
 // ✅ Use Enum values
-if (status === ApprovalStatus.Pending) { ... }
+if (status === PostStatus.Pending) { ... }
 
 // ❌ WRONG - Inline union types
 newFilter.status = status as "pending" | "approved";

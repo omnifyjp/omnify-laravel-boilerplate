@@ -1,6 +1,6 @@
 ---
 description: "⛔ DO NOT EDIT - Auto-generated base models by Omnify. These files are overwritten on every generation."
-globs: ["app/Models/OmnifyBase/**/*.php", "packages/omnify-sso-client/src/Models/OmnifyBase/**/*.php"]
+globs: ["app/Models/OmnifyBase/**/*.php", "/Users/f.satoshi/dev/boilerplate/backend/vendor/omnifyjp/omnify-client-laravel-sso/src/Models/OmnifyBase/**/*.php"]
 alwaysApply: true
 ---
 

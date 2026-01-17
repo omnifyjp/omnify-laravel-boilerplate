@@ -75,7 +75,7 @@ php artisan l5-swagger:generate
  */
 
 import api, { PaginatedResponse } from "@/lib/api";
-import type { Resource, ResourceCreate, ResourceUpdate } from "@/types/model";
+import type { Resource, ResourceCreate, ResourceUpdate } from "@omnify/schemas";
 
 // =============================================================================
 // Types - Only query params (Create/Update come from Omnify)
@@ -140,7 +140,7 @@ export const resourceService = {
 
 ```typescript
 // ✅ Import model types from Omnify
-import type { User, UserCreate, UserUpdate } from "@/types/model";
+import type { User, UserCreate, UserUpdate } from "@omnify/schemas";
 
 // ✅ Define only query/filter params locally
 export interface UserListParams {

@@ -10,7 +10,7 @@
  */
 
 // Common Types
-export type { LocaleMap, Locale, ValidationRule, DateTimeString, DateString } from './common';
+export type { LocaleMap, Locale, ValidationRule, DateTimeString, DateString } from '@omnify-base/schemas/common';
 
 // i18n (Internationalization)
 export {
@@ -20,7 +20,7 @@ export {
   validationMessages,
   getMessage,
   getMessages,
-} from './i18n';
+} from '@omnify-base/schemas/i18n';
 
 // Plugin Enums
 export {
@@ -29,21 +29,21 @@ export {
   isBankAccountType,
   getBankAccountTypeLabel,
   getBankAccountTypeExtra,
-} from '@omnify-client/enum/BankAccountType';
+} from '@omnify-base/enum/BankAccountType';
 export {
   Prefecture,
   PrefectureValues,
   isPrefecture,
   getPrefectureLabel,
   getPrefectureExtra,
-} from '@omnify-client/enum/Prefecture';
+} from '@omnify-base/enum/Prefecture';
 export {
   PrefectureCode,
   PrefectureCodeValues,
   isPrefectureCode,
   getPrefectureCodeLabel,
   getPrefectureCodeExtra,
-} from '@omnify-client/enum/PrefectureCode';
+} from '@omnify-base/enum/PrefectureCode';
 
 // Models (with Zod schemas, i18n, and Create/Update types)
 export type { User, UserCreate, UserUpdate } from './User';

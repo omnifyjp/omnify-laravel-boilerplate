@@ -14,10 +14,6 @@
 
 $ErrorActionPreference = "Stop"
 
-# Docker image configuration
-$DOCKER_PHP_IMAGE = "php:8.4-cli"
-$DOCKER_COMPOSER_IMAGE = "composer:latest"
-
 # =============================================================================
 # Check required tools
 # =============================================================================
@@ -59,6 +55,14 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 Write-Host "    Docker $(docker -v | Select-String -Pattern '\d+\.\d+\.\d+' | ForEach-Object { $_.Matches.Value })" -ForegroundColor Green
+
+Write-Host ""
+Write-Host " Configuring Docker images for PHP/Composer..." -ForegroundColor Yellow
+$DOCKER_PHP_IMAGE = "php:8.4-cli"
+$DOCKER_COMPOSER_IMAGE = "composer:latest"
+Write-Host "   PHP:      $DOCKER_PHP_IMAGE" -ForegroundColor Gray
+Write-Host "   Composer: $DOCKER_COMPOSER_IMAGE" -ForegroundColor Gray
+Write-Host ""
 
 # Install/update packages (skip if already installed by pnpm or npm)
 if (-not (Test-Path "node_modules")) {
